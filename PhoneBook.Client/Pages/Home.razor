@@ -58,10 +58,19 @@ else if (!contacts.Any())
 }
 else
 {
-    @* View toggle *@
-    <div style="display:flex;justify-content:flex-end;padding:4px 16px;gap:4px">
-        <button class="icon-btn @(viewMode=="grid"?"active":"")" style="width:36px;height:36px" @onclick="SetGrid" title="Grid"><i class="bi bi-grid-3x3-gap-fill"></i></button>
-        <button class="icon-btn @(viewMode=="list"?"active":"")" style="width:36px;height:36px" @onclick="SetList" title="List"><i class="bi bi-list-ul"></i></button>
+    @* View toggle + Selected actions *@
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 16px;gap:4px;flex-wrap:wrap">
+        <div>
+        @if (selected.Any())
+        {
+            <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportSelectedWA"><i class="bi bi-whatsapp"></i> Eksport @selected.Count</button>
+            <button class="chip" style="color:var(--hmo-danger);margin-left:4px" @onclick="BulkDelete"><i class="bi bi-trash3"></i> @selected.Count</button>
+        }
+        </div>
+        <div style="display:flex;gap:4px">
+            <button class="icon-btn @(viewMode=="grid"?"active":"")" style="width:36px;height:36px" @onclick="SetGrid" title="Grid"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+            <button class="icon-btn @(viewMode=="list"?"active":"")" style="width:36px;height:36px" @onclick="SetList" title="List"><i class="bi bi-list-ul"></i></button>
+        </div>
     </div>
 
     @* Letter index *@
@@ -221,6 +230,25 @@ else
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); StateHasChanged(); }
+
+    void ExportSelectedWA()
+    {
+        if (contacts is null || !selected.Any()) return;
+        var list = contacts.Where(c => selected.Contains(c.Id)).OrderBy(c => c.Name).ToList();
+        var t = new System.Text.StringBuilder();
+        t.AppendLine($"SENARAI KENALAN ({list.Count})");
+        t.AppendLine(new string('-', 20));
+        foreach (var c in list)
+        {
+            var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
+            t.AppendLine($"{h}{c.Name}");
+            if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
+            if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
+            if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
+            t.AppendLine();
+        }
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+    }
 
     async Task BulkDelete()
     {
