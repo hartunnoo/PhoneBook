@@ -103,7 +103,8 @@ else
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+app.UseStaticFiles();  // Serve wwwroot (photos, js)
+app.MapStaticAssets();  // Blazor fingerprinted assets
 
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
