@@ -253,6 +253,8 @@ else
             if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
             t.AppendLine();
         }
+        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
+        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
