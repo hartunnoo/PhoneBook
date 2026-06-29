@@ -124,14 +124,17 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .contact-list-item:active{background:rgba(201,164,59,.06);transform:scale(.995)}
 .contact-list-item .contact-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .contact-list-item .contact-meta{font-size:.72rem;color:var(--hmo-text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.contact-list-item .contact-actions{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:auto}
+.contact-list-item .contact-actions{display:flex!important;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;z-index:10;position:relative;flex-wrap:wrap}
+.contact-actions .chip,.contact-actions .fav-star,.contact-actions .icon-btn{position:relative;z-index:11;visibility:visible!important;opacity:1!important}
+.contact-actions a,.contact-actions button{pointer-events:auto!important}
 
 /* ─── CHIPS ─── */
 .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:40px;font-size:.73rem;background:var(--hmo-surface);color:var(--hmo-text-2);text-decoration:none;border:1px solid transparent;transition:all var(--dur) var(--ease);white-space:nowrap;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.01em}
 .chip:hover{background:var(--hmo-white);border-color:var(--hmo-border-2);box-shadow:var(--hmo-shadow-sm)}
 .chip i{font-size:.88rem}
-.chip.wa{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#166534;border-color:rgba(34,197,94,.25);font-weight:600}
-.chip.wa:hover{background:#86efac;border-color:#22c55e;transform:scale(1.04)}
+.chip.wa{display:inline-flex!important;visibility:visible!important;opacity:1!important;background:#25d366;color:#fff;font-weight:600;border-color:rgba(255,255,255,.3);pointer-events:auto!important}
+.chip.wa:hover{background:#1ebe5d;transform:scale(1.04)}
+.chip.wa[style*="075e54"],.chip.wa[style*="075e54"]{background:#075e54!important;color:#fff!important}
 .chip.vcard{background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#3730a3;font-weight:600;border-color:rgba(99,102,241,.2)}
 .chip.vcard:hover{background:#a5b4fc;border-color:#6366f1;transform:scale(1.04)}
 
@@ -147,7 +150,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .fav-star.active{color:#f59e0b;filter:drop-shadow(0 0 4px rgba(245,158,11,.4))}
 
 /* ─── FAB ─── */
-.fab{position:fixed;bottom:80px;right:16px;z-index:90;width:52px;height:52px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;transition:all var(--dur)}
+.fab{position:fixed;bottom:100px;right:16px;z-index:50;width:52px;height:52px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;transition:all var(--dur)}
 .fab:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 24px rgba(99,102,241,.4)}
 
 /* ─── DIALOG ─── */
