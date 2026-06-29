@@ -90,4 +90,21 @@ public class ContactsController : ControllerBase
         _log.Information("Photo saved for contact {Id}: {Path}", id, photoPath);
         return Ok(new { photoPath });
     }
+
+    [HttpDelete("{id}/photo")]
+    public async Task<IActionResult> DeletePhoto(int id, CancellationToken ct)
+    {
+        var contact = await _service.GetByIdAsync(id, ct);
+        if (contact is null) return NotFound();
+
+        if (!string.IsNullOrWhiteSpace(contact.PhotoPath))
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", contact.PhotoPath.TrimStart('/'));
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+        }
+
+        await _service.UpdatePhotoAsync(id, null, ct);
+        _log.Information("Photo deleted for contact {Id}", id);
+        return NoContent();
+    }
 }

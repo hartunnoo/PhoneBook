@@ -24,7 +24,7 @@ public class ContactService
     public Task<bool> DeleteAsync(int id, CancellationToken ct = default)
         => _uow.Contacts.DeleteAsync(id, ct);
 
-    public async Task UpdatePhotoAsync(int id, string photoPath, CancellationToken ct = default)
+    public async Task UpdatePhotoAsync(int id, string? photoPath, CancellationToken ct = default)
     {
         var c = await _uow.Contacts.GetByIdAsync(id, ct);
         if (c is not null) { c.PhotoPath = photoPath; await _uow.Contacts.UpdateAsync(c, ct); }

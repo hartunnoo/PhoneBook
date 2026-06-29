@@ -19,7 +19,11 @@ else
             @if (!string.IsNullOrWhiteSpace(photoUrl)) { <img src="@photoUrl" alt="@c.Name" /> }
             else { <span>@c.Name[0]</span> }
         </div>
-        <label for="photo-upload" style="font-size:.75rem;color:var(--md-primary);cursor:pointer;margin-bottom:8px">Tukar gambar</label>
+        <div style="display:flex;gap:8px;justify-content:center">
+            <label for="photo-upload" style="font-size:.75rem;color:var(--md-primary);cursor:pointer;padding:4px 12px;border:1px solid var(--md-primary);border-radius:50px">📷 Tukar</label>
+            @if (!string.IsNullOrWhiteSpace(photoUrl))
+            { <button class="text-btn" style="font-size:.75rem;color:var(--md-error);padding:4px 12px" @onclick="DeletePhoto"><i class="bi bi-trash3"></i> Buang</button> }
+        </div>
         <input type="file" id="photo-upload" accept="image/*" style="display:none" @onchange="OnPhotoSelected" />
         <h2 style="font-size:1.5rem;font-weight:400;margin:0">@c.Name</h2>
         <p style="font-size:.8125rem;color:var(--md-on-surface-variant);margin:4px 0 0">
@@ -189,6 +193,17 @@ else
         }
         catch { ShowToast("❌ Ralat sambungan", true); }
         finally { saving = false; }
+    }
+
+    async Task DeletePhoto()
+    {
+        try
+        {
+            var resp = await Http.DeleteAsync($"{ApiUrl}/{Id}/photo");
+            if (resp.IsSuccessStatusCode) { photoUrl = null; if (c is not null) c.PhotoPath = null; ShowToast("✅ Gambar dipadam", false); }
+            else ShowToast("❌ Gagal memadam gambar", true);
+        }
+        catch { ShowToast("❌ Ralat", true); }
     }
 
     void ShowToast(string msg, bool isError) { toast = new ToastInfo { Message = msg, IsError = isError }; StateHasChanged(); _ = DismissAfterDelay(); }
