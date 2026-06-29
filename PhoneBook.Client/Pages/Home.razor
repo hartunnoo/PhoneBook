@@ -15,14 +15,14 @@
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
 
-@* ── STATS DASHBOARD ── *@
-@if (stats is not null)
+@* ── HERO SUMMARY ── *@
+@if (stats is not null && contacts is not null && contacts.Any())
 {
-    <div class="stats-dash">
-        <div class="stat-mini"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
-        <div class="stat-mini"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
+    <div class="hero-summary">
+        <div class="hero-stat"><div class="stat-icon"><i class="bi bi-people-fill"></i></div><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah Kenalan</div></div>
+        <div class="hero-stat"><div class="stat-icon">⭐</div><div class="stat-num">@stats.Favorites</div><div class="stat-label">Favorit</div></div>
         @foreach (var m in stats.Ministries.Take(3))
-        { <div class="stat-mini"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        { <div class="hero-stat"><div class="stat-icon">🏛️</div><div class="stat-num" style="font-size:1.4rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
     </div>
 }
 
