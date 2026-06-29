@@ -11,7 +11,7 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <button class="chip wa" style="background:#25d366;color:#fff;font-weight:600" @onclick="ExportFirstToWA"><i class="bi bi-whatsapp"></i> Eksport WA</button>
+    <a href="@GetFirstShareUrl()" target="_blank" class="chip wa" style="background:#25d366;color:#fff;font-weight:600;text-decoration:none"><i class="bi bi-whatsapp"></i> Eksport WA</a>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
@@ -287,14 +287,6 @@ else
             if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"PA Mobile: {c.PAMobile}");
         }
         return sb.ToString().TrimEnd();
-    }
-
-    void ExportFirstToWA()
-    {
-        if (contacts is not null && contacts.Any())
-            ShareToWA(contacts.OrderBy(c => c.Name).First());
-        else
-            ShowToast("⏳ Kenalan sedang dimuatkan...", true);
     }
 
     string GetFirstShareUrl()

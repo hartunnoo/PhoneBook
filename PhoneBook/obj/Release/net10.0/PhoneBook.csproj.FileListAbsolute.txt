@@ -1,3 +1,5 @@
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/EmbeddedAttribute.cs
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ValidatableTypeAttribute.cs
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.runtimeconfig.json
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.staticwebassets.runtime.json
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.staticwebassets.endpoints.json
@@ -152,8 +154,6 @@
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.pdb
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/EmbeddedAttribute.cs
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ValidatableTypeAttribute.cs
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.csproj.AssemblyReference.cache
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rpswa.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.GeneratedMSBuildEditorConfig.editorconfig
