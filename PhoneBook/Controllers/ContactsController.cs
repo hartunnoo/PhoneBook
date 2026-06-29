@@ -95,6 +95,7 @@ public class ContactsController : ControllerBase
         await _service.UpdatePhotoAsync(id, photoPath, ct);
 
         _log.Information("Photo saved for contact {Id}: {Path}", id, photoPath);
+        await _service.LogAuditAsync(id, "Foto profil dikemaskini");
         return Ok(new { photoPath });
     }
 
@@ -149,6 +150,13 @@ public class ContactsController : ControllerBase
         }
         _log.Information("CSV import: {Count} contacts", count);
         return Ok(new { count });
+    }
+
+    [HttpGet("{id}/audit")]
+    public async Task<IActionResult> GetAuditLogs(int id, CancellationToken ct)
+    {
+        var logs = await _service.GetAuditLogsAsync(id, ct);
+        return Ok(logs.Select(l => new { l.Action, l.Detail, l.ByUser, Timestamp = l.Timestamp.ToString("o") }));
     }
 
     [HttpDelete("{id}/photo")]

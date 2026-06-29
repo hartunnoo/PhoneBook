@@ -22,7 +22,7 @@ else
         <div style="display:flex;gap:8px;justify-content:center">
             <label for="photo-upload" class="chip" style="cursor:pointer"><i class="bi bi-camera"></i> Tukar</label>
             @if (!string.IsNullOrWhiteSpace(photoUrl))
-            { <button class="chip" style="color:var(--md-error);cursor:pointer" @onclick="DeletePhoto"><i class="bi bi-trash3"></i> Buang</button> }
+            { <button class="chip" style="color:var(--md-error);cursor:pointer" @onclick="ShowDeletePhotoConfirm"><i class="bi bi-trash3"></i> Buang</button> }
         </div>
         <input type="file" id="photo-upload" accept="image/*" style="display:none" @onchange="OnPhotoSelected" />
         <h2 style="font-size:1.5rem;font-weight:400;margin:0">@c.Name</h2>
@@ -107,8 +107,38 @@ else
     </EditForm>
 
     @* ── DELETE ── *@
+    @* ── AUDIT HISTORY ── *@
+    @if (auditLogs is not null && auditLogs.Any())
+    {
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-clock-history"></i> Sejarah Tindakan</div>
+            @foreach (var log in auditLogs)
+            {
+                <div style="display:flex;gap:10px;padding:6px 16px;font-size:.75rem;border-bottom:1px solid var(--md-outline-variant)">
+                    <span style="color:var(--md-on-surface-variant);white-space:nowrap">@log.Timestamp</span>
+                    <span>@log.Action @log.Detail</span>
+                </div>
+            }
+        </div>
+    }
+
     <div style="padding:8px 16px 24px;text-align:center">
         <button class="text-btn" style="color:var(--md-error)" @onclick="ConfirmDelete"><i class="bi bi-trash3"></i> Padam kenalan</button>
+    </div>
+}
+
+@* ── DELETE PHOTO DIALOG ── *@
+@if (showPhotoDialog)
+{
+    <div class="scrim" @onclick="()=>showPhotoDialog=false">
+        <div class="dialog" @onclick:stopPropagation>
+            <h3>Buang gambar?</h3>
+            <p>Gambar profil akan dipadamkan.</p>
+            <div class="dialog-actions">
+                <button class="text-btn" @onclick="()=>showPhotoDialog=false">Batal</button>
+                <button class="filled-btn" style="background:var(--md-error)" @onclick="DeletePhoto">Buang</button>
+            </div>
+        </div>
     </div>
 }
 
@@ -142,8 +172,8 @@ else
 
 @code {
     [Parameter] public int Id { get; set; }
-    ContactForm? c; bool saving; bool notFound; bool uploading; string? uploadError; string? photoUrl; bool showDelete;
-    ToastInfo? toast;
+    ContactForm? c; bool saving; bool notFound; bool uploading; string? uploadError; string? photoUrl; bool showDelete; bool showPhotoDialog;
+    ToastInfo? toast; List<AuditEntry>? auditLogs;
     const string ApiUrl = "api/contacts";
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
@@ -151,8 +181,18 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender || c is not null || notFound) return;
-        try { c = await Http.GetFromJsonAsync<ContactForm>($"{ApiUrl}/{Id}"); if (c is not null) photoUrl = c.PhotoPath; else notFound = true; StateHasChanged(); }
+        try { c = await Http.GetFromJsonAsync<ContactForm>($"{ApiUrl}/{Id}"); if (c is not null) { photoUrl = c.PhotoPath; _ = LoadAuditLogs(); } else notFound = true; StateHasChanged(); }
         catch { notFound = true; StateHasChanged(); }
+    }
+
+    async Task LoadAuditLogs() { try { auditLogs = await Http.GetFromJsonAsync<List<AuditEntry>>($"{ApiUrl}/{Id}/audit"); StateHasChanged(); } catch { } }
+
+    void ShowDeletePhotoConfirm() => showPhotoDialog = true;
+    async Task DeletePhoto()
+    {
+        showPhotoDialog = false;
+        try { var r = await Http.DeleteAsync($"{ApiUrl}/{Id}/photo"); if (r.IsSuccessStatusCode) { photoUrl = null; if (c is not null) c.PhotoPath = null; ShowToast("✅ Gambar dipadam", false); await LoadAuditLogs(); } else ShowToast("❌ Gagal", true); }
+        catch { ShowToast("❌ Ralat", true); }
     }
 
     async Task OnPhotoSelected(ChangeEventArgs e)
@@ -195,17 +235,6 @@ else
         finally { saving = false; }
     }
 
-    async Task DeletePhoto()
-    {
-        try
-        {
-            var resp = await Http.DeleteAsync($"{ApiUrl}/{Id}/photo");
-            if (resp.IsSuccessStatusCode) { photoUrl = null; if (c is not null) c.PhotoPath = null; ShowToast("✅ Gambar dipadam", false); }
-            else ShowToast("❌ Gagal memadam gambar", true);
-        }
-        catch { ShowToast("❌ Ralat", true); }
-    }
-
     void ShowToast(string msg, bool isError) { toast = new ToastInfo { Message = msg, IsError = isError }; StateHasChanged(); _ = DismissAfterDelay(); }
     async Task DismissAfterDelay() { await Task.Delay(3000); toast = null; StateHasChanged(); }
     void DismissToast() { toast = null; StateHasChanged(); }
@@ -215,6 +244,7 @@ else
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
 
     record PhotoResult(string PhotoPath);
+    class AuditEntry { public string Action { get; set; } = ""; public string? Detail { get; set; } public string? ByUser { get; set; } public string Timestamp { get; set; } = ""; }
 
     class ContactForm
     {

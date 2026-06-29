@@ -1,13 +1,16 @@
+using Microsoft.EntityFrameworkCore;
 using PhoneBook.Application.DTOs;
 using PhoneBook.Domain.Entities;
 using PhoneBook.Domain.Interfaces;
+using PhoneBook.Infrastructure.Data;
 
 namespace PhoneBook.Application.Services;
 
 public class ContactService
 {
     private readonly IUnitOfWork _uow;
-    public ContactService(IUnitOfWork uow) => _uow = uow;
+    private readonly PhoneBookDbContext _db;
+    public ContactService(IUnitOfWork uow, PhoneBookDbContext db) { _uow = uow; _db = db; }
 
     public async Task<List<ContactResponseDto>> GetAllAsync(string? search = null, CancellationToken ct = default)
         => (await _uow.Contacts.GetAllAsync(search, ct)).Select(Map).ToList();
@@ -65,4 +68,13 @@ public class ContactService
         PhotoPath = c.PhotoPath, CreatedBy = c.CreatedBy,
         CreatedAt = c.CreatedAt, UpdatedAt = c.UpdatedAt
     };
+
+    public async Task<List<AuditLog>> GetAuditLogsAsync(int contactId, CancellationToken ct = default)
+        => await _db.AuditLogs.Where(a => a.ContactId == contactId).OrderByDescending(a => a.Timestamp).Take(10).ToListAsync(ct);
+
+    public async Task LogAuditAsync(int contactId, string action, string? detail = null, string? user = null, CancellationToken ct = default)
+    {
+        _db.AuditLogs.Add(new AuditLog { ContactId = contactId, Action = action, Detail = detail, ByUser = user, Timestamp = DateTime.UtcNow });
+        await _db.SaveChangesAsync(ct);
+    }
 }

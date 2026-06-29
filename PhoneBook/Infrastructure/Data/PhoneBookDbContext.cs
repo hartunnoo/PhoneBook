@@ -10,6 +10,7 @@ public class PhoneBookDbContext : IdentityDbContext<IdentityUser>
     public PhoneBookDbContext(DbContextOptions<PhoneBookDbContext> options) : base(options) { }
 
     public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
