@@ -28,9 +28,9 @@ public class ContactsController : ControllerBase
         // Sort
         all = sort switch
         {
-            "name" => all.OrderBy(c => c.Name).ToList(),
-            "date" => all.OrderByDescending(c => c.CreatedAt).ToList(),
-            "dept" => all.OrderBy(c => c.Department).ThenBy(c => c.Name).ToList(),
+            AppConstants.SortByName => all.OrderBy(c => c.Name).ToList(),
+            AppConstants.SortByDate => all.OrderByDescending(c => c.CreatedAt).ToList(),
+            AppConstants.SortByDept => all.OrderBy(c => c.Department).ThenBy(c => c.Name).ToList(),
             _ => all.OrderByDescending(c => c.IsFavorite).ThenBy(c => c.Name).ToList()
         };
         return all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -58,7 +58,7 @@ public class ContactsController : ControllerBase
         sb.AppendLine("Name,Mobile,Phone,Email,Jawatan,Kementerian,Department,Bahagian,Company,Tags");
         foreach (var c in all.OrderBy(c => c.Name))
             sb.AppendLine($"\"{c.Name}\",{c.Mobile1},{c.Phone1},{c.Email1},{c.Jawatan},{c.Kementerian},{c.Department},{c.Bahagian},{c.Company},{c.Tags}");
-        return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "kenalan.csv");
+        return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), AppConstants.ContentCsv, AppConstants.CsvFileName);
     }
 
     [HttpPost("bulk-delete")]
@@ -126,12 +126,12 @@ public class ContactsController : ControllerBase
         // Delete old photo
         if (!string.IsNullOrWhiteSpace(contact.PhotoPath))
         {
-            var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", contact.PhotoPath.TrimStart('/'));
+            var oldPath = Path.Combine(Directory.GetCurrentDirectory(), AppConstants.WwwRoot, contact.PhotoPath.TrimStart('/'));
             if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
         }
 
         // Ensure directory
-        var dir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "photos");
+        var dir = Path.Combine(Directory.GetCurrentDirectory(), AppConstants.WwwRoot, AppConstants.PhotosDir);
         Directory.CreateDirectory(dir);
 
         // Resize + save with ImageSharp
@@ -168,7 +168,7 @@ public class ContactsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(c.Email1)) vcard.AppendLine($"EMAIL:{c.Email1}");
         if (!string.IsNullOrWhiteSpace(c.PhotoPath)) vcard.AppendLine($"PHOTO;VALUE=URI:{Request.Scheme}://{Request.Host}{c.PhotoPath}");
         vcard.AppendLine("END:VCARD");
-        return File(System.Text.Encoding.UTF8.GetBytes(vcard.ToString()), "text/vcard", $"{c.Name}.vcf");
+        return File(System.Text.Encoding.UTF8.GetBytes(vcard.ToString()), AppConstants.ContentVCard, $"{c.Name}.vcf");
     }
 
     [HttpPut("{id}/favorite")]
@@ -211,7 +211,7 @@ public class ContactsController : ControllerBase
     public async Task<IActionResult> GetAuditLogs(int id, CancellationToken ct)
     {
         var logs = await _service.GetAuditLogsAsync(id, ct);
-        return Ok(logs.Select(l => new { l.Action, l.Detail, l.ByUser, Timestamp = l.Timestamp.ToString("o") }));
+        return Ok(logs.Select(l => new { l.Action, l.Detail, l.ByUser, Timestamp = l.Timestamp.ToString(DateTimeFormat.RoundTrip) }));
     }
 
     [HttpDelete("{id}/photo")]
@@ -222,7 +222,7 @@ public class ContactsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(contact.PhotoPath))
         {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", contact.PhotoPath.TrimStart('/'));
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), AppConstants.WwwRoot, contact.PhotoPath.TrimStart('/'));
             if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
         }
 
