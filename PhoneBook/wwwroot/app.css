@@ -195,6 +195,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .tag-pill{display:inline-block;padding:1px 8px;border-radius:40px;font-size:.65rem;font-weight:600;background:var(--hmo-gold-glass);color:var(--hmo-gold);margin:1px 2px;transition:all var(--dur);letter-spacing:.02em}
 .tag-pill:hover{background:var(--hmo-gold-soft);transform:scale(1.05)}
 
+/* ─── MENU SHEET ─── */
+.menu-sheet{position:fixed;bottom:0;left:0;right:0;z-index:1501;background:var(--hmo-white);border-radius:20px 20px 0 0;padding:4px 0 8px;box-shadow:var(--hmo-shadow-xl);animation:slideUp .3s var(--ease)}
+.menu-sheet-handle{width:36px;height:5px;background:var(--hmo-border-2);border-radius:10px;margin:8px auto 4px}
+.menu-scrim{position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.35);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);animation:fadeIn .2s var(--ease)}
+.menu-item{padding:14px 24px;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:14px;color:var(--hmo-text);border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:background var(--dur);-webkit-tap-highlight-color:transparent}
+.menu-item:hover,.menu-item:active{background:var(--hmo-surface)}
+.menu-item .menu-icon{font-size:1.2rem;width:24px;text-align:center}
+.menu-item.danger{color:var(--hmo-danger)}
+.menu-divider{border-top:1px solid var(--hmo-border);margin:8px 0}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}}
+
 /* ─── TOAST ─── */
 .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3000;animation:toastIn .3s var(--ease)}
 .toast{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:40px;box-shadow:var(--hmo-shadow-md);font-size:.85rem;font-weight:500;white-space:nowrap}

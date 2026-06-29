@@ -10,29 +10,32 @@
             @if (isLoggedIn)
             {
                 <div class="avatar-menu">
-                    <button class="avatar sm acavColor" @onclick="ToggleMenu">@initial</button>
+                    <button class="avatar sm ac@avColor" @onclick="ToggleMenu" style="width:40px;height:40px;font-size:.9rem;border:2px solid rgba(201,164,59,.3)">@initial</button>
                     @if (showMenu)
                     {
-                        <div class="menu-scrim" @onclick="() => showMenu = false"></div>
+                        <div class="menu-scrim" @onclick="CloseMenu"></div>
                         <div class="menu-sheet">
-                            <div style="padding:8px 24px 16px">
-                                <div style="display:flex;align-items:center;gap:12px">
-                                    <div class="avatar lg acavColor">@initial</div>
-                                    <div>
-                                        <div style="font-weight:500">@username</div>
-                                        <div style="font-size:.75rem;color:var(--md-on-surface-variant)">Akaun peribadi</div>
-                                    </div>
+                            <div class="menu-sheet-handle"></div>
+                            <div style="padding:12px 24px 16px;display:flex;align-items:center;gap:14px">
+                                <div class="avatar lg ac@avColor" style="width:52px;height:52px">@initial</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:1rem">@username</div>
+                                    <div style="font-size:.75rem;color:var(--hmo-text-3)">🔒 Akaun Peribadi</div>
                                 </div>
                             </div>
                             <div class="menu-divider"></div>
-                            <div class="menu-item" @onclick="Logout"><span class="menu-icon">🚪</span> Log keluar</div>
+                            <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">📋</span> Kenalan</button>
+                            <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">⭐</span> Favorit</button>
+                            <div class="menu-divider"></div>
+                            <button class="menu-item danger" @onclick="DoLogout"><span class="menu-icon">🚪</span> Log Keluar</button>
+                            <div style="height:env(safe-area-inset-bottom,16px)"></div>
                         </div>
                     }
                 </div>
             }
             else
             {
-                <a href="/login" class="filled-btn" style="font-size:.8125rem;padding:8px 20px">Log masuk</a>
+                <a href="/login" class="filled-btn" style="font-size:.82rem;padding:8px 22px"><i class="bi bi-box-arrow-in-right"></i> Log Masuk</a>
             }
         </div>
     </div>
@@ -40,15 +43,16 @@
 
 @Body
 
-<footer style="text-align:center;padding:16px 16px 32px;color:var(--md-on-surface-variant);font-size:.7rem;margin-top:24px">
+<footer style="text-align:center;padding:16px 16px 32px;color:var(--hmo-text-3);font-size:.68rem;margin-top:24px">
     Designed &amp; Built by <strong>SSCU</strong>, ITD, Istana Nurul Iman
 </footer>
 
 @if (isLoggedIn)
 {
     <nav class="bottom-nav">
-        <a href="/" class="bottom-nav-item active"><i class="bi bi-people-fill nav-icon"></i> Kenalan</a>
+        <a href="/" class="bottom-nav-item"><i class="bi bi-people-fill nav-icon"></i> Kenalan</a>
         <a href="/add" class="bottom-nav-item"><i class="bi bi-person-plus nav-icon"></i> Tambah</a>
+        <button class="bottom-nav-item" @onclick="DoLogout" style="border:none;background:none;font-family:inherit;cursor:pointer"><i class="bi bi-box-arrow-right nav-icon"></i> Log Keluar</button>
     </nav>
 }
 
@@ -73,6 +77,7 @@
     }
 
     void ToggleMenu() { showMenu = !showMenu; StateHasChanged(); }
-    async Task Logout() { await Http.PostAsync("api/auth/logout", null); Nav.NavigateTo("/login", forceLoad: true); }
+    void CloseMenu() { showMenu = false; StateHasChanged(); }
+    async Task DoLogout() { showMenu = false; StateHasChanged(); await Http.PostAsync("api/auth/logout", null); Nav.NavigateTo("/login", forceLoad: true); }
     record AuthStatus(bool IsAuthenticated, string? Name);
 }
