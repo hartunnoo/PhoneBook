@@ -43,6 +43,7 @@ public class ContactsController : ControllerBase
     public async Task<ActionResult<ContactResponseDto>> Create(CreateContactDto dto, CancellationToken ct)
     {
         var result = await _service.CreateAsync(dto, ct);
+        await _service.LogAuditAsync(result.Id, "Kenalan dicipta", user: User.Identity?.Name, ct: ct);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
     }
 
@@ -50,6 +51,7 @@ public class ContactsController : ControllerBase
     public async Task<IActionResult> Update(int id, UpdateContactDto dto, CancellationToken ct)
     {
         var result = await _service.UpdateAsync(id, dto, ct);
+        if (result is not null) await _service.LogAuditAsync(id, "Kenalan dikemaskini", user: User.Identity?.Name, ct: ct);
         return result is null ? NotFound() : Ok(result);
     }
 
