@@ -10,14 +10,14 @@
             @if (isLoggedIn)
             {
                 <div class="avatar-menu">
-                    <button class="avatar sm ac-@avColor" @onclick="ToggleMenu">@initial</button>
+                    <button class="avatar sm acavColor" @onclick="ToggleMenu">@initial</button>
                     @if (showMenu)
                     {
                         <div class="menu-scrim" @onclick="() => showMenu = false"></div>
                         <div class="menu-sheet">
                             <div style="padding:8px 24px 16px">
                                 <div style="display:flex;align-items:center;gap:12px">
-                                    <div class="avatar lg ac-@avColor">@initial</div>
+                                    <div class="avatar lg acavColor">@initial</div>
                                     <div>
                                         <div style="font-weight:500">@username</div>
                                         <div style="font-size:.75rem;color:var(--md-on-surface-variant)">Akaun peribadi</div>
