@@ -1063,10 +1063,10 @@
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/refint/PhoneBook.Client.dll
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.pdb
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/ref/PhoneBook.Client.dll
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.8y7ue9d81a.pdb
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.jx97kjjfyk.wasm
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.8y7ue9d81a.pdb.gz
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.jx97kjjfyk.wasm.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/hy34aac0nq-{0}-jx97kjjfyk-jx97kjjfyk.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/4exocg3yu8-{0}-8y7ue9d81a-8y7ue9d81a.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/n8m06xk2i8-{0}-riz0d59op8-riz0d59op8.gz
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.535wscpso4.pdb
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.bngmqngi5q.wasm
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.535wscpso4.pdb.gz
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.bngmqngi5q.wasm.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/hy34aac0nq-{0}-bngmqngi5q-bngmqngi5q.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/4exocg3yu8-{0}-535wscpso4-535wscpso4.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/n8m06xk2i8-{0}-rzxmr7rr1n-rzxmr7rr1n.gz
