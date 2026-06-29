@@ -106,8 +106,8 @@ else
                     </div>
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
-                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
-                        <button class="chip wa" style="cursor:pointer;font-weight:600" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Hantar detail ke WhatsApp"><i class="bi bi-share"></i> Detail</button>
+                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> Chat WA</a>}
+                        <a href="@GetShareUrl(c)" target="_blank" class="chip wa" @onclick:stopPropagation title="Hantar detail ke WhatsApp" style="background:#075e54;color:#fff"><i class="bi bi-share-fill"></i> Detail</a>
                         <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i> vCard</a>
                         <button class="icon-btn danger" style="width:30px;height:30px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
@@ -323,11 +323,15 @@ else
         return sb.ToString().TrimEnd();
     }
 
-    void ShareToWA(ContactDto c)
+    string GetShareUrl(ContactDto c)
     {
         var text = BuildContactText(c);
-        var url = "https://wa.me/?text=" + Uri.EscapeDataString(text);
-        Nav.NavigateTo(url, forceLoad: false);
+        return "https://wa.me/?text=" + Uri.EscapeDataString(text);
+    }
+
+    void ShareToWA(ContactDto c)
+    {
+        Nav.NavigateTo(GetShareUrl(c), forceLoad: false);
     }
     void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
