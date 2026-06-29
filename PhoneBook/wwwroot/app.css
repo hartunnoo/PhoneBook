@@ -231,9 +231,9 @@ body{
 
 /* ─── CHIPS ─── */
 .chip{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:6px 14px;border-radius:var(--shape-full);
-    font-size:.8rem;background:var(--md-surface-container-high);
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 10px;border-radius:var(--shape-full);
+    font-size:.72rem;background:var(--md-surface-container-high);
     color:var(--md-on-surface-variant);
     text-decoration:none;border:none;
     transition:all var(--dur) var(--ease);
@@ -435,10 +435,8 @@ body{
     .search-bar{margin:8px;padding:8px 14px}
     .contact-list-item{padding:10px 8px;gap:10px}
     .contact-list-item .action-row{gap:8px;flex-wrap:wrap}
-    .chip{padding:8px 14px;font-size:.82rem;font-weight:600;min-height:38px}
-    .chip i{font-size:1.1rem}
-    .chip.wa{background:#25d366!important;color:#fff!important}
-    .chip.vcard{background:var(--md-primary)!important;color:#fff!important}
+    .chip{padding:4px 10px;font-size:.74rem;font-weight:500}
+    .chip i{font-size:.9rem}
     .icon-btn{width:40px;height:40px}
     .fav-star{font-size:1.3rem}
     .badge{font-size:.75rem!important;padding:4px 10px!important}
