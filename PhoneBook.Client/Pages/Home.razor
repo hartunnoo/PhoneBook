@@ -85,6 +85,16 @@ else
 @if (contacts is not null)
 { <button class="fab" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i></button> }
 
+@* TOAST *@
+@if (toast is not null)
+{
+    <div class="toast-container"><div class="toast @(toast.IsError?"toast-error":"toast-success")">
+        <i class="bi @(toast.IsError?"bi-exclamation-triangle-fill":"bi-check-circle-fill")"></i>
+        <span>@toast.Message</span>
+        <button class="toast-close" @onclick="()=>toast=null"><i class="bi bi-x"></i></button>
+    </div></div>
+}
+
 @* Delete Dialog *@
 @if (deleteTarget is not null)
 {
@@ -101,7 +111,11 @@ else
 }
 
 @code {
-    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; ContactDto? deleteTarget; Timer? debounce;
+    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
+
+    class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
+    void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
+    async Task DismissToast() { await Task.Delay(3000); toast = null; StateHasChanged(); }
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
@@ -120,7 +134,7 @@ else
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
     void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
-    async Task DoDelete() { if (deleteTarget is null) return; await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); deleteTarget = null; await Load(); }
+    async Task DoDelete() { if (deleteTarget is null) return; try { await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); ShowToast("✅ " + deleteTarget.Name + " dipadam", false); } catch { ShowToast("❌ Gagal memadam", true); } deleteTarget = null; await Load(); }
 
     class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
 }
