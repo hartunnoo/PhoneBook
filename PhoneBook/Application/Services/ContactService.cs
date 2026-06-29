@@ -30,6 +30,12 @@ public class ContactService
         if (c is not null) { c.PhotoPath = photoPath; await _uow.Contacts.UpdateAsync(c, ct); }
     }
 
+    public async Task UpdateFavoriteAsync(int id, bool isFavorite, CancellationToken ct = default)
+    {
+        var c = await _uow.Contacts.GetByIdAsync(id, ct);
+        if (c is not null) { c.IsFavorite = isFavorite; await _uow.Contacts.UpdateAsync(c, ct); }
+    }
+
     static Contact MapToEntity(CreateContactDto d, Contact c)
     {
         c.Name = d.Name; c.Honorific = d.Honorific;
@@ -40,6 +46,7 @@ public class ContactService
         c.Mobile1 = d.Mobile1; c.Mobile2 = d.Mobile2; c.Mobile3 = d.Mobile3; c.Mobile4 = d.Mobile4;
         c.Phone1 = d.Phone1; c.Phone2 = d.Phone2; c.Phone3 = d.Phone3; c.Phone4 = d.Phone4;
         c.Email1 = d.Email1; c.Email2 = d.Email2; c.Email3 = d.Email3;
+        c.Tags = d.Tags; c.IsFavorite = d.IsFavorite;
         c.Notes = d.Notes; c.UpdatedAt = DateTime.UtcNow;
         return c;
     }
@@ -54,7 +61,8 @@ public class ContactService
         Mobile1 = c.Mobile1, Mobile2 = c.Mobile2, Mobile3 = c.Mobile3, Mobile4 = c.Mobile4,
         Phone1 = c.Phone1, Phone2 = c.Phone2, Phone3 = c.Phone3, Phone4 = c.Phone4,
         Email1 = c.Email1, Email2 = c.Email2, Email3 = c.Email3,
-        Notes = c.Notes, PhotoPath = c.PhotoPath,
-        CreatedBy = c.CreatedBy, CreatedAt = c.CreatedAt, UpdatedAt = c.UpdatedAt
+        Tags = c.Tags, IsFavorite = c.IsFavorite, Notes = c.Notes,
+        PhotoPath = c.PhotoPath, CreatedBy = c.CreatedBy,
+        CreatedAt = c.CreatedAt, UpdatedAt = c.UpdatedAt
     };
 }

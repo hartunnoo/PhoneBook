@@ -3,6 +3,7 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
@@ -10,7 +11,34 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
+    <button class="icon-btn ms-1" @onclick="ToggleDarkMode" title="Dark mode" style="width:32px;height:32px"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
+    <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
+
+@* ── STATS DASHBOARD ── *@
+@if (stats is not null)
+{
+    <div class="stats-dash">
+        <div class="stat-mini"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
+        <div class="stat-mini"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
+        @foreach (var m in stats.Ministries.Take(3))
+        { <div class="stat-mini"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+    </div>
+}
+
+@* ── CSV IMPORT ── *@
+@if (showCsvImport)
+{
+    <div class="scrim" @onclick="()=>showCsvImport=false">
+        <div class="dialog" @onclick:stopPropagation>
+            <h3>📥 Import CSV</h3>
+            <p>Format: Name, Mobile, Email, Jawatan, Kementerian</p>
+            <input type="file" accept=".csv" @onchange="OnCsvSelected" />
+            @if (csvBusy) { <div class="spinner mt-2"></div> }
+            @if (!string.IsNullOrEmpty(csvMsg)) { <div class="mt-2" style="font-size:.8rem;color:var(--md-primary)">@csvMsg</div> }
+        </div>
+    </div>
+}
 
 @if (contacts is null)
 { <div class="loading-state"><div class="spinner"></div><p>Memuat...</p></div> }
@@ -39,7 +67,9 @@ else
             @foreach (var c in contacts.OrderBy(c => c.Name))
             {
                 var letter = char.ToUpper(c.Name[0]);
-                if (letter != lastLetter)
+                if (letter != lastLetter && c.IsFavorite)
+                { <div class="alpha-header">⭐ Favorit</div> lastLetter = letter = '★'; }
+                else if (letter != lastLetter && !c.IsFavorite)
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-list-item" @onclick="() => Edit(c.Id)">
@@ -62,9 +92,12 @@ else
                         { <div style="font-size:.7rem;color:var(--md-on-surface-muted)">👔 PA: @c.PAName@(c.PAMobile is not null?$" · {c.PAMobile}":"")</div> }
                     </div>
                     <div class="d-flex flex-column align-items-end gap-1">
-                        <div class="d-flex gap-1">
-                            @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
-                            <button class="chip wa" style="cursor:pointer" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Eksport ke WhatsApp"><i class="bi bi-share"></i> Eksport</button>
+                        <div class="action-row">
+                            <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation title="Favorit"><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
+                            @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i></a>}
+                            <a href="/api/contacts/@c.Id/vcard" class="chip" @onclick:stopPropagation title="Muat turun vCard"><i class="bi bi-person-plus"></i> vCard</a>
+                            @if(!string.IsNullOrWhiteSpace(c.Email1)){<a href="mailto:@c.Email1" class="chip" @onclick:stopPropagation><i class="bi bi-envelope"></i></a>}
+                            <button class="chip wa" style="cursor:pointer" @onclick="() => ShareToWA(c)" @onclick:stopPropagation><i class="bi bi-share"></i></button>
                         </div>
                         <button class="icon-btn danger" style="width:32px;height:32px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
@@ -125,6 +158,7 @@ else
 
 @code {
     List<ContactDto>? contacts; string search = ""; string viewMode = "list"; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
+    StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
@@ -132,13 +166,30 @@ else
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await Load(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await Load(); await LoadStats(); } }
 
     async Task Load()
     {
         try { var url = ApiBase + (!string.IsNullOrWhiteSpace(search) ? $"?search={Uri.EscapeDataString(search)}" : ""); contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new(); StateHasChanged(); }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
         catch { contacts ??= new(); }
+    }
+
+    async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
+
+    void ToggleDarkMode() { darkMode = !darkMode; var attr = darkMode ? "dark" : ""; _ = JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-theme','{attr}')"); StateHasChanged(); }
+
+    async Task ToggleFav(ContactDto c) { try { var r = await Http.PutAsync($"{ApiBase}/{c.Id}/favorite", null); if (r.IsSuccessStatusCode) { c.IsFavorite = !c.IsFavorite; StateHasChanged(); } } catch { } }
+
+    void ToggleCsvImport() => showCsvImport = !showCsvImport;
+
+    async Task OnCsvSelected(ChangeEventArgs e)
+    {
+        var files = e.Value as Microsoft.AspNetCore.Components.Forms.IBrowserFile[]; if (files is null or { Length: 0 }) return;
+        var file = files[0]; csvBusy = true; csvMsg = null; StateHasChanged();
+        try { using var content = new MultipartFormDataContent(); var stream = file.OpenReadStream(10*1024*1024); content.Add(new StreamContent(stream), "file", file.Name); var r = await Http.PostAsync(ApiBase + "/import", content); if (r.IsSuccessStatusCode) { var d = await r.Content.ReadFromJsonAsync<ImportResult>(); csvMsg = $"✅ {d?.Count ?? 0} kenalan diimport"; await Load(); await LoadStats(); } else csvMsg = "❌ Gagal import"; }
+        catch { csvMsg = "❌ Ralat"; }
+        finally { csvBusy = false; StateHasChanged(); }
     }
 
     void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
@@ -177,5 +228,8 @@ else
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
     async Task DoDelete() { if (deleteTarget is null) return; try { await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); ShowToast("✅ " + deleteTarget.Name + " dipadam", false); } catch { ShowToast("❌ Gagal memadam", true); } deleteTarget = null; await Load(); }
 
-    class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Honorific { get; set; } public string? Jawatan { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Kementerian { get; set; } public string? Company { get; set; } public string? Building { get; set; } public string? Floor { get; set; } public string? Room { get; set; } public string? PAName { get; set; } public string? PAMobile { get; set; } public string? PAEmail { get; set; } public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
+    class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Honorific { get; set; } public string? Jawatan { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Kementerian { get; set; } public string? Company { get; set; } public string? Building { get; set; } public string? Floor { get; set; } public string? Room { get; set; } public string? PAName { get; set; } public string? PAMobile { get; set; } public string? PAEmail { get; set; } public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Tags { get; set; } public bool IsFavorite { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
+    class StatsDto { public int Total { get; set; } public int Favorites { get; set; } public List<MinistryCount> Ministries { get; set; } = new(); }
+    class MinistryCount { public string Name { get; set; } = ""; public int Count { get; set; } }
+    record ImportResult(int Count);
 }

@@ -25,6 +25,13 @@ public class ContactsController : ControllerBase
     public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, CancellationToken ct)
         => await _service.GetAllAsync(search, ct);
 
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetStats(CancellationToken ct)
+    {
+        var all = await _service.GetAllAsync(null, ct);
+        return Ok(new { total = all.Count, favorites = all.Count(c => c.IsFavorite), ministries = all.Where(c => !string.IsNullOrWhiteSpace(c.Kementerian)).GroupBy(c => c.Kementerian!).Select(g => new { name = g.Key, count = g.Count() }).OrderByDescending(x => x.count).Take(5) });
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ContactResponseDto>> Get(int id, CancellationToken ct)
     {
@@ -89,6 +96,59 @@ public class ContactsController : ControllerBase
 
         _log.Information("Photo saved for contact {Id}: {Path}", id, photoPath);
         return Ok(new { photoPath });
+    }
+
+    [HttpGet("{id}/vcard")]
+    public async Task<IActionResult> GetVCard(int id, CancellationToken ct)
+    {
+        var c = await _service.GetByIdAsync(id, ct);
+        if (c is null) return NotFound();
+
+        var vcard = new System.Text.StringBuilder();
+        vcard.AppendLine("BEGIN:VCARD"); vcard.AppendLine("VERSION:3.0");
+        vcard.AppendLine($"FN:{c.Honorific} {c.Name}".Trim());
+        vcard.AppendLine($"N:{c.Name};;;{c.Honorific};");
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) vcard.AppendLine($"TITLE:{c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) vcard.AppendLine($"ORG:{c.Kementerian}");
+        if (!string.IsNullOrWhiteSpace(c.Mobile1)) vcard.AppendLine($"TEL;TYPE=CELL:{c.Mobile1}");
+        if (!string.IsNullOrWhiteSpace(c.Phone1)) vcard.AppendLine($"TEL;TYPE=WORK:{c.Phone1}");
+        if (!string.IsNullOrWhiteSpace(c.Email1)) vcard.AppendLine($"EMAIL:{c.Email1}");
+        if (!string.IsNullOrWhiteSpace(c.PhotoPath)) vcard.AppendLine($"PHOTO;VALUE=URI:{Request.Scheme}://{Request.Host}{c.PhotoPath}");
+        vcard.AppendLine("END:VCARD");
+        return File(System.Text.Encoding.UTF8.GetBytes(vcard.ToString()), "text/vcard", $"{c.Name}.vcf");
+    }
+
+    [HttpPut("{id}/favorite")]
+    public async Task<IActionResult> ToggleFavorite(int id, CancellationToken ct)
+    {
+        var c = await _service.GetByIdAsync(id, ct);
+        if (c is null) return NotFound();
+        await _service.UpdateFavoriteAsync(id, !c.IsFavorite, ct);
+        return Ok(new { isFavorite = !c.IsFavorite });
+    }
+
+    [HttpPost("import")]
+    public async Task<IActionResult> ImportCsv(IFormFile file, CancellationToken ct)
+    {
+        if (file is null || file.Length == 0) return BadRequest("No file");
+        using var reader = new StreamReader(file.OpenReadStream());
+        var text = await reader.ReadToEndAsync(ct);
+        var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var count = 0;
+        foreach (var line in lines.Skip(1)) // Skip header
+        {
+            var cols = line.Split(',');
+            if (cols.Length < 1 || string.IsNullOrWhiteSpace(cols[0])) continue;
+            var dto = new CreateContactDto { Name = cols[0].Trim().Trim('"') };
+            if (cols.Length > 1) dto.Mobile1 = cols[1].Trim().Trim('"');
+            if (cols.Length > 2) dto.Email1 = cols[2].Trim().Trim('"');
+            if (cols.Length > 3) dto.Jawatan = cols[3].Trim().Trim('"');
+            if (cols.Length > 4) dto.Kementerian = cols[4].Trim().Trim('"');
+            await _service.CreateAsync(dto, ct);
+            count++;
+        }
+        _log.Information("CSV import: {Count} contacts", count);
+        return Ok(new { count });
     }
 
     [HttpDelete("{id}/photo")]

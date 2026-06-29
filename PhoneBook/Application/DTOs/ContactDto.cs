@@ -39,6 +39,8 @@ public class CreateContactDto
     [MaxLength(DbConfig.MaxEmailLength)] public string? Email2 { get; set; }
     [MaxLength(DbConfig.MaxEmailLength)] public string? Email3 { get; set; }
     [MaxLength(DbConfig.MaxNotesLength)] public string? Notes { get; set; }
+    [MaxLength(100)] public string? Tags { get; set; }
+    public bool IsFavorite { get; set; }
 }
 
 public class UpdateContactDto : CreateContactDto { }
@@ -66,6 +68,8 @@ public class ContactResponseDto
     public string? Email1 { get; set; } public string? Email2 { get; set; }
     public string? Email3 { get; set; }
     public string? Notes { get; set; }
+    public string? Tags { get; set; }
+    public bool IsFavorite { get; set; }
     public string? PhotoPath { get; set; }
     public string? CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }

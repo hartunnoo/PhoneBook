@@ -44,6 +44,8 @@ public class Contact
 
     [MaxLength(DbConfig.MaxNotesLength)] public string? Notes { get; set; }
     public string? PhotoPath { get; set; }
+    [MaxLength(100)] public string? Tags { get; set; }
+    public bool IsFavorite { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     [MaxLength(100)] public string? CreatedBy { get; set; }
