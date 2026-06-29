@@ -13,7 +13,7 @@
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
     <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportWAFirst" title="Eksport pertama ke WhatsApp"><i class="bi bi-whatsapp"></i></button>
     @if (selected.Any())
-    { <button class="chip wa" style="background:#128C7E;color:#fff" @onclick="ExportSelectedWA"><i class="bi bi-send-fill"></i> @selected.Count</button> }
+    { <button class="chip wa" style="background:#128C7E;color:#fff" @onclick="ExportSelectedWA" title="Eksport dipilih"><i class="bi bi-send-fill"></i></button> }
     <button class="chip wa" style="background:#075e54;color:#fff" @onclick="ExportWAAll" title="Eksport semua ke WhatsApp"><i class="bi bi-list-ul"></i></button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
@@ -65,7 +65,7 @@ else
         <div>
         @if (selected.Any())
         {
-            <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportSelectedWA"><i class="bi bi-whatsapp"></i> Eksport @selected.Count</button>
+            <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportSelectedWA" title="Eksport dipilih"><i class="bi bi-whatsapp"></i></button>
             <button class="chip" style="color:var(--hmo-danger);margin-left:4px" @onclick="BulkDelete"><i class="bi bi-trash3"></i> @selected.Count</button>
         }
         </div>
@@ -118,7 +118,7 @@ else
                     </div>
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
-                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> Chat</a>}
+                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation title="Chat WhatsApp"><i class="bi bi-whatsapp"></i></a>}
                         <button class="chip wa" style="background:#075e54;color:#fff" @onclick="() => ExportWAContact(c)" @onclick:stopPropagation title="Eksport ke WhatsApp"><i class="bi bi-share-fill"></i></button>
                         <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i> vCard</a>
                         <button class="icon-btn danger" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
