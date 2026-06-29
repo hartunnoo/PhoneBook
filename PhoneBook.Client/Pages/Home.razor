@@ -19,10 +19,12 @@
 @if (stats is not null)
 {
     <div class="stats-dash">
-        <div class="stat-mini"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
-        <div class="stat-mini"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = &quot;&quot;; _ = Load(); }"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = &quot;fav&quot;; _ = Load(); }"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
         @foreach (var m in stats.Ministries.Take(3))
-        { <div class="stat-mini"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        { <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = m.Name; _ = Load(); }"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        @if (!string.IsNullOrEmpty(filter))
+        { <div class="stat-mini" style="cursor:pointer;background:var(--md-primary-container)" @onclick="() => { filter = &quot;&quot;; _ = Load(); }"><div class="stat-label">✕ Tapis: @filter</div></div> }
     </div>
 }
 
@@ -160,7 +162,7 @@ else
 }
 
 @code {
-    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
+    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; string filter = ""; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
@@ -173,7 +175,14 @@ else
 
     async Task Load()
     {
-        try { var url = ApiBase + (!string.IsNullOrWhiteSpace(search) ? $"?search={Uri.EscapeDataString(search)}" : ""); contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new(); StateHasChanged(); }
+        try {
+            var url = ApiBase;
+            if (!string.IsNullOrWhiteSpace(search)) url += $"?search={Uri.EscapeDataString(search)}";
+            contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new();
+            if (filter == "fav") contacts = contacts.Where(c => c.IsFavorite).ToList();
+            else if (!string.IsNullOrEmpty(filter)) contacts = contacts.Where(c => c.Kementerian == filter).ToList();
+            StateHasChanged();
+        }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
         catch { contacts ??= new(); }
     }
