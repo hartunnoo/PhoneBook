@@ -182,6 +182,7 @@ else
     List<ContactDto>? contacts; string search = ""; string viewMode = "list"; string filter = ""; string sortBy = "fav"; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
     HashSet<int> selected = new();
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
+    string? username;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
@@ -189,7 +190,10 @@ else
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await Load(); await LoadStats(); } }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await LoadUser(); await Load(); await LoadStats(); } }
+
+    async Task LoadUser() { try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); username = s?.Name; } catch { } }
+    record AuthStatus(bool IsAuthenticated, string? Name);
 
     async Task Load()
     {
@@ -278,6 +282,8 @@ else
             if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
             t.AppendLine();
         }
+        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
+        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
@@ -291,6 +297,8 @@ else
         if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"Mobile: {c.Mobile1}");
         if (!string.IsNullOrWhiteSpace(c.Phone1)) t.AppendLine($"Telefon: {c.Phone1}");
         if (!string.IsNullOrWhiteSpace(c.Email1)) t.AppendLine($"Emel: {c.Email1}");
+        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
+        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
