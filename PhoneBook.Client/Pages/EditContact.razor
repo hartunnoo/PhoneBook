@@ -1,0 +1,172 @@
+@page "/edit/{id:int}"
+@rendermode InteractiveWebAssembly
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+@if (notFound)
+{ <div class="empty-state"><div class="empty-icon"><i class="bi bi-person-x"></i></div><h2>Tidak dijumpai</h2><p>Kenalan ini tidak wujud.</p><a href="/" class="text-btn">← Kembali</a></div> }
+else if (c is null)
+{ <div class="loading-state"><div class="spinner"></div><p>Memuat...</p></div> }
+else
+{
+    var ac = Math.Abs(c.Name.GetHashCode()) % 10;
+
+    @* ── PROFILE HEADER ── *@
+    <div style="display:flex;flex-direction:column;align-items:center;padding:24px 16px 8px;text-align:center">
+        <div class="avatar xl ac-@ac" style="margin-bottom:12px">
+            @if (!string.IsNullOrWhiteSpace(photoUrl)) { <img src="@photoUrl" alt="@c.Name" /> }
+            else { <span>@c.Name[0]</span> }
+        </div>
+        <label for="photo-upload" style="font-size:.75rem;color:var(--md-primary);cursor:pointer;margin-bottom:8px">Tukar gambar</label>
+        <InputFile id="photo-upload" OnChange="OnPhotoSelected" accept="image/*" style="display:none" />
+        <h2 style="font-size:1.5rem;font-weight:400;margin:0">@c.Name</h2>
+        <p style="font-size:.8125rem;color:var(--md-on-surface-variant);margin:4px 0 0">
+            @(c.Jawatan ?? "")@(c.Company is not null ? $" · {c.Company}" : "")
+        </p>
+        @if (uploading) { <span class="badge rounded-pill bg-info mt-1">⏳ Memuat naik...</span> }
+        @if (!string.IsNullOrEmpty(uploadError)) { <span class="badge rounded-pill bg-danger mt-1">@uploadError</span> }
+    </div>
+
+    @* ── QUICK ACTIONS ── *@
+    <div style="display:flex;justify-content:center;gap:8px;padding:8px 16px 16px;flex-wrap:wrap">
+        @if (!string.IsNullOrWhiteSpace(c.Mobile1))
+        {
+            <a href="tel:@c.Mobile1" class="chip"><i class="bi bi-telephone-fill"></i> Panggil</a>
+            <a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+        }
+        @if (!string.IsNullOrWhiteSpace(c.Email1))
+        { <a href="mailto:@c.Email1" class="chip"><i class="bi bi-envelope-fill"></i> Emel</a> }
+    </div>
+
+    @* ── EDIT FORM ── *@
+    <EditForm Model="c" OnValidSubmit="Save" FormName="edit">
+        <DataAnnotationsValidator />
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-person-vcard"></i> Maklumat Peribadi</div>
+            <div class="text-field">
+                <InputText @bind-Value="c.Name" placeholder=" " id="nm" />
+                <label for="nm">Nama</label><ValidationMessage For="()=>c.Name" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                <div class="text-field"><InputText @bind-Value="c.Jawatan" placeholder=" " id="jw" /><label for="jw">Jawatan</label></div>
+                <div class="text-field"><InputText @bind-Value="c.Company" placeholder=" " id="co" /><label for="co">Syarikat</label></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-building"></i> Organisasi</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                <div class="text-field"><InputText @bind-Value="c.Kementerian" placeholder=" " id="km" /><label for="km">Kementerian</label></div>
+                <div class="text-field"><InputText @bind-Value="c.Department" placeholder=" " id="dp" /><label for="dp">Jabatan</label></div>
+            </div>
+            <div class="text-field"><InputText @bind-Value="c.Bahagian" placeholder=" " id="bh" /><label for="bh">Bahagian</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-phone"></i> Nombor Telefon</div>
+            <div class="text-field"><InputText @bind-Value="c.Mobile1" placeholder=" " id="mb1" /><label for="mb1">Mobile 1 (WhatsApp)</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Mobile2" placeholder=" " id="mb2" /><label for="mb2">Mobile 2</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Mobile3" placeholder=" " id="mb3" /><label for="mb3">Mobile 3</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Mobile4" placeholder=" " id="mb4" /><label for="mb4">Mobile 4</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-telephone"></i> Telefon</div>
+            <div class="text-field"><InputText @bind-Value="c.Phone1" placeholder=" " id="ph1" /><label for="ph1">Telefon 1</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Phone2" placeholder=" " id="ph2" /><label for="ph2">Telefon 2</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Phone3" placeholder=" " id="ph3" /><label for="ph3">Telefon 3</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Phone4" placeholder=" " id="ph4" /><label for="ph4">Telefon 4</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-envelope"></i> Emel</div>
+            <div class="text-field"><InputText @bind-Value="c.Email1" placeholder=" " id="em1" /><label for="em1">Emel 1</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Email2" placeholder=" " id="em2" /><label for="em2">Emel 2</label></div>
+            <div class="text-field"><InputText @bind-Value="c.Email3" placeholder=" " id="em3" /><label for="em3">Emel 3</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-pencil"></i> Nota</div>
+            <div class="text-field">
+                <InputTextArea @bind-Value="c.Notes" placeholder=" " rows="3" id="nt" />
+                <label for="nt">Nota tambahan</label>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:16px">
+            <a href="/" class="outlined-btn">Batal</a>
+            <button type="submit" class="filled-btn" disabled="@saving"><i class="bi bi-check-lg"></i> Simpan</button>
+        </div>
+    </EditForm>
+
+    @* ── DELETE ── *@
+    <div style="padding:8px 16px 24px;text-align:center">
+        <button class="text-btn" style="color:var(--md-error)" @onclick="ConfirmDelete"><i class="bi bi-trash3"></i> Padam kenalan</button>
+    </div>
+}
+
+@* ── DELETE DIALOG ── *@
+@if (showDelete)
+{
+    <div class="scrim" @onclick="()=>showDelete=false">
+        <div class="dialog" @onclick:stopPropagation>
+            <h3>Padam kenalan?</h3>
+            <p>@c?.Name akan dipadamkan kekal daripada senarai kenalan anda.</p>
+            <div class="dialog-actions">
+                <button class="text-btn" @onclick="()=>showDelete=false">Batal</button>
+                <button class="filled-btn" style="background:var(--md-error)" @onclick="DoDelete">Padam</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    ContactForm? c; bool saving; bool notFound; bool uploading; string? uploadError; string? photoUrl; bool showDelete;
+    const string ApiUrl = "api/contacts";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || c is not null || notFound) return;
+        try { c = await Http.GetFromJsonAsync<ContactForm>($"{ApiUrl}/{Id}"); if (c is not null) photoUrl = c.PhotoPath; else notFound = true; StateHasChanged(); }
+        catch { notFound = true; StateHasChanged(); }
+    }
+
+    async Task OnPhotoSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file.Size > 5 * 1024 * 1024) { uploadError = "Maks 5MB"; return; }
+        uploading = true; uploadError = null;
+        try
+        {
+            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "photo", file.Name);
+            var resp = await Http.PostAsync($"{ApiUrl}/{Id}/photo", content);
+            if (resp.IsSuccessStatusCode) { var r = await resp.Content.ReadFromJsonAsync<PhotoResult>(); if (r is not null) { photoUrl = r.PhotoPath + "?t=" + DateTime.UtcNow.Ticks; c!.PhotoPath = r.PhotoPath; StateHasChanged(); } }
+            else { uploadError = "Gagal"; }
+        }
+        catch { uploadError = "Ralat"; }
+        finally { uploading = false; }
+    }
+
+    async Task Save() { if (c is null) return; saving = true; await Http.PutAsJsonAsync($"{ApiUrl}/{Id}", c); Nav.NavigateTo("/", forceLoad: true); }
+    void ConfirmDelete() => showDelete = true;
+    async Task DoDelete() { if (c is null) return; await Http.DeleteAsync($"{ApiUrl}/{Id}"); Nav.NavigateTo("/", forceLoad: true); }
+    static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
+
+    record PhotoResult(string PhotoPath);
+
+    class ContactForm
+    {
+        [System.ComponentModel.DataAnnotations.Required] public string Name { get; set; } = "";
+        public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; }
+        public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; }
+        public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; }
+        public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; }
+        public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; }
+        public string? PhotoPath { get; set; }
+    }
+}

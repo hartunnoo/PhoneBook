@@ -1,0 +1,20 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.db
+*.db-shm
+*.db-wal
+.vs/
+.vscode/
+*.DotSettings.user
+
+## Blazor
+publish-output/
+wwwroot/photos/
+
+## OS
+.DS_Store
+Thumbs.db

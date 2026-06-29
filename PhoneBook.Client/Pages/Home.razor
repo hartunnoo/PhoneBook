@@ -1,0 +1,126 @@
+@page "/"
+@rendermode InteractiveWebAssembly
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<div class="search-bar">
+    <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
+    <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari kenalan..." />
+    @if (!string.IsNullOrWhiteSpace(search))
+    { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
+    <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
+</div>
+
+@if (contacts is null)
+{ <div class="loading-state"><div class="spinner"></div><p>Memuat...</p></div> }
+else if (!contacts.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-person-plus" style="font-size:2.5rem;color:var(--md-on-surface-variant)"></i></div>
+        <h2>Tiada kenalan</h2>
+        <p>Tambahkan kenalan untuk bermula</p>
+        <button class="filled-btn" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i> Tambah kenalan</button>
+    </div>
+}
+else
+{
+    @* View toggle *@
+    <div style="display:flex;justify-content:flex-end;padding:4px 16px;gap:4px">
+        <button class="icon-btn @(viewMode=="grid"?"active":"")" style="width:36px;height:36px" @onclick="SetGrid" title="Grid"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+        <button class="icon-btn @(viewMode=="list"?"active":"")" style="width:36px;height:36px" @onclick="SetList" title="List"><i class="bi bi-list-ul"></i></button>
+    </div>
+
+    @* Letter index *@
+    @if (viewMode == "list")
+    {
+        char? lastLetter = null;
+        <div class="contact-list">
+            @foreach (var c in contacts.OrderBy(c => c.Name))
+            {
+                var letter = char.ToUpper(c.Name[0]);
+                if (letter != lastLetter)
+                { <div class="alpha-header">@letter</div> lastLetter = letter; }
+                var ac = Math.Abs(c.Name.GetHashCode()) % 10;
+                <div class="contact-list-item" @onclick="() => Edit(c.Id)">
+                    <div class="avatar ac-@ac">
+                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div style="font-size:1rem;font-weight:400">@c.Name</div>
+                        <div style="font-size:.75rem;color:var(--md-on-surface-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                            @(c.Jawatan ?? "")@(c.Company is not null ? $" · {c.Company}" : "")
+                            @{ var org = string.Join(" · ", new[]{c.Bahagian,c.Department,c.Kementerian}.Where(x=>!string.IsNullOrWhiteSpace(x))); }
+                            @if(!string.IsNullOrEmpty(org)){<text> · @org</text>}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1 align-items-center">
+                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
+                        @if(!string.IsNullOrWhiteSpace(c.Email1)){<span class="badge rounded-pill bg-light text-dark"><i class="bi bi-envelope"></i></span>}
+                        <button class="icon-btn danger" style="width:36px;height:36px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="contact-grid">
+            @foreach (var c in contacts.OrderBy(c => c.Name))
+            {
+                var ac = Math.Abs(c.Name.GetHashCode()) % 10;
+                <div class="contact-tile" @onclick="() => Edit(c.Id)">
+                    <div class="avatar lg ac-@ac">
+                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
+                    </div>
+                    <div class="tile-name">@c.Name</div>
+                    @if (!string.IsNullOrWhiteSpace(c.Jawatan)) {<div class="tile-sub">@c.Jawatan</div>}
+                </div>
+            }
+        </div>
+    }
+}
+
+@* FAB *@
+@if (contacts is not null)
+{ <button class="fab" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i></button> }
+
+@* Delete Dialog *@
+@if (deleteTarget is not null)
+{
+    <div class="scrim" @onclick="CancelDelete">
+        <div class="dialog" @onclick:stopPropagation>
+            <h3>Padam kenalan?</h3>
+            <p>@deleteTarget.Name akan dipadamkan kekal.</p>
+            <div class="dialog-actions">
+                <button class="text-btn" @onclick="CancelDelete">Batal</button>
+                <button class="filled-btn" style="background:var(--md-error)" @onclick="DoDelete">Padam</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; ContactDto? deleteTarget; Timer? debounce;
+    static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
+    const string ApiBase = "api/contacts";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await Load(); }
+
+    async Task Load()
+    {
+        try { var url = ApiBase + (!string.IsNullOrWhiteSpace(search) ? $"?search={Uri.EscapeDataString(search)}" : ""); contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new(); StateHasChanged(); }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
+        catch { contacts ??= new(); }
+    }
+
+    void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
+    void ClearSearch() { search = ""; _ = Load(); }
+    void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
+    static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
+    void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
+    void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
+    async Task DoDelete() { if (deleteTarget is null) return; await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); deleteTarget = null; await Load(); }
+
+    class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
+}

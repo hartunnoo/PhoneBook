@@ -1,0 +1,74 @@
+@inherits LayoutComponentBase
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<header class="top-bar">
+    <div class="top-bar-content">
+        <span class="top-bar-title">Kenalan</span>
+        <div class="top-bar-actions">
+            @if (isLoggedIn)
+            {
+                <div class="avatar-menu">
+                    <button class="avatar sm ac-@avColor" @onclick="ToggleMenu">@initial</button>
+                    @if (showMenu)
+                    {
+                        <div class="menu-scrim" @onclick="() => showMenu = false"></div>
+                        <div class="menu-sheet">
+                            <div style="padding:8px 24px 16px">
+                                <div style="display:flex;align-items:center;gap:12px">
+                                    <div class="avatar lg ac-@avColor">@initial</div>
+                                    <div>
+                                        <div style="font-weight:500">@username</div>
+                                        <div style="font-size:.75rem;color:var(--md-on-surface-variant)">Akaun peribadi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="menu-divider"></div>
+                            <div class="menu-item" @onclick="Logout"><span class="menu-icon">🚪</span> Log keluar</div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <a href="/login" class="filled-btn" style="font-size:.8125rem;padding:8px 20px">Log masuk</a>
+            }
+        </div>
+    </div>
+</header>
+
+@Body
+
+@if (isLoggedIn)
+{
+    <nav class="bottom-nav">
+        <a href="/" class="bottom-nav-item active"><i class="bi bi-people-fill nav-icon"></i> Kenalan</a>
+        <a href="/add" class="bottom-nav-item"><i class="bi bi-person-plus nav-icon"></i> Tambah</a>
+    </nav>
+}
+
+@code {
+    bool isLoggedIn; string? username; string initial = "?"; int avColor; bool showMenu;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status");
+            if (s?.IsAuthenticated == true)
+            {
+                isLoggedIn = true; username = s.Name;
+                initial = string.IsNullOrWhiteSpace(s.Name) ? "?" : s.Name[0].ToString().ToUpper();
+                avColor = Math.Abs(s.Name?.GetHashCode() ?? 0) % 10;
+                StateHasChanged();
+            }
+        }
+        catch { }
+    }
+
+    void ToggleMenu() { showMenu = !showMenu; StateHasChanged(); }
+    async Task Logout() { await Http.PostAsync("api/auth/logout", null); Nav.NavigateTo("/login", forceLoad: true); }
+    record AuthStatus(bool IsAuthenticated, string? Name);
+}

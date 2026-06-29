@@ -1,0 +1,89 @@
+@page "/add"
+@rendermode InteractiveWebAssembly
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<div class="md-section-header">
+    <h1>➕ Tambah Kenalan</h1>
+    <a href="/" class="md-outlined-btn">← Kembali</a>
+</div>
+
+<EditForm Model="c" OnValidSubmit="Save" FormName="add">
+    <DataAnnotationsValidator />
+
+    <div class="md-form-section">
+        <div class="md-form-section-title">Maklumat Peribadi</div>
+        <div class="md-text-field">
+            <InputText @bind-Value="c.Name" placeholder=" " id="name" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" />
+            <label for="name">Nama *</label>
+            <ValidationMessage For="() => c.Name" />
+        </div>
+        <div class="md-form-row">
+            <div class="md-text-field"><InputText @bind-Value="c.Jawatan" placeholder=" " id="pos" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label for="pos">Jawatan</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Company" placeholder=" " id="comp" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label for="comp">Syarikat</label></div>
+        </div>
+    </div>
+
+    <div class="md-form-section">
+        <div class="md-form-section-title">Organisasi</div>
+        <div class="md-form-row">
+            <div class="md-text-field"><InputText @bind-Value="c.Kementerian" placeholder=" " id="kem" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label for="kem">Kementerian</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Department" placeholder=" " id="dept" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label for="dept">Jabatan</label></div>
+        </div>
+        <div class="md-text-field"><InputText @bind-Value="c.Bahagian" placeholder=" " id="bah" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label for="bah">Bahagian</label></div>
+    </div>
+
+    <div class="md-form-row">
+        <div class="md-form-section" style="flex:1">
+            <div class="md-form-section-title">📱 Mobile / WhatsApp</div>
+            <div class="md-text-field"><InputText @bind-Value="c.Mobile1" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Mobile 1 (+673...)</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Mobile2" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Mobile 2</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Mobile3" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Mobile 3</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Mobile4" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Mobile 4</label></div>
+        </div>
+        <div class="md-form-section" style="flex:1">
+            <div class="md-form-section-title">☎️ Telefon</div>
+            <div class="md-text-field"><InputText @bind-Value="c.Phone1" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Telefon 1</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Phone2" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Telefon 2</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Phone3" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Telefon 3</label></div>
+            <div class="md-text-field"><InputText @bind-Value="c.Phone4" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Telefon 4</label></div>
+        </div>
+    </div>
+
+    <div class="md-form-section">
+        <div class="md-form-section-title">📧 Emel</div>
+        <div class="md-text-field"><InputText @bind-Value="c.Email1" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Emel 1</label></div>
+        <div class="md-text-field"><InputText @bind-Value="c.Email2" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Emel 2</label></div>
+        <div class="md-text-field"><InputText @bind-Value="c.Email3" placeholder=" " style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;background:var(--md-sys-color-surface)" /><label>Emel 3</label></div>
+    </div>
+
+    <div class="md-form-section">
+        <div class="md-form-section-title">Nota</div>
+        <div class="md-text-field">
+            <InputTextArea @bind-Value="c.Notes" placeholder=" " rows="3" style="width:100%;padding:20px 16px 8px;border:1px solid var(--md-sys-color-outline);border-radius:4px;font-size:1rem;font-family:inherit;outline:none;resize:vertical;background:var(--md-sys-color-surface)" />
+            <label>Nota tambahan</label>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-2">
+        <a href="/" class="md-outlined-btn">Batal</a>
+        <button type="submit" class="md-filled-btn" disabled="@saving">💾 Simpan</button>
+    </div>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(error)) { <div style="background:var(--md-sys-color-error-container);padding:12px 16px;border-radius:8px;color:var(--md-sys-color-error);margin-top:16px;font-size:0.875rem">@error</div> }
+
+@code {
+    ContactForm c = new(); bool saving; string? error; const string ApiUrl = "api/contacts";
+    async Task Save() { saving = true; error = null; try { var r = await Http.PostAsJsonAsync(ApiUrl, c); if (r.IsSuccessStatusCode) Nav.NavigateTo("/", forceLoad: true); else error = $"Ralat: {r.StatusCode}"; } catch (Exception ex) { error = ex.Message; } finally { saving = false; } }
+    class ContactForm
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Nama diperlukan")] public string Name { get; set; } = "";
+        public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; }
+        public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; }
+        public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; }
+        public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; }
+        public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; }
+    }
+}

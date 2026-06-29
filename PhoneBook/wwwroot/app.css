@@ -1,0 +1,392 @@
+/* Android Contacts Style — Material You */
+:root {
+    --md-primary: #1a73e8;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #d3e3fd;
+    --md-on-primary-container: #062e6f;
+    --md-surface: #fefbff;
+    --md-surface-container: #f3edf7;
+    --md-surface-container-high: #ece6f0;
+    --md-surface-container-low: #f7f2fa;
+    --md-outline: #79747e;
+    --md-outline-variant: #cac4d0;
+    --md-on-surface: #1c1b1f;
+    --md-on-surface-variant: #49454f;
+    --md-on-surface-muted: #605d62;
+    --md-error: #b3261e;
+    --md-error-container: #f9dedc;
+    --md-elev-0: none;
+    --md-elev-1: 0 1px 2px 0 rgba(0,0,0,.05),0 1px 3px 1px rgba(0,0,0,.05);
+    --md-elev-2: 0 1px 2px 0 rgba(0,0,0,.08),0 2px 6px 2px rgba(0,0,0,.06);
+    --md-elev-3: 0 4px 8px 3px rgba(0,0,0,.08),0 1px 3px 0 rgba(0,0,0,.12);
+    --shape-xs: 4px; --shape-sm: 8px; --shape-md: 12px; --shape-lg: 16px;
+    --shape-xl: 24px; --shape-2xl: 28px; --shape-full: 9999px;
+    --dur: .2s; --ease: cubic-bezier(.2,0,0,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+    font-family:'Google Sans','Roboto',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--md-surface)!important;
+    color:var(--md-on-surface);
+    line-height:1.5;
+    letter-spacing:0;
+    overflow-x:hidden;
+    padding-bottom:80px;
+}
+
+/* ─── TOP APP BAR (collapsible style) ─── */
+.top-bar{
+    position:sticky;top:0;z-index:100;
+    background:var(--md-surface-container-low);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--md-outline-variant);
+    padding:12px 16px;
+}
+.top-bar-content{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;
+}
+.top-bar-title{
+    font-size:1.75rem;font-weight:400;letter-spacing:0;
+    color:var(--md-on-surface);line-height:1.2;
+}
+.top-bar-actions{display:flex;gap:4px;align-items:center}
+
+/* ─── BOTTOM NAVIGATION ─── */
+.bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:100;
+    background:var(--md-surface-container-low);
+    border-top:1px solid var(--md-outline-variant);
+    display:flex;
+    padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+.bottom-nav-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:4px 0;
+    border:none;background:none;
+    color:var(--md-on-surface-variant);
+    font-size:0.75rem;font-weight:500;
+    cursor:pointer;
+    transition:color var(--dur) var(--ease);
+    text-decoration:none;
+    font-family:inherit;
+}
+.bottom-nav-item.active{color:var(--md-primary)}
+.bottom-nav-item .nav-icon{font-size:1.5rem;line-height:1}
+
+/* ─── SEARCH BAR ─── */
+.search-bar{
+    display:flex;align-items:center;gap:8px;
+    background:var(--md-surface-container-high);
+    border-radius:var(--shape-2xl);
+    padding:10px 16px;
+    margin:12px 16px;
+    transition:all var(--dur) var(--ease);
+}
+.search-bar:focus-within{
+    background:var(--md-surface);
+    box-shadow:var(--md-elev-1);
+    outline:2px solid var(--md-primary);
+}
+.search-bar input{
+    border:none;outline:none;flex:1;
+    font-size:1rem;background:transparent;font-family:inherit;
+    color:var(--md-on-surface);
+}
+.search-bar input::placeholder{color:var(--md-on-surface-variant)}
+.search-bar .search-icon{font-size:1.25rem;color:var(--md-on-surface-variant)}
+
+/* ─── ICON BUTTON ─── */
+.icon-btn{
+    width:44px;height:44px;border-radius:50%;
+    border:none;background:transparent;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+    font-size:1.25rem;color:var(--md-on-surface-variant);
+    transition:background var(--dur) var(--ease);
+}
+.icon-btn:hover{background:rgba(0,0,0,.06)}
+.icon-btn:active{background:rgba(0,0,0,.1)}
+.icon-btn.danger{color:var(--md-error)}
+.icon-btn.danger:hover{background:var(--md-error-container)}
+
+/* ─── FAB ─── */
+.fab{
+    position:fixed;bottom:88px;right:16px;z-index:90;
+    width:56px;height:56px;
+    background:var(--md-primary-container);
+    color:var(--md-on-primary-container);
+    border:none;border-radius:var(--shape-lg);
+    font-size:1.5rem;cursor:pointer;
+    box-shadow:var(--md-elev-3);
+    display:flex;align-items:center;justify-content:center;
+    transition:all var(--dur) var(--ease);
+}
+.fab:hover{box-shadow:0 2px 8px 1px rgba(0,0,0,.15),0 6px 16px 2px rgba(0,0,0,.08)}
+.fab:active{transform:scale(.95)}
+.fab.extended{width:auto;padding:16px 24px;gap:8px;font-size:.875rem;font-weight:500}
+
+/* ─── FILLED BUTTON ─── */
+.filled-btn{
+    background:var(--md-primary);color:var(--md-on-primary);
+    border:none;border-radius:var(--shape-full);
+    padding:10px 24px;font-size:.875rem;font-weight:500;
+    font-family:inherit;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:all var(--dur) var(--ease);
+    text-decoration:none;
+}
+.filled-btn:hover{box-shadow:var(--md-elev-1);filter:brightness(1.1)}
+.filled-btn:active{filter:brightness(.9)}
+
+/* ─── OUTLINED BUTTON ─── */
+.outlined-btn{
+    background:transparent;color:var(--md-primary);
+    border:1px solid var(--md-outline);border-radius:var(--shape-full);
+    padding:10px 24px;font-size:.875rem;font-weight:500;
+    font-family:inherit;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:all var(--dur) var(--ease);
+    text-decoration:none;
+}
+.outlined-btn:hover{background:rgba(26,115,232,.04)}
+
+/* ─── TEXT BUTTON ─── */
+.text-btn{
+    background:transparent;color:var(--md-primary);
+    border:none;border-radius:var(--shape-full);
+    padding:10px 16px;font-size:.875rem;font-weight:500;
+    font-family:inherit;cursor:pointer;
+    transition:all var(--dur) var(--ease);
+}
+.text-btn:hover{background:rgba(26,115,232,.04)}
+
+/* ─── CONTACT LIST (Android style) ─── */
+.contact-list{padding:0}
+.contact-list-item{
+    display:flex;align-items:center;gap:16px;
+    padding:12px 16px;
+    cursor:pointer;
+    transition:background var(--dur) var(--ease);
+    border-bottom:1px solid var(--md-outline-variant);
+}
+.contact-list-item:hover{background:rgba(0,0,0,.02)}
+.contact-list-item:active{background:rgba(0,0,0,.04)}
+
+/* Alphabet header divider */
+.alpha-header{
+    padding:8px 16px;
+    font-size:.75rem;font-weight:500;
+    color:var(--md-primary);
+    background:var(--md-surface-container-low);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    position:sticky;top:56px;z-index:5;
+}
+
+/* ─── AVATAR ─── */
+.avatar{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;font-weight:500;color:#fff;
+    flex-shrink:0;overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar.lg{width:56px;height:56px;font-size:1.5rem}
+.avatar.xl{width:88px;height:88px;font-size:2.5rem}
+.avatar.sm{width:36px;height:36px;font-size:.9rem}
+
+.ac0{background:#1a73e8}.ac1{background:#d93025}.ac2{background:#f9ab00}
+.ac3{background:#188038}.ac4{background:#1967d2}.ac5{background:#c5221f}
+.ac6{background:#9334e6}.ac7{background:#e37400}.ac8{background:#0d652d}.ac9{background:#c92786}
+
+/* ─── CONTACT GRID (alternative view) ─── */
+.contact-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:8px;padding:8px 16px;
+}
+.contact-tile{
+    display:flex;flex-direction:column;align-items:center;
+    padding:16px 8px;
+    border-radius:var(--shape-lg);
+    cursor:pointer;gap:8px;
+    transition:background var(--dur) var(--ease);
+}
+.contact-tile:hover{background:var(--md-surface-container)}
+.contact-tile .tile-name{
+    font-size:.8125rem;font-weight:500;text-align:center;
+    color:var(--md-on-surface);
+    overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;max-width:100%;
+}
+.contact-tile .tile-sub{
+    font-size:.6875rem;color:var(--md-on-surface-variant);
+    text-align:center;
+}
+
+/* ─── CHIPS ─── */
+.chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px;border-radius:var(--shape-sm);
+    font-size:.75rem;background:var(--md-surface-container-high);
+    color:var(--md-on-surface-variant);
+    text-decoration:none;border:none;
+    transition:background var(--dur) var(--ease);
+    white-space:nowrap;
+}
+.chip:hover{background:var(--md-outline-variant)}
+.chip.wa{background:#e6f4ea;color:#137333}
+.chip.wa:hover{background:#ceead6}
+.chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+
+/* ─── EMPTY STATE ─── */
+.empty-state{
+    text-align:center;padding:80px 24px;
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.empty-state .empty-icon{
+    width:96px;height:96px;border-radius:50%;
+    background:var(--md-surface-container-high);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.5rem;
+}
+.empty-state h2{font-size:1.25rem;font-weight:500;color:var(--md-on-surface)}
+.empty-state p{font-size:.875rem;color:var(--md-on-surface-variant);max-width:320px}
+
+/* ─── SPINNER ─── */
+.spinner{
+    width:24px;height:24px;border:3px solid var(--md-outline-variant);
+    border-top-color:var(--md-primary);border-radius:50%;
+    animation:spin .7s linear infinite;margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state{padding:80px 0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.loading-state p{font-size:.875rem;color:var(--md-on-surface-variant)}
+
+/* ─── DIALOG ─── */
+.scrim{
+    position:fixed;inset:0;z-index:2000;
+    background:rgba(0,0,0,.3);
+    display:flex;align-items:flex-end;justify-content:center;
+}
+.dialog{
+    background:var(--md-surface-container-high);
+    border-radius:var(--shape-2xl) var(--shape-2xl) 0 0;
+    width:100%;max-width:400px;
+    padding:24px 24px calc(24px + env(safe-area-inset-bottom));
+    box-shadow:var(--md-elev-3);
+}
+.dialog h3{font-size:1.25rem;font-weight:400;margin-bottom:8px}
+.dialog p{font-size:.875rem;color:var(--md-on-surface-variant);margin-bottom:24px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px}
+
+/* ─── MENU (bottom sheet style) ─── */
+.menu-scrim{position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.3)}
+.menu-sheet{
+    position:fixed;bottom:0;left:0;right:0;z-index:1501;
+    background:var(--md-surface-container-high);
+    border-radius:var(--shape-2xl) var(--shape-2xl) 0 0;
+    padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+    box-shadow:var(--md-elev-3);
+}
+.menu-item{
+    padding:12px 24px;font-size:.875rem;cursor:pointer;
+    display:flex;align-items:center;gap:16px;color:var(--md-on-surface);
+    border:none;background:none;width:100%;text-align:left;font-family:inherit;
+    transition:background var(--dur);
+}
+.menu-item:hover{background:rgba(0,0,0,.04)}
+.menu-item .menu-icon{font-size:1.25rem;color:var(--md-on-surface-variant);width:24px;text-align:center}
+.menu-divider{border-top:1px solid var(--md-outline-variant);margin:8px 0}
+
+/* ─── FORM STYLES ─── */
+.form-section{margin-bottom:8px}
+.form-section-title{
+    font-size:.75rem;font-weight:500;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--md-on-surface-variant);
+    padding:16px 16px 8px;
+}
+.text-field{
+    position:relative;margin-bottom:4px;padding:0 16px;
+}
+.text-field input,.text-field textarea{
+    width:100%;padding:16px 0 8px;
+    border:none;border-bottom:1px solid var(--md-outline-variant);
+    font-size:1rem;font-family:inherit;outline:none;
+    background:transparent;color:var(--md-on-surface);
+    transition:border var(--dur) var(--ease);
+    border-radius:0;
+}
+.text-field input:focus,.text-field textarea:focus{border-bottom:2px solid var(--md-primary);padding-bottom:7px}
+.text-field textarea{min-height:60px;resize:vertical}
+.text-field label{
+    position:absolute;top:16px;left:16px;font-size:1rem;
+    color:var(--md-on-surface-variant);pointer-events:none;
+    transition:all var(--dur) var(--ease);
+}
+.text-field input:focus+label,
+.text-field input:not(:placeholder-shown)+label,
+.text-field textarea:focus+label,
+.text-field textarea:not(:placeholder-shown)+label{
+    top:0;font-size:.75rem;color:var(--md-primary);
+}
+.text-field input::placeholder,.text-field textarea::placeholder{color:transparent}
+.text-field .error-text{font-size:.75rem;color:var(--md-error);margin-top:4px}
+.text-field.error input{border-bottom-color:var(--md-error)}
+
+/* ─── PHOTO UPLOAD ─── */
+.photo-area{
+    display:flex;align-items:center;gap:20px;padding:16px;
+    flex-wrap:wrap;
+}
+.photo-area .helper{font-size:.75rem;color:var(--md-on-surface-variant);margin-top:4px}
+
+/* ─── LOGIN ─── */
+.login-page{
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:24px;
+}
+.login-card{
+    background:var(--md-surface-container-low);
+    border-radius:var(--shape-2xl);padding:40px 32px;
+    width:100%;max-width:400px;
+}
+.login-card h1{font-size:1.75rem;font-weight:400;margin-bottom:4px;text-align:center}
+.login-card .subtitle{font-size:.875rem;color:var(--md-on-surface-variant);text-align:center;margin-bottom:32px}
+
+/* ─── AVATAR MENU (top right) ─── */
+.avatar-menu{
+    position:relative;display:inline-block;
+}
+.avatar-menu .menu-dropdown{
+    position:absolute;top:52px;right:0;
+    background:var(--md-surface-container-high);
+    border-radius:var(--shape-md);box-shadow:var(--md-elev-3);
+    min-width:220px;padding:8px 0;z-index:200;
+}
+
+/* ─── RESPONSIVE ─── */
+@media(min-width:769px){
+    .bottom-nav{display:none}
+    .contact-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+}
+@media(max-width:768px){
+    .top-bar-title{font-size:1.375rem}
+    .contact-grid{grid-template-columns:repeat(3,1fr)}
+    .fab{bottom:80px;right:12px}
+}
+@media(max-width:480px){
+    .contact-grid{grid-template-columns:repeat(3,1fr);gap:4px;padding:4px}
+    .contact-tile{padding:12px 4px}
+    .contact-tile .tile-name{font-size:.75rem}
+}
+
+/* ─── VALIDATION ─── */
+h1:focus{outline:none}
+.valid.modified:not([type=checkbox]){outline:2px solid var(--md-primary)}
+.validation-message{color:var(--md-error);font-size:.75rem;padding:0 16px}
+.blazor-error-boundary{background:var(--md-error-container);padding:12px 16px;border-radius:var(--shape-sm);color:var(--md-error);font-size:.875rem;margin:16px}
+.blazor-error-boundary::after{content:"Ralat berlaku. Sila refresh."}
