@@ -15,14 +15,14 @@
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
 
-@* ── HERO SUMMARY ── *@
-@if (stats is not null && contacts is not null && contacts.Any())
+@* ── STATS BAR ── *@
+@if (stats is not null)
 {
-    <div class="hero-summary">
-        <div class="hero-stat"><div class="stat-icon"><i class="bi bi-people-fill"></i></div><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah Kenalan</div></div>
-        <div class="hero-stat"><div class="stat-icon">⭐</div><div class="stat-num">@stats.Favorites</div><div class="stat-label">Favorit</div></div>
+    <div class="stats-dash">
+        <div class="stat-mini"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
+        <div class="stat-mini"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
         @foreach (var m in stats.Ministries.Take(3))
-        { <div class="hero-stat"><div class="stat-icon">🏛️</div><div class="stat-num" style="font-size:1.4rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        { <div class="stat-mini"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
     </div>
 }
 
@@ -74,7 +74,7 @@ else
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-list-item" @onclick="() => Edit(c.Id)">
                     <div class="avatar ac-@ac">
-                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
+                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<i class="bi bi-person-fill avatar-default"></i>}
                     </div>
                     <div style="flex:1;min-width:0">
                         <div style="font-size:1rem;font-weight:400">
@@ -113,7 +113,7 @@ else
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-tile" @onclick="() => Edit(c.Id)">
                     <div class="avatar lg ac-@ac">
-                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
+                        @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<i class="bi bi-person-fill avatar-default"></i>}
                     </div>
                     <div class="tile-name">
                         @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span style="font-size:.6rem;opacity:.7">@c.Honorific </span>}

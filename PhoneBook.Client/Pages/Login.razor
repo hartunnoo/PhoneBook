@@ -4,39 +4,65 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<div class="md-login-page">
-    <div class="md-login-card">
-        <div class="md-login-header">
-            <div class="md-login-icon"><i class="bi bi-person-badge" style="font-size:2.5rem;color:var(--md-on-surface-variant)"></i></div>
-            <h1>Log masuk</h1>
-            <p class="md-login-subtitle">Untuk meneruskan ke PhoneBook</p>
+<div class="login-wrapper">
+    <div class="login-split">
+        @* Left: Brand panel *@
+        <div class="login-brand">
+            <div class="login-brand-content">
+                <div class="login-logo">
+                    <div class="login-logo-icon">📞</div>
+                </div>
+                <h1>PhoneBook</h1>
+                <p>Direktori Kenalan Rasmi</p>
+                <div class="login-features">
+                    <div class="login-feature"><i class="bi bi-shield-check"></i> Akses selamat & terjamin</div>
+                    <div class="login-feature"><i class="bi bi-people-fill"></i> Kenalan pejabat kerajaan</div>
+                    <div class="login-feature"><i class="bi bi-share"></i> Eksport ke WhatsApp</div>
+                </div>
+            </div>
         </div>
 
-        <EditForm Model="auth" OnValidSubmit="DoLogin" FormName="login">
-            <DataAnnotationsValidator />
-            <div class="md-text-field @(usernameError ? "error" : "")">
-                <input type="email" @bind="auth.Username" placeholder=" " id="user" autocomplete="username" />
-                <label for="user">Alamat emel atau username</label>
-                @if (usernameError) { <div class="md-error-text">Diperlukan</div> }
+        @* Right: Form panel *@
+        <div class="login-form-panel">
+            <div class="login-form-inner">
+                <div class="login-form-header">
+                    <h2>Log Masuk</h2>
+                    <p>Masukkan butiran akaun anda</p>
+                </div>
+
+                <EditForm Model="auth" OnValidSubmit="DoLogin" FormName="login">
+                    <DataAnnotationsValidator />
+                    <div class="login-field">
+                        <div class="login-field-icon"><i class="bi bi-envelope"></i></div>
+                        <input type="email" @bind="auth.Username" placeholder="Alamat emel atau username" autocomplete="username" />
+                    </div>
+                    <ValidationMessage For="()=>auth.Username" />
+
+                    <div class="login-field">
+                        <div class="login-field-icon"><i class="bi bi-lock"></i></div>
+                        <input type="password" @bind="auth.Password" placeholder="Kata laluan" autocomplete="current-password" />
+                    </div>
+                    <ValidationMessage For="()=>auth.Password" />
+
+                    @if (!string.IsNullOrEmpty(error))
+                    { <div class="login-error"><i class="bi bi-exclamation-triangle-fill"></i> @error</div> }
+
+                    <button type="submit" class="login-btn" disabled="@busy">@(busy ? "Sila tunggu..." : "Log Masuk") <i class="bi bi-arrow-right"></i></button>
+
+                    <div class="login-divider"><span>atau</span></div>
+
+                    <button type="button" class="login-btn-outline" @onclick="DoRegister" disabled="@busy">Daftar Akaun Baru</button>
+                </EditForm>
             </div>
-            <div class="md-text-field @(passwordError ? "error" : "")">
-                <input type="password" @bind="auth.Password" placeholder=" " id="pass" autocomplete="current-password" />
-                <label for="pass">Kata laluan</label>
-                @if (passwordError) { <div class="md-error-text">Diperlukan</div> }
+            <div class="login-form-footer">
+                Designed &amp; Built by <strong>SSCU</strong>, ITD, Istana Nurul Iman
             </div>
-            @if (!string.IsNullOrEmpty(error))
-            { <div style="background:var(--md-sys-color-error-container);padding:8px 16px;border-radius:8px;font-size:0.8rem;color:var(--md-sys-color-error);margin-bottom:16px">⚠️ @error</div> }
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <button type="button" class="md-text-btn" @onclick="DoRegister">Buat akaun</button>
-                <button type="submit" class="md-filled-btn" disabled="@busy">Seterusnya</button>
-            </div>
-        </EditForm>
+        </div>
     </div>
-    <p style="font-size:0.75rem;color:var(--md-sys-color-on-surface-muted);margin-top:16px">🔒 Maklumat anda selamat</p>
 </div>
 
 @code {
-    AuthForm auth = new(); bool busy; string? error; bool usernameError; bool passwordError;
+    AuthForm auth = new(); bool busy; string? error;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -46,25 +72,19 @@
 
     async Task DoLogin()
     {
-        usernameError = string.IsNullOrWhiteSpace(auth.Username);
-        passwordError = string.IsNullOrWhiteSpace(auth.Password);
-        if (usernameError || passwordError) return;
-
+        if (string.IsNullOrWhiteSpace(auth.Username) || string.IsNullOrWhiteSpace(auth.Password)) { error = "Sila isi semua ruangan"; return; }
         busy = true; error = null;
-        try { var r = await Http.PostAsJsonAsync("api/auth/login", auth); if (r.IsSuccessStatusCode) Nav.NavigateTo("/", forceLoad: true); else error = "Emel atau kata laluan salah"; }
-        catch { error = "Ralat sambungan"; }
+        try { var r = await Http.PostAsJsonAsync("api/auth/login", auth); if (r.IsSuccessStatusCode) Nav.NavigateTo("/", forceLoad: true); else error = "Username atau kata laluan tidak sah"; }
+        catch { error = "Ralat sambungan. Sila cuba lagi."; }
         finally { busy = false; }
     }
 
     async Task DoRegister()
     {
-        usernameError = string.IsNullOrWhiteSpace(auth.Username);
-        passwordError = string.IsNullOrWhiteSpace(auth.Password);
-        if (usernameError || passwordError) return;
-
+        if (string.IsNullOrWhiteSpace(auth.Username) || string.IsNullOrWhiteSpace(auth.Password)) { error = "Sila isi semua ruangan"; return; }
         busy = true; error = null;
         try { var r = await Http.PostAsJsonAsync("api/auth/register", auth); if (r.IsSuccessStatusCode) Nav.NavigateTo("/", forceLoad: true); else { var e = await r.Content.ReadFromJsonAsync<ErrorResponse>(); error = e?.Errors?.FirstOrDefault() ?? "Pendaftaran gagal"; } }
-        catch { error = "Ralat sambungan"; }
+        catch { error = "Ralat sambungan."; }
         finally { busy = false; }
     }
 
