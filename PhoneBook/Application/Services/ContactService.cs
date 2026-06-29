@@ -38,7 +38,7 @@ public class ContactService
 
     static Contact MapToEntity(CreateContactDto d, Contact c)
     {
-        c.Name = d.Name; c.Honorific = d.Honorific;
+        c.Name = d.Name; c.Gender = d.Gender; c.Honorific = d.Honorific;
         c.Jawatan = d.Jawatan; c.Department = d.Department; c.Bahagian = d.Bahagian;
         c.Kementerian = d.Kementerian; c.Company = d.Company;
         c.Building = d.Building; c.Floor = d.Floor; c.Room = d.Room;
@@ -53,7 +53,7 @@ public class ContactService
 
     static ContactResponseDto Map(Contact c) => new()
     {
-        Id = c.Id, Name = c.Name, Honorific = c.Honorific,
+        Id = c.Id, Name = c.Name, Gender = c.Gender, Honorific = c.Honorific,
         Jawatan = c.Jawatan, Department = c.Department, Bahagian = c.Bahagian,
         Kementerian = c.Kementerian, Company = c.Company,
         Building = c.Building, Floor = c.Floor, Room = c.Room,

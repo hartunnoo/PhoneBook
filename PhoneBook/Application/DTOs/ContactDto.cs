@@ -9,6 +9,7 @@ public class CreateContactDto
     [MaxLength(DbConfig.MaxNameLength)]
     public string Name { get; set; } = string.Empty;
 
+    [MaxLength(10)] public string? Gender { get; set; }
     [MaxLength(30)] public string? Honorific { get; set; }
     [MaxLength(DbConfig.MaxCompanyLength)] public string? Jawatan { get; set; }
     [MaxLength(DbConfig.MaxCompanyLength)] public string? Department { get; set; }
@@ -49,6 +50,7 @@ public class ContactResponseDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string? Gender { get; set; }
     public string? Honorific { get; set; }
     public string? Jawatan { get; set; }
     public string? Department { get; set; }

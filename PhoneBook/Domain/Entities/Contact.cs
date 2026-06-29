@@ -10,6 +10,7 @@ public class Contact
     [Required, MaxLength(DbConfig.MaxNameLength)]
     public string Name { get; set; } = string.Empty;
 
+    [MaxLength(10)] public string? Gender { get; set; }  // male, female
     [MaxLength(30)] public string? Honorific { get; set; }  // YB, YM, Dato, Datuk, etc.
     [MaxLength(DbConfig.MaxCompanyLength)] public string? Jawatan { get; set; }
     [MaxLength(DbConfig.MaxCompanyLength)] public string? Department { get; set; }
