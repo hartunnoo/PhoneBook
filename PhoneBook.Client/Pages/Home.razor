@@ -63,10 +63,11 @@ else
     @* View toggle + Selected actions *@
     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 16px;gap:4px;flex-wrap:wrap">
         <div>
+        <button class="chip" @onclick="SelectAll" title="Pilih semua"><i class="bi bi-check-square"></i></button>
         @if (selected.Any())
         {
             <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportSelectedWA" title="Eksport dipilih"><i class="bi bi-whatsapp"></i></button>
-            <button class="chip" style="color:var(--hmo-danger);margin-left:4px" @onclick="BulkDelete"><i class="bi bi-trash3"></i> @selected.Count</button>
+            <button class="chip" style="color:var(--hmo-danger);margin-left:4px" @onclick="BulkDelete" title="Padam dipilih"><i class="bi bi-trash3"></i></button>
         }
         </div>
         <div style="display:flex;gap:4px">
@@ -236,6 +237,7 @@ else
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); StateHasChanged(); }
+    void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); StateHasChanged(); } }
 
     void ExportSelectedWA()
     {
