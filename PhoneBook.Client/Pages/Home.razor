@@ -229,7 +229,7 @@ else
     }
 
     void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
-    void ClearSearch() { search = ""; filter = ""; selected.Clear(); _ = Load(); }
+    void ClearSearch() { search = ""; filter = ""; _ = Load(); }
     void ClearFilter() { filter = ""; _ = Load(); }
     void FilterFav() { filter = "fav"; _ = Load(); }
     void FilterMinistry(string name) { filter = name; _ = Load(); }
@@ -239,10 +239,12 @@ else
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); StateHasChanged(); }
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); StateHasChanged(); } }
 
-    void ExportSelectedWA()
+    async Task ExportSelectedWA()
     {
-        if (contacts is null || !selected.Any()) return;
-        var list = contacts.Where(c => selected.Contains(c.Id)).OrderBy(c => c.Name).ToList();
+        if (!selected.Any()) return;
+        // Fetch ALL contacts to include selected from any search
+        var all = await Http.GetFromJsonAsync<List<ContactDto>>(ApiBase + "?pageSize=999") ?? new();
+        var list = all.Where(c => selected.Contains(c.Id)).OrderBy(c => c.Name).ToList();
         var t = new System.Text.StringBuilder();
         t.AppendLine($"SENARAI KENALAN ({list.Count})");
         t.AppendLine(new string('-', 20));
