@@ -11,7 +11,8 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportWAFirst"><i class="bi bi-whatsapp"></i></button>
+    <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportWAFirst" title="Eksport pertama"><i class="bi bi-whatsapp"></i></button>
+    <button class="chip wa" style="background:#075e54;color:#fff" @onclick="ExportWAAll" title="Eksport semua"><i class="bi bi-send-fill"></i></button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
@@ -231,6 +232,25 @@ else
     // === WHATSAPP EXPORT ===
     void ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
     void ExportWAContact(ContactDto c) => OpenWA(c);
+
+    void ExportWAAll()
+    {
+        if (contacts is null || !contacts.Any()) return;
+        var t = new System.Text.StringBuilder();
+        t.AppendLine($"SENARAI KENALAN ({contacts.Count})");
+        t.AppendLine(new string('-', 20));
+        foreach (var c in contacts.OrderBy(c => c.Name))
+        {
+            var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
+            t.AppendLine($"{h}{c.Name}");
+            if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
+            if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
+            if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
+            t.AppendLine();
+        }
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+    }
+
     void OpenWA(ContactDto c)
     {
         var t = new System.Text.StringBuilder();
