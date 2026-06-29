@@ -30,6 +30,8 @@
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/Microsoft.VisualBasic.m5z1bpmsgy.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/Microsoft.Win32.Primitives.i6x74v9vcb.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/Microsoft.Win32.Registry.y4gq7fo2lp.wasm
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.btpcuuir2w.wasm
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.urvmplchv4.pdb
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.AppContext.2bkkwkya64.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Buffers.28ngaukdh3.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Collections.0wg2pdla5w.wasm
@@ -234,6 +236,7 @@
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.ServiceProcess.5a1uwxr095.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Configuration.7xj6hflys1.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Threading.Tasks.Extensions.bxz0ahfwn3.wasm.gz
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.urvmplchv4.pdb.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Diagnostics.Process.85y49vqmlw.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Threading.Tasks.Dataflow.gsdu90uund.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Runtime.Serialization.Primitives.v0sloygu0k.wasm.gz
@@ -319,6 +322,7 @@
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Reflection.Primitives.td0lyduqh2.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.IO.Pipes.AccessControl.ddt7du9svb.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Xml.4dgsvowdwq.wasm.gz
+/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.btpcuuir2w.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Reflection.vtl64yeamf.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.Resources.ResourceManager.wfbqycsq2f.wasm.gz
 /home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/System.IO.FileSystem.h8uqkh82lb.wasm.gz
@@ -635,6 +639,7 @@
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.AssemblyInfo.cs
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.csproj.CoreCompileInputs.cache
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.MvcApplicationPartsAssemblyInfo.cache
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.sourcelink.json
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/webcil/Microsoft.AspNetCore.Authorization.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/webcil/Microsoft.AspNetCore.Components.wasm
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/webcil/Microsoft.AspNetCore.Components.Forms.wasm
@@ -1052,6 +1057,9 @@
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/58dkc6f4cx-{0}-tjcz0u77k5-tjcz0u77k5.gz
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/c9kx5trl0s-{0}-tptq2av103-tptq2av103.gz
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/eljrcye20m-{0}-lfu7j35m59-lfu7j35m59.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/hy34aac0nq-{0}-btpcuuir2w-btpcuuir2w.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/4exocg3yu8-{0}-urvmplchv4-urvmplchv4.gz
+/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/n8m06xk2i8-{0}-2dka5d5yej-2dka5d5yej.gz
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/staticwebassets.build.json
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/staticwebassets.build.json.cache
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/staticwebassets.development.json
@@ -1062,11 +1070,3 @@
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/refint/PhoneBook.Client.dll
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.pdb
 /home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/ref/PhoneBook.Client.dll
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/PhoneBook.Client.sourcelink.json
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.zxtq86hgs0.wasm
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.zz6vk90jdx.pdb
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.zz6vk90jdx.pdb.gz
-/home/ubuntu/phonebook/PhoneBook.Client/bin/Release/net10.0/wwwroot/_framework/PhoneBook.Client.zxtq86hgs0.wasm.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/hy34aac0nq-{0}-zxtq86hgs0-zxtq86hgs0.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/4exocg3yu8-{0}-zz6vk90jdx-zz6vk90jdx.gz
-/home/ubuntu/phonebook/PhoneBook.Client/obj/Release/net10.0/compressed/n8m06xk2i8-{0}-u0bcchz2wh-u0bcchz2wh.gz
