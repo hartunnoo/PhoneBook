@@ -11,7 +11,7 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <a href="@GetFirstShareUrl()" target="_blank" class="chip wa" style="background:#25d366;color:#fff;font-weight:600;text-decoration:none"><i class="bi bi-whatsapp"></i> Eksport WA</a>
+    <button class="chip wa" style="background:#25d366;color:#fff;font-weight:600" @onclick="ExportWAFirst"><i class="bi bi-whatsapp"></i> Eksport WA</button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
@@ -107,7 +107,7 @@ else
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
                         @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> Chat</a>}
-                        <a href="@GetShareUrl(c)" target="_blank" class="chip wa" @onclick:stopPropagation style="background:#075e54;color:#fff;text-decoration:none"><i class="bi bi-share-fill"></i> Detail</a>
+                        <button class="chip wa" style="background:#075e54;color:#fff" @onclick="() => ExportWAContact(c)" @onclick:stopPropagation><i class="bi bi-share-fill"></i> Detail</button>
                         <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i> vCard</a>
                         <button class="icon-btn danger" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
@@ -228,84 +228,24 @@ else
         catch { ShowToast("❌ Gagal", true); }
     }
 
-    async Task ExportAllToWA()
+    // === WHATSAPP EXPORT ===
+    void ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
+    void ExportWAContact(ContactDto c) => OpenWA(c);
+    void OpenWA(ContactDto c)
     {
-        if (contacts is null || !contacts.Any()) return;
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"SENARAI KENALAN ({contacts.Count})");
-        sb.AppendLine("--------------------");
-        foreach (var c in contacts.OrderBy(c => c.Name))
-        {
-            var h = !string.IsNullOrWhiteSpace(c.Honorific) ? c.Honorific + " " : "";
-            sb.AppendLine($"{h}{c.Name}");
-            if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine($"  Jawatan: {c.Jawatan}");
-            if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine($"  Kementerian: {c.Kementerian}");
-            if (!string.IsNullOrWhiteSpace(c.Mobile1)) sb.AppendLine($"  Mobile: {c.Mobile1}");
-            if (!string.IsNullOrWhiteSpace(c.Phone1)) sb.AppendLine($"  Telefon: {c.Phone1}");
-            if (!string.IsNullOrWhiteSpace(c.Email1)) sb.AppendLine($"  Emel: {c.Email1}");
-            sb.AppendLine();
-        }
-        sb.AppendLine("--------------------");
-        sb.AppendLine("PhoneBook HMO | SSCU, ITD, Istana Nurul Iman");
-        var text = sb.ToString();
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(text), forceLoad: false);
-        ShowToast("✅ Membuka WhatsApp...", false);
+        var t = new System.Text.StringBuilder();
+        var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
+        t.AppendLine($"{h}{c.Name}");
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"Jawatan: {c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"Kementerian: {c.Kementerian}");
+        if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"Mobile: {c.Mobile1}");
+        if (!string.IsNullOrWhiteSpace(c.Phone1)) t.AppendLine($"Telefon: {c.Phone1}");
+        if (!string.IsNullOrWhiteSpace(c.Email1)) t.AppendLine($"Emel: {c.Email1}");
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
-    async Task ExportAll()
-    {
-        try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); }
-        catch { ShowToast("❌ Gagal eksport", true); }
-    }
+    async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
-
-    string BuildContactText(ContactDto c)
-    {
-        var sb = new System.Text.StringBuilder();
-        var honorific = !string.IsNullOrWhiteSpace(c.Honorific) ? c.Honorific + " " : "";
-        sb.AppendLine($"{honorific}{c.Name}");
-        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine($"Jawatan: {c.Jawatan}");
-        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine($"Kementerian: {c.Kementerian}");
-        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine($"Jabatan: {c.Department}");
-        if (!string.IsNullOrWhiteSpace(c.Bahagian)) sb.AppendLine($"Bahagian: {c.Bahagian}");
-        if (!string.IsNullOrWhiteSpace(c.Building))
-        {
-            var loc = c.Building;
-            if (!string.IsNullOrWhiteSpace(c.Floor)) loc += $", Tkt {c.Floor}";
-            if (!string.IsNullOrWhiteSpace(c.Room)) loc += $", Blk {c.Room}";
-            sb.AppendLine($"Lokasi: {loc}");
-        }
-        var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
-        var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
-        var ems = new[] { c.Email1, c.Email2, c.Email3 }.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
-        if (mobs.Any()) { sb.AppendLine(); foreach (var m in mobs) sb.AppendLine($"Mobile: {m}"); }
-        foreach (var p in phs) sb.AppendLine($"Telefon: {p}");
-        foreach (var e in ems) sb.AppendLine($"Emel: {e}");
-        if (!string.IsNullOrWhiteSpace(c.PAName))
-        {
-            sb.AppendLine(); sb.AppendLine($"PA: {c.PAName}");
-            if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"PA Mobile: {c.PAMobile}");
-        }
-        return sb.ToString().TrimEnd();
-    }
-
-    string GetFirstShareUrl()
-    {
-        if (contacts is not null && contacts.Any())
-            return GetShareUrl(contacts.OrderBy(c => c.Name).First());
-        return "https://wa.me/?text=Sila%20tunggu%20kenalan%20dimuatkan";
-    }
-
-    string GetShareUrl(ContactDto c)
-    {
-        var text = BuildContactText(c);
-        return "https://wa.me/?text=" + Uri.EscapeDataString(text);
-    }
-
-    void ShareToWA(ContactDto c)
-    {
-        Nav.NavigateTo(GetShareUrl(c), forceLoad: false);
-    }
     void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
     async Task DoDelete() { if (deleteTarget is null) return; try { await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); ShowToast("✅ " + deleteTarget.Name + " dipadam", false); } catch { ShowToast("❌ Gagal memadam", true); } deleteTarget = null; await Load(); }
