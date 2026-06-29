@@ -95,7 +95,7 @@ public class ContactsController : ControllerBase
         await _service.UpdatePhotoAsync(id, photoPath, ct);
 
         _log.Information("Photo saved for contact {Id}: {Path}", id, photoPath);
-        await _service.LogAuditAsync(id, "Foto profil dikemaskini", byUser: User.Identity?.Name);
+        await _service.LogAuditAsync(id, "Foto profil dikemaskini", user: User.Identity?.Name);
         return Ok(new { photoPath });
     }
 
