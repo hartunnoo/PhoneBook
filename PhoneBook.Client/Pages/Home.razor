@@ -11,8 +11,8 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <a href="@(contacts is not null && contacts.Any() ? GetShareUrl(contacts.OrderBy(c=>c.Name).First()) : "#")" target="_blank" class="chip wa" style="cursor:pointer;background:#25d366!important;color:#fff!important;font-weight:700;font-size:.85rem;padding:8px 18px" title="Eksport ke WhatsApp"><i class="bi bi-whatsapp"></i> EKSPORT WA</a>
-    <button class="chip wa" style="cursor:pointer" @onclick="ExportAllToWA" title="Eksport semua ke WhatsApp"><i class="bi bi-send"></i> Semua</button>
+    <a href="@(contacts is not null && contacts.Any() ? GetShareUrl(contacts.OrderBy(c=>c.Name).First()) : "#")" target="_blank" style="display:inline-flex!important;align-items:center;gap:6px;padding:8px 16px!important;background:#25d366!important;color:#fff!important;font-weight:700!important;font-size:.85rem!important;border-radius:40px!important;text-decoration:none!important;box-shadow:0 2px 8px rgba(37,211,102,.4)!important" title="Eksport ke WhatsApp"><i class="bi bi-whatsapp"></i> EKSPORT WA</a>
+    <a href="@(contacts is not null && contacts.Any() ? GetShareUrl(contacts.OrderByDescending(c=>c.Name).First()) : "#")" target="_blank" style="display:inline-flex!important;align-items:center;gap:4px;padding:6px 12px!important;background:#075e54!important;color:#fff!important;font-weight:600!important;font-size:.75rem!important;border-radius:40px!important;text-decoration:none!important" title="Eksport semua"><i class="bi bi-send"></i> Semua</a>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn ms-1" @onclick="ToggleDarkMode" title="Dark mode" style="width:32px;height:32px"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
