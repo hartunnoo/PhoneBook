@@ -106,9 +106,8 @@ else
                     </div>
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
-                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i></a>}
-                        <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i></a>
-                        @if(!string.IsNullOrWhiteSpace(c.Email1)){<a href="mailto:@c.Email1" class="chip" @onclick:stopPropagation><i class="bi bi-envelope"></i></a>}
+                        <button class="chip wa" style="cursor:pointer;font-weight:600" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Hantar detail ke WhatsApp"><i class="bi bi-whatsapp"></i> Hantar WA</button>
+                        <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i> vCard</a>
                         <button class="icon-btn danger" style="width:30px;height:30px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
                 </div>
@@ -264,22 +263,62 @@ else
 
     string BuildContactText(ContactDto c)
     {
+        var genderEmoji = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
         var sb = new System.Text.StringBuilder();
-        if (!string.IsNullOrWhiteSpace(c.Honorific)) sb.Append(c.Honorific + " ");
-        sb.AppendLine(c.Name);
-        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine(c.Jawatan);
-        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine(c.Kementerian);
-        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine(c.Department);
-        if (!string.IsNullOrWhiteSpace(c.Bahagian)) sb.AppendLine(c.Bahagian);
-        if (!string.IsNullOrWhiteSpace(c.Building)) { sb.Append(c.Building); if (!string.IsNullOrWhiteSpace(c.Floor)) sb.Append($", Tkt {c.Floor}"); if (!string.IsNullOrWhiteSpace(c.Room)) sb.Append($", Bilik {c.Room}"); sb.AppendLine(); }
-        sb.AppendLine();
+        // Header with honorific badge
+        sb.Append($"{genderEmoji} *");
+        if (!string.IsNullOrWhiteSpace(c.Honorific)) sb.Append($"`{c.Honorific}` ");
+        sb.AppendLine(c.Name + "*");
+        if (c.IsFavorite) sb.AppendLine("⭐ _Favorit_");
+        sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
+        // Position & Org
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine($"💼 *Jawatan:* {c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine($"🏛️ *Kementerian:* 📍 _{c.Kementerian}_");
+        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine($"📂 *Jabatan:* {c.Department}");
+        if (!string.IsNullOrWhiteSpace(c.Bahagian)) sb.AppendLine($"📋 *Bahagian:* {c.Bahagian}");
+        if (!string.IsNullOrWhiteSpace(c.Company)) sb.AppendLine($"🏭 *Syarikat:* {c.Company}");
+        if (!string.IsNullOrWhiteSpace(c.Building))
+        {
+            var loc = $"🏢 {c.Building}";
+            if (!string.IsNullOrWhiteSpace(c.Floor)) loc += $", 🔢 Tkt {c.Floor}";
+            if (!string.IsNullOrWhiteSpace(c.Room)) loc += $", 🚪 Bilik {c.Room}";
+            sb.AppendLine(loc);
+        }
+        // Contact numbers with badges
         var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
-        foreach (var m in mobs) sb.AppendLine($"📱 {m}");
         var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
-        foreach (var p in phs) sb.AppendLine($"☎️ {p}");
         var ems = new[] { c.Email1, c.Email2, c.Email3 }.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
-        foreach (var e in ems) sb.AppendLine($"📧 {e}");
-        if (!string.IsNullOrWhiteSpace(c.PAName)) { sb.AppendLine(); sb.AppendLine($"👔 PA: {c.PAName}"); if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"   📱 {c.PAMobile}"); }
+        if (mobs.Any() || phs.Any() || ems.Any())
+        {
+            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
+            foreach (var m in mobs) sb.AppendLine($"📱 `MOBILE` {m}");
+            foreach (var p in phs) sb.AppendLine($"☎️ `TELEFON` {p}");
+            foreach (var e in ems) sb.AppendLine($"📧 `EMEL` {e}");
+        }
+        // PA section
+        if (!string.IsNullOrWhiteSpace(c.PAName))
+        {
+            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
+            sb.AppendLine($"👔 *PA/SETIAUSAHA*");
+            sb.AppendLine($"   👤 {c.PAName}");
+            if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"   📱 `MOBILE` {c.PAMobile}");
+            if (!string.IsNullOrWhiteSpace(c.PAEmail)) sb.AppendLine($"   📧 `EMEL` {c.PAEmail}");
+        }
+        // Tags
+        if (!string.IsNullOrWhiteSpace(c.Tags))
+        {
+            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
+            sb.Append("🏷️ *Tags:* ");
+            foreach (var tag in c.Tags.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)))
+                sb.Append($"`{tag}` ");
+            sb.AppendLine();
+        }
+        if (!string.IsNullOrWhiteSpace(c.Notes)) sb.AppendLine($"\n📝 _{c.Notes}_");
+        // Footer
+        sb.AppendLine("\n━━━━━━━━━━━━━━━━━━━━━━");
+        sb.AppendLine("👑 *PhoneBook HMO*");
+        sb.AppendLine("🔒 SSCU, ITD, Istana Nurul Iman");
+        sb.AppendLine("📡 _Sumber Rasmi Kerajaan_");
         return sb.ToString().TrimEnd();
     }
 
