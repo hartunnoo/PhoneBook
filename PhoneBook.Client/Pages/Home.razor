@@ -106,7 +106,8 @@ else
                     </div>
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
-                        <button class="chip wa" style="cursor:pointer;font-weight:600" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Hantar detail ke WhatsApp"><i class="bi bi-whatsapp"></i> Hantar WA</button>
+                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
+                        <button class="chip wa" style="cursor:pointer;font-weight:600" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Hantar detail ke WhatsApp"><i class="bi bi-share"></i> Detail</button>
                         <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i> vCard</a>
                         <button class="icon-btn danger" style="width:30px;height:30px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
@@ -195,7 +196,7 @@ else
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
-    void ToggleDarkMode() { darkMode = !darkMode; var attr = darkMode ? "dark" : ""; _ = JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-theme','{attr}')"); StateHasChanged(); }
+    void ToggleDarkMode() { darkMode = !darkMode; StateHasChanged(); }
 
     async Task ToggleFav(ContactDto c) { try { var r = await Http.PutAsync($"{ApiBase}/{c.Id}/favorite", null); if (r.IsSuccessStatusCode) { c.IsFavorite = !c.IsFavorite; ShowToast(c.IsFavorite ? "⭐ Ditanda favorit" : "Favorit dibuang", false); } } catch { } }
 
@@ -256,7 +257,7 @@ else
 
     async Task ExportAll()
     {
-        try { var data = await Http.GetStringAsync(ApiBase + "/export"); var bytes = System.Text.Encoding.UTF8.GetBytes(data); var base64 = Convert.ToBase64String(bytes); await JS.InvokeVoidAsync("eval", $"var a=document.createElement('a');a.href='data:text/csv;base64,{base64}';a.download='kenalan.csv';a.click()"); ShowToast("✅ CSV dimuat turun", false); }
+        try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); }
         catch { ShowToast("❌ Gagal eksport", true); }
     }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
