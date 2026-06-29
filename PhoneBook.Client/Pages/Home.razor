@@ -78,33 +78,28 @@ else
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-list-item" @onclick="() => Edit(c.Id)">
-                    <div class="avatar ac-@ac">
+                    <div class="avatar ac-@ac" style="width:36px;height:36px;font-size:.85rem">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<i class="bi bi-person-fill avatar-default"></i>}
                     </div>
-                    <div style="flex:1;min-width:0">
-                        <div style="font-size:1rem;font-weight:400">
-                            @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span class="badge bg-primary bg-opacity-10 text-primary me-1" style="font-size:.65rem;font-weight:600">@c.Honorific</span>}
+                    <div class="contact-main">
+                        <div style="font-size:.9rem;font-weight:500;line-height:1.3">
+                            @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span class="badge bg-primary bg-opacity-10 text-primary me-1" style="font-size:.6rem;padding:1px 5px">@c.Honorific</span>}
                             @c.Name
                         </div>
-                        <div style="font-size:.75rem;color:var(--md-on-surface-variant);margin-top:1px">
-                            @if(!string.IsNullOrWhiteSpace(c.Jawatan)){<span>💼 @c.Jawatan</span>}
-                            @if(!string.IsNullOrWhiteSpace(c.Kementerian)){<span> · 🏛️ @c.Kementerian</span>}
+                        <div class="contact-meta">
+                            @if(!string.IsNullOrWhiteSpace(c.Jawatan)){<span>@c.Jawatan</span>}
+                            @if(!string.IsNullOrWhiteSpace(c.Kementerian)){<span> · @c.Kementerian</span>}
                             @if(!string.IsNullOrWhiteSpace(c.Department)){<span> · @c.Department</span>}
+                            @if(!string.IsNullOrWhiteSpace(c.Building)){<span> · @c.Building</span>}
+                            @if(!string.IsNullOrWhiteSpace(c.PAName)){<span> · 👔 @c.PAName</span>}
                         </div>
-                        @if(!string.IsNullOrWhiteSpace(c.Building))
-                        { <div style="font-size:.7rem;color:var(--md-on-surface-muted);margin-top:1px">📍 @c.Building@(c.Floor is not null?$", Tkt {c.Floor}":"")@(c.Room is not null?$", Bilik {c.Room}":"")</div> }
-                        @if(!string.IsNullOrWhiteSpace(c.PAName))
-                        { <div style="font-size:.7rem;color:var(--md-on-surface-muted)">👔 PA: @c.PAName@(c.PAMobile is not null?$" · {c.PAMobile}":"")</div> }
                     </div>
-                    <div class="d-flex flex-column align-items-end gap-1">
-                        <div class="action-row">
-                            <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation title="Favorit"><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
-                            @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i></a>}
-                            <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation title="Muat turun vCard"><i class="bi bi-download"></i> vCard</a>
-                            @if(!string.IsNullOrWhiteSpace(c.Email1)){<a href="mailto:@c.Email1" class="chip" @onclick:stopPropagation><i class="bi bi-envelope"></i></a>}
-                            <button class="chip wa" style="cursor:pointer" @onclick="() => ShareToWA(c)" @onclick:stopPropagation><i class="bi bi-share"></i></button>
-                        </div>
-                        <button class="icon-btn danger" style="width:32px;height:32px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
+                    <div class="contact-actions">
+                        <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
+                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i></a>}
+                        <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation><i class="bi bi-download"></i></a>
+                        @if(!string.IsNullOrWhiteSpace(c.Email1)){<a href="mailto:@c.Email1" class="chip" @onclick:stopPropagation><i class="bi bi-envelope"></i></a>}
+                        <button class="icon-btn danger" style="width:30px;height:30px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
                 </div>
             }
