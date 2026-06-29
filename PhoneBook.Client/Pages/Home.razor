@@ -47,17 +47,26 @@ else
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
                     </div>
                     <div style="flex:1;min-width:0">
-                        <div style="font-size:1rem;font-weight:400">@c.Name</div>
-                        <div style="font-size:.75rem;color:var(--md-on-surface-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                            @(c.Jawatan ?? "")@(c.Company is not null ? $" · {c.Company}" : "")
-                            @{ var org = string.Join(" · ", new[]{c.Bahagian,c.Department,c.Kementerian}.Where(x=>!string.IsNullOrWhiteSpace(x))); }
-                            @if(!string.IsNullOrEmpty(org)){<text> · @org</text>}
+                        <div style="font-size:1rem;font-weight:400">
+                            @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span class="badge bg-primary bg-opacity-10 text-primary me-1" style="font-size:.65rem;font-weight:600">@c.Honorific</span>}
+                            @c.Name
                         </div>
+                        <div style="font-size:.75rem;color:var(--md-on-surface-variant);margin-top:1px">
+                            @if(!string.IsNullOrWhiteSpace(c.Jawatan)){<span>💼 @c.Jawatan</span>}
+                            @if(!string.IsNullOrWhiteSpace(c.Kementerian)){<span> · 🏛️ @c.Kementerian</span>}
+                            @if(!string.IsNullOrWhiteSpace(c.Department)){<span> · @c.Department</span>}
+                        </div>
+                        @if(!string.IsNullOrWhiteSpace(c.Building))
+                        { <div style="font-size:.7rem;color:var(--md-on-surface-muted);margin-top:1px">📍 @c.Building@(c.Floor is not null?$", Tkt {c.Floor}":"")@(c.Room is not null?$", Bilik {c.Room}":"")</div> }
+                        @if(!string.IsNullOrWhiteSpace(c.PAName))
+                        { <div style="font-size:.7rem;color:var(--md-on-surface-muted)">👔 PA: @c.PAName@(c.PAMobile is not null?$" · {c.PAMobile}":"")</div> }
                     </div>
-                    <div class="d-flex gap-1 align-items-center">
-                        @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
-                        @if(!string.IsNullOrWhiteSpace(c.Email1)){<span class="badge rounded-pill bg-light text-dark"><i class="bi bi-envelope"></i></span>}
-                        <button class="icon-btn danger" style="width:36px;height:36px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        <div class="d-flex gap-1">
+                            @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i> WA</a>}
+                            <button class="chip wa" style="cursor:pointer" @onclick="() => ShareToWA(c)" @onclick:stopPropagation title="Eksport ke WhatsApp"><i class="bi bi-share"></i> Eksport</button>
+                        </div>
+                        <button class="icon-btn danger" style="width:32px;height:32px" @onclick="() => ConfirmDelete(c)" @onclick:stopPropagation><i class="bi bi-trash3"></i></button>
                     </div>
                 </div>
             }
@@ -73,8 +82,12 @@ else
                     <div class="avatar lg ac-@ac">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else{<span>@c.Name[0]</span>}
                     </div>
-                    <div class="tile-name">@c.Name</div>
+                    <div class="tile-name">
+                        @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span style="font-size:.6rem;opacity:.7">@c.Honorific </span>}
+                        @c.Name
+                    </div>
                     @if (!string.IsNullOrWhiteSpace(c.Jawatan)) {<div class="tile-sub">@c.Jawatan</div>}
+                    @if (!string.IsNullOrWhiteSpace(c.Kementerian)) {<div class="tile-sub" style="font-size:.6rem">@c.Kementerian</div>}
                 </div>
             }
         </div>
@@ -132,9 +145,37 @@ else
     void ClearSearch() { search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
+
+    string BuildContactText(ContactDto c)
+    {
+        var sb = new System.Text.StringBuilder();
+        if (!string.IsNullOrWhiteSpace(c.Honorific)) sb.Append(c.Honorific + " ");
+        sb.AppendLine(c.Name);
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine(c.Jawatan);
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine(c.Kementerian);
+        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine(c.Department);
+        if (!string.IsNullOrWhiteSpace(c.Bahagian)) sb.AppendLine(c.Bahagian);
+        if (!string.IsNullOrWhiteSpace(c.Building)) { sb.Append(c.Building); if (!string.IsNullOrWhiteSpace(c.Floor)) sb.Append($", Tkt {c.Floor}"); if (!string.IsNullOrWhiteSpace(c.Room)) sb.Append($", Bilik {c.Room}"); sb.AppendLine(); }
+        sb.AppendLine();
+        var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
+        foreach (var m in mobs) sb.AppendLine($"📱 {m}");
+        var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
+        foreach (var p in phs) sb.AppendLine($"☎️ {p}");
+        var ems = new[] { c.Email1, c.Email2, c.Email3 }.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
+        foreach (var e in ems) sb.AppendLine($"📧 {e}");
+        if (!string.IsNullOrWhiteSpace(c.PAName)) { sb.AppendLine(); sb.AppendLine($"👔 PA: {c.PAName}"); if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"   📱 {c.PAMobile}"); }
+        return sb.ToString().TrimEnd();
+    }
+
+    void ShareToWA(ContactDto c)
+    {
+        var text = BuildContactText(c);
+        var url = "https://wa.me/?text=" + Uri.EscapeDataString(text);
+        Nav.NavigateTo(url, forceLoad: false);
+    }
     void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
     async Task DoDelete() { if (deleteTarget is null) return; try { await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); ShowToast("✅ " + deleteTarget.Name + " dipadam", false); } catch { ShowToast("❌ Gagal memadam", true); } deleteTarget = null; await Load(); }
 
-    class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
+    class ContactDto { public int Id { get; set; } public string Name { get; set; } = ""; public string? Honorific { get; set; } public string? Jawatan { get; set; } public string? Department { get; set; } public string? Bahagian { get; set; } public string? Kementerian { get; set; } public string? Company { get; set; } public string? Building { get; set; } public string? Floor { get; set; } public string? Room { get; set; } public string? PAName { get; set; } public string? PAMobile { get; set; } public string? PAEmail { get; set; } public string? Mobile1 { get; set; } public string? Mobile2 { get; set; } public string? Mobile3 { get; set; } public string? Mobile4 { get; set; } public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; } public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; } public string? Notes { get; set; } public string? PhotoPath { get; set; } }
 }
