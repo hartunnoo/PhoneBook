@@ -64,12 +64,15 @@ else
     {
         char? lastLetter = null;
         <div class="contact-list">
-            @foreach (var c in contacts.OrderBy(c => c.Name))
+            @{
+                var sorted = contacts.OrderByDescending(c => c.IsFavorite).ThenBy(c => c.Name).ToList();
+            }
+            @foreach (var c in sorted)
             {
                 var letter = char.ToUpper(c.Name[0]);
-                if (letter != lastLetter && c.IsFavorite)
-                { <div class="alpha-header">⭐ Favorit</div> lastLetter = letter = '★'; }
-                else if (letter != lastLetter && !c.IsFavorite)
+                if (c.IsFavorite && lastLetter != '★')
+                { <div class="alpha-header">⭐ Favorit (@sorted.Count(x=>x.IsFavorite))</div> lastLetter = '★'; }
+                else if (!c.IsFavorite && letter != lastLetter)
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-list-item" @onclick="() => Edit(c.Id)">
