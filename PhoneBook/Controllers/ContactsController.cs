@@ -58,7 +58,9 @@ public class ContactsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
+        var contact = await _service.GetByIdAsync(id, ct);
         var deleted = await _service.DeleteAsync(id, ct);
+        if (deleted) await _service.LogAuditAsync(id, $"Kenalan dipadam: {contact?.Name}", user: User.Identity?.Name, ct: ct);
         return deleted ? NoContent() : NotFound();
     }
 
@@ -126,8 +128,10 @@ public class ContactsController : ControllerBase
     {
         var c = await _service.GetByIdAsync(id, ct);
         if (c is null) return NotFound();
-        await _service.UpdateFavoriteAsync(id, !c.IsFavorite, ct);
-        return Ok(new { isFavorite = !c.IsFavorite });
+        var newVal = !c.IsFavorite;
+        await _service.UpdateFavoriteAsync(id, newVal, ct);
+        await _service.LogAuditAsync(id, newVal ? "Ditanda favorit" : "Favorit dibuang", user: User.Identity?.Name, ct: ct);
+        return Ok(new { isFavorite = newVal });
     }
 
     [HttpPost("import")]
@@ -151,6 +155,7 @@ public class ContactsController : ControllerBase
             count++;
         }
         _log.Information("CSV import: {Count} contacts", count);
+        await _service.LogAuditAsync(0, $"{count} kenalan diimport melalui CSV", user: User.Identity?.Name, ct: ct);
         return Ok(new { count });
     }
 
@@ -174,6 +179,7 @@ public class ContactsController : ControllerBase
         }
 
         await _service.UpdatePhotoAsync(id, null, ct);
+        await _service.LogAuditAsync(id, "Foto profil dipadam", user: User.Identity?.Name, ct: ct);
         _log.Information("Photo deleted for contact {Id}", id);
         return NoContent();
     }
