@@ -11,6 +11,7 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
+    <button class="chip wa" style="cursor:pointer" @onclick="ExportAllToWA" title="Eksport ke WhatsApp"><i class="bi bi-whatsapp"></i> Eksport WA</button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn ms-1" @onclick="ToggleDarkMode" title="Dark mode" style="width:32px;height:32px"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
@@ -225,6 +226,33 @@ else
         if (!selected.Any()) return;
         try { await Http.PostAsJsonAsync(ApiBase + "/bulk-delete", selected.ToArray()); ShowToast($"✅ {selected.Count} kenalan dipadam", false); selected.Clear(); await Load(); await LoadStats(); }
         catch { ShowToast("❌ Gagal", true); }
+    }
+
+    async Task ExportAllToWA()
+    {
+        if (contacts is null || !contacts.Any()) return;
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("📞 *SENARAI KENALAN*");
+        sb.AppendLine($"📋 {contacts.Count} kenalan");
+        sb.AppendLine("────────────────────");
+        foreach (var c in contacts.OrderBy(c => c.Name))
+        {
+            sb.Append($"\n👤 *{c.Name}*");
+            if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.Append($"\n   💼 {c.Jawatan}");
+            if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.Append($"\n   🏛️ {c.Kementerian}");
+            var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
+            foreach (var m in mobs) sb.Append($"\n   📱 {m}");
+            var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
+            foreach (var p in phs) sb.Append($"\n   ☎️ {p}");
+            if (!string.IsNullOrWhiteSpace(c.Email1)) sb.Append($"\n   📧 {c.Email1}");
+            if (!string.IsNullOrWhiteSpace(c.PAName)) sb.Append($"\n   👔 PA: {c.PAName}");
+            sb.AppendLine();
+        }
+        sb.AppendLine("\n────────────────────");
+        sb.AppendLine("📡 *PhoneBook HMO* · SSCU, ITD, Istana Nurul Iman");
+        var text = sb.ToString();
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(text), forceLoad: false);
+        ShowToast("✅ Membuka WhatsApp...", false);
     }
 
     async Task ExportAll()
