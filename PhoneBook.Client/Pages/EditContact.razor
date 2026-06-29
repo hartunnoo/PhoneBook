@@ -114,9 +114,12 @@ else
             <div class="form-section-title"><i class="bi bi-clock-history"></i> Sejarah Tindakan</div>
             @foreach (var log in auditLogs)
             {
-                <div style="display:flex;gap:10px;padding:6px 16px;font-size:.75rem;border-bottom:1px solid var(--md-outline-variant)">
-                    <span style="color:var(--md-on-surface-variant);white-space:nowrap">@log.Timestamp</span>
-                    <span>@log.Action @log.Detail</span>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:.75rem;border-bottom:1px solid var(--md-outline-variant)">
+                    <span style="font-size:1.1rem">@(log.Action.Contains("cipta") ? "✨" : log.Action.Contains("foto") ? "📷" : log.Action.Contains("padam") ? "🗑️" : "✏️")</span>
+                    <span style="flex:1">@log.Action@(log.Detail is not null ? $" · {log.Detail}" : "")</span>
+                    <span style="color:var(--md-on-surface-muted);white-space:nowrap">@FriendlyTime(log.Timestamp)</span>
+                    @if (!string.IsNullOrWhiteSpace(log.ByUser))
+                    { <span style="color:var(--md-on-surface-muted);font-size:.7rem">oleh @log.ByUser</span> }
                 </div>
             }
         </div>
@@ -245,6 +248,17 @@ else
 
     record PhotoResult(string PhotoPath);
     class AuditEntry { public string Action { get; set; } = ""; public string? Detail { get; set; } public string? ByUser { get; set; } public string Timestamp { get; set; } = ""; }
+
+    static string FriendlyTime(string iso)
+    {
+        if (!DateTime.TryParse(iso, out var dt)) return iso;
+        var span = DateTime.UtcNow - dt.ToUniversalTime();
+        if (span.TotalMinutes < 1) return "baru sahaja";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minit lepas";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} jam lepas";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays} hari lepas";
+        return dt.ToLocalTime().ToString("dd MMM yyyy HH:mm");
+    }
 
     class ContactForm
     {
