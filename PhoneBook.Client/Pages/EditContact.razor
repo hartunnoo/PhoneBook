@@ -20,9 +20,9 @@ else
             else { <span>@c.Name[0]</span> }
         </div>
         <div style="display:flex;gap:8px;justify-content:center">
-            <label for="photo-upload" class="chip" style="cursor:pointer"><i class="bi bi-camera"></i> Tukar</label>
+            <label for="photo-upload" class="chip" style="cursor:pointer;background:var(--hmo-gold);color:#fff;font-weight:600"><i class="bi bi-camera"></i> Tukar</label>
             @if (!string.IsNullOrWhiteSpace(photoUrl))
-            { <button class="chip" style="color:var(--md-error);cursor:pointer" @onclick="ShowDeletePhotoConfirm"><i class="bi bi-trash3"></i> Buang</button> }
+            { <button class="chip" style="color:var(--hmo-danger);cursor:pointer;background:var(--hmo-danger-soft);font-weight:600" @onclick="ShowDeletePhotoConfirm"><i class="bi bi-trash3"></i> Buang</button> }
         </div>
         <input type="file" id="photo-upload" accept="image/*" style="display:none" @onchange="OnPhotoSelected" />
         <h2 style="font-size:1.5rem;font-weight:400;margin:0">@c.Name</h2>
