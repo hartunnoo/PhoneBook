@@ -195,7 +195,7 @@ body{
     flex-shrink:0;overflow:hidden;
 }
 .avatar img{width:100%;height:100%;object-fit:cover}
-.avatar .avatar-default{font-size:1.2rem;opacity:.5}
+.avatar .avatar-default{font-size:1.3rem;opacity:.85;pointer-events:none}
 .avatar.lg{width:56px;height:56px;font-size:1.5rem}
 .avatar.xl{width:88px;height:88px;font-size:2.5rem}
 .avatar.sm{width:36px;height:36px;font-size:.9rem}

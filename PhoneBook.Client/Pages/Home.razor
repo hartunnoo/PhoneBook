@@ -19,12 +19,12 @@
 @if (stats is not null)
 {
     <div class="stats-dash">
-        <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = &quot;&quot;; _ = Load(); }"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
-        <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = &quot;fav&quot;; _ = Load(); }"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="ClearFilter"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="FilterFav"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
         @foreach (var m in stats.Ministries.Take(3))
-        { <div class="stat-mini" style="cursor:pointer" @onclick="() => { search = &quot;&quot;; filter = m.Name; _ = Load(); }"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        { <div class="stat-mini" style="cursor:pointer" @onclick="() => FilterMinistry(m.Name)"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
         @if (!string.IsNullOrEmpty(filter))
-        { <div class="stat-mini" style="cursor:pointer;background:var(--md-primary-container)" @onclick="() => { filter = &quot;&quot;; _ = Load(); }"><div class="stat-label">✕ Tapis: @filter</div></div> }
+        { <div class="stat-mini" style="cursor:pointer;background:var(--md-primary-container)" @onclick="ClearFilter"><div class="stat-label">✕ Tapis: @filter</div></div> }
     </div>
 }
 
@@ -205,7 +205,10 @@ else
     }
 
     void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
-    void ClearSearch() { search = ""; _ = Load(); }
+    void ClearSearch() { search = ""; filter = ""; _ = Load(); }
+    void ClearFilter() { filter = ""; _ = Load(); }
+    void FilterFav() { filter = "fav"; _ = Load(); }
+    void FilterMinistry(string name) { filter = name; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
 
