@@ -107,8 +107,9 @@ body{
     font-size:1.25rem;color:var(--md-on-surface-variant);
     transition:background var(--dur) var(--ease);
 }
-.icon-btn:hover{background:rgba(0,0,0,.06)}
-.icon-btn:active{background:rgba(0,0,0,.1)}
+.icon-btn:hover{background:rgba(0,0,0,.08)}
+.icon-btn:active{background:rgba(0,0,0,.12)}
+.icon-btn.active{color:var(--md-primary);background:var(--md-primary-container)}
 .icon-btn.danger{color:var(--md-error)}
 .icon-btn.danger:hover{background:var(--md-error-container)}
 
@@ -231,17 +232,19 @@ body{
 /* ─── CHIPS ─── */
 .chip{
     display:inline-flex;align-items:center;gap:6px;
-    padding:4px 12px;border-radius:var(--shape-sm);
-    font-size:.75rem;background:var(--md-surface-container-high);
+    padding:6px 14px;border-radius:var(--shape-full);
+    font-size:.8rem;background:var(--md-surface-container-high);
     color:var(--md-on-surface-variant);
     text-decoration:none;border:none;
-    transition:background var(--dur) var(--ease);
-    white-space:nowrap;
+    transition:all var(--dur) var(--ease);
+    white-space:nowrap;font-weight:500;
 }
 .chip:hover{background:var(--md-outline-variant)}
-.chip.wa{background:#e6f4ea;color:#137333}
-.chip.wa:hover{background:#ceead6}
-.chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip.wa{background:#25d366;color:#fff;font-weight:600;border:none}
+.chip.wa:hover{background:#1ebe5d;color:#fff}
+.chip.vcard{background:var(--md-primary);color:#fff;font-weight:600}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip i{font-size:1rem}
 
 /* ─── EMPTY STATE ─── */
 .empty-state{

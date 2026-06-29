@@ -95,7 +95,7 @@ else
                         <div class="action-row">
                             <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation title="Favorit"><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
                             @if(!string.IsNullOrWhiteSpace(c.Mobile1)){<a href="@WhatsAppUrl(c.Mobile1)" target="_blank" class="chip wa" @onclick:stopPropagation><i class="bi bi-whatsapp"></i></a>}
-                            <a href="/api/contacts/@c.Id/vcard" class="chip" @onclick:stopPropagation title="Muat turun vCard"><i class="bi bi-person-plus"></i> vCard</a>
+                            <a href="/api/contacts/@c.Id/vcard" class="chip vcard" @onclick:stopPropagation title="Muat turun vCard"><i class="bi bi-download"></i> vCard</a>
                             @if(!string.IsNullOrWhiteSpace(c.Email1)){<a href="mailto:@c.Email1" class="chip" @onclick:stopPropagation><i class="bi bi-envelope"></i></a>}
                             <button class="chip wa" style="cursor:pointer" @onclick="() => ShareToWA(c)" @onclick:stopPropagation><i class="bi bi-share"></i></button>
                         </div>
