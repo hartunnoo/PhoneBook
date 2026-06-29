@@ -25,7 +25,10 @@ public class ContactRepository : IContactRepository
                 c.Name.ToLower().Contains(term)
                 || (c.Mobile1 != null && c.Mobile1.Contains(term))
                 || (c.Mobile2 != null && c.Mobile2.Contains(term))
-                || (c.Company != null && c.Company.ToLower().Contains(term)));
+                || (c.Company != null && c.Company.ToLower().Contains(term))
+                || (c.Tags != null && c.Tags.ToLower().Contains(term))
+                || (c.Kementerian != null && c.Kementerian.ToLower().Contains(term))
+                || (c.Department != null && c.Department.ToLower().Contains(term)));
         }
 
         return await query.OrderBy(c => c.Name).ToListAsync(ct);

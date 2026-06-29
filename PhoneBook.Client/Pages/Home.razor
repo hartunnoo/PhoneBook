@@ -93,6 +93,13 @@ else
                             @if(!string.IsNullOrWhiteSpace(c.Building)){<span> · @c.Building</span>}
                             @if(!string.IsNullOrWhiteSpace(c.PAName)){<span> · 👔 @c.PAName</span>}
                         </div>
+                        @if (!string.IsNullOrWhiteSpace(c.Tags))
+                        {
+                            <div style="margin-top:2px">
+                                @foreach (var tag in c.Tags.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)))
+                                { <span class="tag-pill" @onclick="() => FilterTag(tag)" @onclick:stopPropagation style="cursor:pointer">@tag</span> }
+                            </div>
+                        }
                     </div>
                     <div class="contact-actions">
                         <button class="fav-star @(c.IsFavorite?"active":"")" @onclick="() => ToggleFav(c)" @onclick:stopPropagation><i class="bi @(c.IsFavorite?"bi-star-fill":"bi-star")"></i></button>
@@ -175,6 +182,7 @@ else
             if (!string.IsNullOrWhiteSpace(search)) url += $"?search={Uri.EscapeDataString(search)}";
             contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new();
             if (filter == "fav") contacts = contacts.Where(c => c.IsFavorite).ToList();
+            else if (filter.StartsWith("tag:")) { var tag = filter[4..]; contacts = contacts.Where(c => c.Tags != null && c.Tags.Contains(tag, StringComparison.OrdinalIgnoreCase)).ToList(); }
             else if (!string.IsNullOrEmpty(filter)) contacts = contacts.Where(c => c.Kementerian == filter).ToList();
             StateHasChanged();
         }
@@ -204,6 +212,7 @@ else
     void ClearFilter() { filter = ""; _ = Load(); }
     void FilterFav() { filter = "fav"; _ = Load(); }
     void FilterMinistry(string name) { filter = name; _ = Load(); }
+    void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
 
