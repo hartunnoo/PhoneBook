@@ -11,6 +11,7 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
+    <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn ms-1" @onclick="ToggleDarkMode" title="Dark mode" style="width:32px;height:32px"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
@@ -78,6 +79,7 @@ else
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
                 <div class="contact-list-item" @onclick="() => Edit(c.Id)">
+                    <input type="checkbox" checked="@selected.Contains(c.Id)" @onchange="() => ToggleSelect(c)" @onclick:stopPropagation style="width:16px;height:16px;cursor:pointer;accent-color:var(--hmo-gold);flex-shrink:0" />
                     <div class="avatar acac" style="width:36px;height:36px;font-size:.85rem">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else if (c.Gender == "female"){<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M12 12c-3 0-9 1.5-9 4.5V18c0 .6.4 1 1 1h4l1.5-3h5l1.5 3h4c.6 0 1-.4 1-1v-1.5c0-3-6-4.5-9-4.5z"/></svg>}else{<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M15 12H9c-4 0-7 2-7 5.5V19c0 .6.4 1 1 1h18c.6 0 1-.4 1-1v-1.5c0-3.5-3-5.5-7-5.5z"/></svg>}
                     </div>
@@ -164,7 +166,8 @@ else
 }
 
 @code {
-    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; string filter = ""; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
+    List<ContactDto>? contacts; string search = ""; string viewMode = "list"; string filter = ""; string sortBy = "fav"; ContactDto? deleteTarget; Timer? debounce; ToastInfo? toast;
+    HashSet<int> selected = new();
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
@@ -178,8 +181,8 @@ else
     async Task Load()
     {
         try {
-            var url = ApiBase;
-            if (!string.IsNullOrWhiteSpace(search)) url += $"?search={Uri.EscapeDataString(search)}";
+            var url = ApiBase + $"?sort={sortBy}&pageSize=200";
+            if (!string.IsNullOrWhiteSpace(search)) url += $"&search={Uri.EscapeDataString(search)}";
             contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new();
             if (filter == "fav") contacts = contacts.Where(c => c.IsFavorite).ToList();
             else if (filter.StartsWith("tag:")) { var tag = filter[4..]; contacts = contacts.Where(c => c.Tags != null && c.Tags.Contains(tag, StringComparison.OrdinalIgnoreCase)).ToList(); }
@@ -208,12 +211,27 @@ else
     }
 
     void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
-    void ClearSearch() { search = ""; filter = ""; _ = Load(); }
+    void ClearSearch() { search = ""; filter = ""; selected.Clear(); _ = Load(); }
     void ClearFilter() { filter = ""; _ = Load(); }
     void FilterFav() { filter = "fav"; _ = Load(); }
     void FilterMinistry(string name) { filter = name; _ = Load(); }
     void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
+
+    void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); StateHasChanged(); }
+
+    async Task BulkDelete()
+    {
+        if (!selected.Any()) return;
+        try { await Http.PostAsJsonAsync(ApiBase + "/bulk-delete", selected.ToArray()); ShowToast($"✅ {selected.Count} kenalan dipadam", false); selected.Clear(); await Load(); await LoadStats(); }
+        catch { ShowToast("❌ Gagal", true); }
+    }
+
+    async Task ExportAll()
+    {
+        try { var data = await Http.GetStringAsync(ApiBase + "/export"); var bytes = System.Text.Encoding.UTF8.GetBytes(data); var base64 = Convert.ToBase64String(bytes); await JS.InvokeVoidAsync("eval", $"var a=document.createElement('a');a.href='data:text/csv;base64,{base64}';a.download='kenalan.csv';a.click()"); ShowToast("✅ CSV dimuat turun", false); }
+        catch { ShowToast("❌ Gagal eksport", true); }
+    }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
 
     string BuildContactText(ContactDto c)

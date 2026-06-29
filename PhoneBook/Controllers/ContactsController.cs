@@ -22,8 +22,19 @@ public class ContactsController : ControllerBase
     public ContactsController(ContactService service) => _service = service;
 
     [HttpGet]
-    public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, CancellationToken ct)
-        => await _service.GetAllAsync(search, ct);
+    public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, [FromQuery] string? sort, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
+    {
+        var all = await _service.GetAllAsync(search, ct);
+        // Sort
+        all = sort switch
+        {
+            "name" => all.OrderBy(c => c.Name).ToList(),
+            "date" => all.OrderByDescending(c => c.CreatedAt).ToList(),
+            "dept" => all.OrderBy(c => c.Department).ThenBy(c => c.Name).ToList(),
+            _ => all.OrderByDescending(c => c.IsFavorite).ThenBy(c => c.Name).ToList()
+        };
+        return all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    }
 
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats(CancellationToken ct)
@@ -37,6 +48,43 @@ public class ContactsController : ControllerBase
     {
         var contact = await _service.GetByIdAsync(id, ct);
         return contact is null ? NotFound() : contact;
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportCsv(CancellationToken ct)
+    {
+        var all = await _service.GetAllAsync(null, ct);
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Name,Mobile,Phone,Email,Jawatan,Kementerian,Department,Bahagian,Company,Tags");
+        foreach (var c in all.OrderBy(c => c.Name))
+            sb.AppendLine($"\"{c.Name}\",{c.Mobile1},{c.Phone1},{c.Email1},{c.Jawatan},{c.Kementerian},{c.Department},{c.Bahagian},{c.Company},{c.Tags}");
+        return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "kenalan.csv");
+    }
+
+    [HttpPost("bulk-delete")]
+    public async Task<IActionResult> BulkDelete([FromBody] int[] ids, CancellationToken ct)
+    {
+        foreach (var id in ids) await _service.DeleteAsync(id, ct);
+        return Ok(new { deleted = ids.Length });
+    }
+
+    [HttpPost("merge")]
+    public async Task<IActionResult> Merge([FromBody] int[] ids, CancellationToken ct)
+    {
+        if (ids.Length < 2) return BadRequest("Need at least 2 IDs");
+        var contacts = new List<ContactResponseDto?>();
+        foreach (var id in ids) contacts.Add(await _service.GetByIdAsync(id, ct));
+        var primary = contacts.FirstOrDefault(c => c is not null);
+        if (primary is null) return NotFound();
+        foreach (var c in contacts.Skip(1))
+        {
+            if (c is null) continue;
+            if (string.IsNullOrWhiteSpace(primary.Mobile1) && !string.IsNullOrWhiteSpace(c.Mobile1)) primary.Mobile1 = c.Mobile1;
+            if (string.IsNullOrWhiteSpace(primary.Email1) && !string.IsNullOrWhiteSpace(c.Email1)) primary.Email1 = c.Email1;
+            await _service.DeleteAsync(c.Id, ct);
+        }
+        await _service.UpdateAsync(primary.Id, new UpdateContactDto { Name = primary.Name, Mobile1 = primary.Mobile1, Email1 = primary.Email1, Jawatan = primary.Jawatan }, ct);
+        return Ok(new { merged = ids.Length });
     }
 
     [HttpPost]

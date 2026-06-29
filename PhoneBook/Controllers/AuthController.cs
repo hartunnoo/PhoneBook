@@ -47,6 +47,17 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Logged in", req.Username });
     }
 
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req)
+    {
+        var user = await _user.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var result = await _user.ChangePasswordAsync(user, req.CurrentPassword, req.NewPassword);
+        if (!result.Succeeded) return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+        return Ok(new { message = "Password changed" });
+    }
+
     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout()
@@ -54,6 +65,12 @@ public class AuthController : ControllerBase
         await _signIn.SignOutAsync();
         return Ok(new { message = "Logged out" });
     }
+}
+
+public class ChangePasswordRequest
+{
+    [Required] public string CurrentPassword { get; set; } = "";
+    [Required, MinLength(4)] public string NewPassword { get; set; } = "";
 }
 
 public class AuthRequest
