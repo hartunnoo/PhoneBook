@@ -179,22 +179,79 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .profile-header{display:flex;flex-direction:column;align-items:center;padding:24px 16px 8px;text-align:center}
 .profile-header .profile-actions{display:flex;justify-content:center;gap:6px;padding:8px 16px 16px;flex-wrap:wrap}
 
+/* ─── DARK MODE ─── */
+[data-theme="dark"] {
+    --hmo-navy: #0d1f3c; --hmo-navy-light: #152d50;
+    --hmo-gold: #d4a843; --hmo-gold-hover: #c09530; --hmo-gold-soft: #2a2110;
+    --hmo-surface: #1a1a1a; --hmo-white: #242424;
+    --hmo-border: #333; --hmo-border-2: #444;
+    --hmo-text: #e8e8e8; --hmo-text-2: #bbb; --hmo-text-3: #888;
+    --hmo-shadow: 0 1px 3px rgba(0,0,0,.2);
+    --hmo-shadow-md: 0 4px 12px rgba(0,0,0,.3);
+    --hmo-shadow-lg: 0 12px 40px rgba(0,0,0,.4);
+    --hmo-danger-soft: #3c1a1a;
+}
+[data-theme="dark"] body { background: #111 !important; }
+[data-theme="dark"] .top-bar { background: #0a1628; }
+[data-theme="dark"] .bottom-nav { background: #0a1628; }
+[data-theme="dark"] .contact-list-item:hover { background: rgba(255,255,255,.03); }
+[data-theme="dark"] .login-wrapper { background: linear-gradient(160deg, #111 0%, #1a1a1a 50%, #111 100%); }
+[data-theme="dark"] .login-form-panel { background: #242424; }
+[data-theme="dark"] .login-divider span { background: #242424; }
+[data-theme="dark"] .search-bar { background: #242424; }
+[data-theme="dark"] .stat-mini { background: #242424; }
+[data-theme="dark"] .dialog { background: #2a2a2a; }
+[data-theme="dark"] .chip { background: #333; color: #ccc; }
+[data-theme="dark"] .chip.wa { background: #1a3a2a; color: #6ee7a7; }
+[data-theme="dark"] .chip.vcard { background: #2a2110; color: var(--hmo-gold); }
+
 /* ─── RESPONSIVE ─── */
 @media(min-width:769px){.bottom-nav{display:none}}
 @media(max-width:768px){
     .login-split{flex-direction:column;max-width:420px;min-height:auto}
-    .login-brand{padding:32px 24px}
-    .login-brand h1{font-size:1.3rem}
-    .login-form-panel{padding:28px 24px}
-    .login-logo-icon{width:60px;height:60px;font-size:1.6rem}
-    .top-bar-title{font-size:1.1rem}
-    .contact-list-item{padding:8px 8px;gap:8px}
-    .fab{bottom:80px;right:12px}
+    .login-brand{padding:28px 20px}
+    .login-brand h1{font-size:1.2rem}
+    .login-brand .brand-subtitle{font-size:.75rem;margin-bottom:24px}
+    .login-form-panel{padding:24px 20px}
+    .login-logo-icon{width:56px;height:56px;font-size:1.5rem}
+    .login-form-header h2{font-size:1.25rem}
+    .top-bar{height:52px;padding:0 12px}
+    .top-bar-title{font-size:1.05rem}
+    .contact-list-item{padding:6px 8px;gap:6px}
+    .contact-list-item .contact-meta{font-size:.65rem}
+    .fab{bottom:88px;right:12px;width:46px;height:46px;font-size:1.3rem}
+    .search-bar{margin:8px 8px;padding:6px 12px}
+    .stats-dash{padding:0 8px 8px;gap:4px}
+    .alpha-header{top:52px}
+    .chip{padding:2px 8px;font-size:.68rem}
+    .avatar{width:36px;height:36px;font-size:.9rem}
+    .profile-header{padding:16px 12px 4px}
+    .form-section-title{padding:10px 12px 4px;font-size:.67rem}
+    .text-field{padding:0 12px}
+    .text-field input,.text-field textarea{font-size:.85rem}
+    .filled-btn,.outlined-btn{padding:8px 18px;font-size:.8rem}
 }
 @media(max-width:480px){
-    .stats-dash{padding:0 8px 8px;gap:4px}
-    .stat-mini{padding:8px 10px;min-width:70px}
-    .stat-mini .stat-num{font-size:1.1rem}
+    .login-split{max-width:100%;border-radius:0;min-height:auto;margin:0}
+    .login-brand{padding:20px 16px}
+    .login-brand h1{font-size:1.1rem}
+    .login-form-panel{padding:20px 16px}
+    .login-logo-icon{width:48px;height:48px;font-size:1.3rem}
+    .stats-dash{padding:0 4px 8px;gap:3px}
+    .stat-mini{padding:6px 8px;min-width:60px}
+    .stat-mini .stat-num{font-size:1rem}
+    .top-bar{height:48px;padding:0 8px}
+    .top-bar-title{font-size:.95rem}
+    .alpha-header{top:48px}
+    .contact-list-item{padding:5px 6px;gap:4px}
+    .contact-list-item .contact-meta{font-size:.62rem}
+    .avatar{width:32px;height:32px;font-size:.8rem}
+    .chip{padding:2px 6px;font-size:.65rem}
+    .fab{bottom:80px;right:10px;width:42px;height:42px;font-size:1.2rem}
+    .search-bar{padding:5px 10px;margin:6px 6px}
+    .search-bar input{font-size:.8rem}
+    .form-section-title{padding:8px 8px 3px;font-size:.65rem}
+    .text-field{padding:0 8px}
 }
 
 /* ─── VALIDATION ─── */

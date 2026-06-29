@@ -183,4 +183,4 @@
 /home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Sinks.Debug.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Sinks.File.dll
 /home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/PhoneBook.sourcelink.json
-/home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/compressed/w1qk3tcfm4-{0}-ecajk3j1ws-ecajk3j1ws.gz
+/home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/compressed/w1qk3tcfm4-{0}-3tkik756va-3tkik756va.gz
