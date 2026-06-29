@@ -26,6 +26,15 @@
 /var/www/phonebook/Microsoft.EntityFrameworkCore.Sqlite.dll
 /var/www/phonebook/Microsoft.Extensions.DependencyModel.dll
 /var/www/phonebook/Microsoft.JSInterop.WebAssembly.dll
+/var/www/phonebook/Serilog.dll
+/var/www/phonebook/Serilog.AspNetCore.dll
+/var/www/phonebook/Serilog.Extensions.Hosting.dll
+/var/www/phonebook/Serilog.Extensions.Logging.dll
+/var/www/phonebook/Serilog.Formatting.Compact.dll
+/var/www/phonebook/Serilog.Settings.Configuration.dll
+/var/www/phonebook/Serilog.Sinks.Console.dll
+/var/www/phonebook/Serilog.Sinks.Debug.dll
+/var/www/phonebook/Serilog.Sinks.File.dll
 /var/www/phonebook/SixLabors.ImageSharp.dll
 /var/www/phonebook/SQLitePCLRaw.batteries_v2.dll
 /var/www/phonebook/SQLitePCLRaw.core.dll

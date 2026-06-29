@@ -6,8 +6,22 @@ using PhoneBook.Components;
 using PhoneBook.Domain.Interfaces;
 using PhoneBook.Infrastructure.Data;
 using PhoneBook.Infrastructure.Repositories;
+using Serilog;
+using Serilog.Events;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("App", "PhoneBook")
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File("Logs/phonebook-.txt", rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 // Database + Identity
 builder.Services.AddDbContext<PhoneBookDbContext>(options =>
@@ -91,6 +105,7 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 
+app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -99,4 +114,5 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(PhoneBook.Client._Imports).Assembly);
 
-app.Run();
+try { app.Run(); }
+finally { Log.CloseAndFlush(); }

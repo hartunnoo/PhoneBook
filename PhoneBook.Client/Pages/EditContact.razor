@@ -2,6 +2,7 @@
 @rendermode InteractiveWebAssembly
 @using System.Net.Http.Json
 @inject HttpClient Http
+@inject IJSRuntime JS
 @inject NavigationManager Nav
 
 @if (notFound)
@@ -19,7 +20,7 @@ else
             else { <span>@c.Name[0]</span> }
         </div>
         <label for="photo-upload" style="font-size:.75rem;color:var(--md-primary);cursor:pointer;margin-bottom:8px">Tukar gambar</label>
-        <InputFile id="photo-upload" OnChange="OnPhotoSelected" accept="image/*" style="display:none" />
+        <input type="file" id="photo-upload" accept="image/*" style="display:none" @onchange="OnPhotoSelected" />
         <h2 style="font-size:1.5rem;font-weight:400;margin:0">@c.Name</h2>
         <p style="font-size:.8125rem;color:var(--md-on-surface-variant);margin:4px 0 0">
             @(c.Jawatan ?? "")@(c.Company is not null ? $" · {c.Company}" : "")
@@ -107,6 +108,19 @@ else
     </div>
 }
 
+@* ── TOAST NOTIFICATION ── *@
+@if (toast is not null)
+{
+    <div class="toast-container">
+        <div class="toast @(toast.IsError ? "toast-error" : "toast-success")">
+            <i class="bi @(toast.IsError ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill")"></i>
+            <span>@toast.Message</span>
+            <button class="toast-close" @onclick="DismissToast"><i class="bi bi-x"></i></button>
+        </div>
+    </div>
+}
+}
+
 @* ── DELETE DIALOG ── *@
 @if (showDelete)
 {
@@ -125,7 +139,10 @@ else
 @code {
     [Parameter] public int Id { get; set; }
     ContactForm? c; bool saving; bool notFound; bool uploading; string? uploadError; string? photoUrl; bool showDelete;
+    ToastInfo? toast;
     const string ApiUrl = "api/contacts";
+
+    class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -134,25 +151,50 @@ else
         catch { notFound = true; StateHasChanged(); }
     }
 
-    async Task OnPhotoSelected(InputFileChangeEventArgs e)
+    async Task OnPhotoSelected(ChangeEventArgs e)
     {
-        var file = e.File;
-        if (file.Size > 5 * 1024 * 1024) { uploadError = "Maks 5MB"; return; }
+        // Get file from native HTML input via JS interop
+        var fileData = await JS.InvokeAsync<FileData?>("readFile", "photo-upload");
+        if (fileData is null || string.IsNullOrEmpty(fileData.Base64)) return;
+        if (fileData.Size > 5 * 1024 * 1024) { uploadError = "Maks 5MB"; return; }
+
         uploading = true; uploadError = null;
         try
         {
-            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            var bytes = Convert.FromBase64String(fileData.Base64);
             using var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(stream), "photo", file.Name);
+            content.Add(new ByteArrayContent(bytes), "photo", fileData.Name);
             var resp = await Http.PostAsync($"{ApiUrl}/{Id}/photo", content);
-            if (resp.IsSuccessStatusCode) { var r = await resp.Content.ReadFromJsonAsync<PhotoResult>(); if (r is not null) { photoUrl = r.PhotoPath + "?t=" + DateTime.UtcNow.Ticks; c!.PhotoPath = r.PhotoPath; StateHasChanged(); } }
-            else { uploadError = "Gagal"; }
+            if (resp.IsSuccessStatusCode)
+            {
+                var r = await resp.Content.ReadFromJsonAsync<PhotoResult>();
+                if (r is not null) { photoUrl = r.PhotoPath + "?t=" + DateTime.UtcNow.Ticks; c!.PhotoPath = r.PhotoPath; StateHasChanged(); }
+                ShowToast("✅ Gambar berjaya dimuat naik", false);
+            }
+            else { ShowToast("❌ Gagal memuat naik gambar", true); }
         }
-        catch { uploadError = "Ralat"; }
+        catch (Exception ex) { ShowToast("❌ Ralat: " + ex.Message, true); }
         finally { uploading = false; }
     }
 
-    async Task Save() { if (c is null) return; saving = true; await Http.PutAsJsonAsync($"{ApiUrl}/{Id}", c); Nav.NavigateTo("/", forceLoad: true); }
+    async Task Save()
+    {
+        if (c is null) return;
+        saving = true;
+        try
+        {
+            var resp = await Http.PutAsJsonAsync($"{ApiUrl}/{Id}", c);
+            if (resp.IsSuccessStatusCode) { ShowToast("✅ Kenalan disimpan", false); await Task.Delay(800); Nav.NavigateTo("/", forceLoad: true); }
+            else ShowToast("❌ Gagal menyimpan", true);
+        }
+        catch { ShowToast("❌ Ralat sambungan", true); }
+        finally { saving = false; }
+    }
+
+    void ShowToast(string msg, bool isError) { toast = new ToastInfo { Message = msg, IsError = isError }; StateHasChanged(); _ = DismissAfterDelay(); }
+    async Task DismissAfterDelay() { await Task.Delay(3000); toast = null; StateHasChanged(); }
+    void DismissToast() { toast = null; StateHasChanged(); }
+    class FileData { public string Name { get; set; } = ""; public long Size { get; set; } public string Base64 { get; set; } = ""; }
     void ConfirmDelete() => showDelete = true;
     async Task DoDelete() { if (c is null) return; await Http.DeleteAsync($"{ApiUrl}/{Id}"); Nav.NavigateTo("/", forceLoad: true); }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";

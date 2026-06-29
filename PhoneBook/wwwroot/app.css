@@ -384,6 +384,15 @@ body{
     .contact-tile .tile-name{font-size:.75rem}
 }
 
+/* ─── TOAST ─── */
+.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3000;animation:toastIn .3s var(--ease)}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:var(--shape-full);box-shadow:var(--md-elev-3);font-size:.875rem;font-weight:500;white-space:nowrap}
+.toast-success{background:#1e3a2f;color:#a8e6a1}
+.toast-error{background:#3c1a1a;color:#f5b8b8}
+.toast-close{background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;padding:0;opacity:.7}
+.toast-close:hover{opacity:1}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(1rem)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
 /* ─── VALIDATION ─── */
 h1:focus{outline:none}
 .valid.modified:not([type=checkbox]){outline:2px solid var(--md-primary)}

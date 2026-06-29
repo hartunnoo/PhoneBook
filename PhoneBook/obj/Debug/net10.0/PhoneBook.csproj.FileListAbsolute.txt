@@ -172,4 +172,14 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/ref/PhoneBook.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/SixLabors.ImageSharp.dll
-/home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/compressed/w1qk3tcfm4-{0}-xosv0n8sn8-xosv0n8sn8.gz
+/home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/compressed/roe25bfnf3-{0}-ltv3a8ud8y-ltv3a8ud8y.gz
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.AspNetCore.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Extensions.Hosting.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Extensions.Logging.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Formatting.Compact.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Settings.Configuration.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Sinks.Console.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Sinks.Debug.dll
+/home/ubuntu/phonebook/PhoneBook/bin/Debug/net10.0/Serilog.Sinks.File.dll
+/home/ubuntu/phonebook/PhoneBook/obj/Debug/net10.0/compressed/w1qk3tcfm4-{0}-lh136sxoo7-lh136sxoo7.gz

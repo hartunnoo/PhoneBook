@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using PhoneBook.Application.DTOs;
 using PhoneBook.Application.Services;
 using PhoneBook.Common.Constants;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using ILogger = Serilog.ILogger;
 
 namespace PhoneBook.Controllers;
 
@@ -15,6 +17,7 @@ namespace PhoneBook.Controllers;
 public class ContactsController : ControllerBase
 {
     private readonly ContactService _service;
+    private readonly ILogger _log = Log.ForContext<ContactsController>();
 
     public ContactsController(ContactService service) => _service = service;
 
@@ -53,11 +56,13 @@ public class ContactsController : ControllerBase
     [HttpPost("{id}/photo")]
     public async Task<IActionResult> UploadPhoto(int id, IFormFile photo, CancellationToken ct)
     {
-        if (photo is null || photo.Length == 0) return BadRequest("No file");
-        if (photo.Length > 5 * 1024 * 1024) return BadRequest("Max 5MB");
+        _log.Information("Photo upload requested for contact {Id}, file: {Name}, size: {Size}", id, photo?.FileName, photo?.Length);
+
+        if (photo is null || photo.Length == 0) { _log.Warning("No file provided"); return BadRequest("No file"); }
+        if (photo.Length > 5 * 1024 * 1024) { _log.Warning("File too large: {Size}", photo.Length); return BadRequest("Max 5MB"); }
 
         var contact = await _service.GetByIdAsync(id, ct);
-        if (contact is null) return NotFound();
+        if (contact is null) { _log.Warning("Contact {Id} not found", id); return NotFound(); }
 
         // Delete old photo
         if (!string.IsNullOrWhiteSpace(contact.PhotoPath))
@@ -82,6 +87,7 @@ public class ContactsController : ControllerBase
         var photoPath = $"/photos/{fileName}";
         await _service.UpdatePhotoAsync(id, photoPath, ct);
 
+        _log.Information("Photo saved for contact {Id}: {Path}", id, photoPath);
         return Ok(new { photoPath });
     }
 }
