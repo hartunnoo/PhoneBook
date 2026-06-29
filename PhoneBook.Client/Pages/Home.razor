@@ -264,62 +264,32 @@ else
 
     string BuildContactText(ContactDto c)
     {
-        var genderEmoji = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
         var sb = new System.Text.StringBuilder();
-        // Header with honorific badge
-        sb.Append($"{genderEmoji} *");
-        if (!string.IsNullOrWhiteSpace(c.Honorific)) sb.Append($"`{c.Honorific}` ");
-        sb.AppendLine(c.Name + "*");
-        if (c.IsFavorite) sb.AppendLine("⭐ _Favorit_");
-        sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
-        // Position & Org
-        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine($"💼 *Jawatan:* {c.Jawatan}");
-        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine($"🏛️ *Kementerian:* 📍 _{c.Kementerian}_");
-        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine($"📂 *Jabatan:* {c.Department}");
-        if (!string.IsNullOrWhiteSpace(c.Bahagian)) sb.AppendLine($"📋 *Bahagian:* {c.Bahagian}");
-        if (!string.IsNullOrWhiteSpace(c.Company)) sb.AppendLine($"🏭 *Syarikat:* {c.Company}");
+        var prefix = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
+        var honorific = !string.IsNullOrWhiteSpace(c.Honorific) ? c.Honorific + " " : "";
+        sb.AppendLine($"{prefix} {honorific}{c.Name}");
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) sb.AppendLine($"💼 {c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) sb.AppendLine($"🏛 {c.Kementerian}");
+        if (!string.IsNullOrWhiteSpace(c.Department)) sb.AppendLine($"📂 {c.Department}");
         if (!string.IsNullOrWhiteSpace(c.Building))
         {
-            var loc = $"🏢 {c.Building}";
-            if (!string.IsNullOrWhiteSpace(c.Floor)) loc += $", 🔢 Tkt {c.Floor}";
-            if (!string.IsNullOrWhiteSpace(c.Room)) loc += $", 🚪 Bilik {c.Room}";
+            var loc = $"📍 {c.Building}";
+            if (!string.IsNullOrWhiteSpace(c.Floor)) loc += $", Tkt {c.Floor}";
+            if (!string.IsNullOrWhiteSpace(c.Room)) loc += $", Blk {c.Room}";
             sb.AppendLine(loc);
         }
-        // Contact numbers with badges
         var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
         var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
         var ems = new[] { c.Email1, c.Email2, c.Email3 }.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
-        if (mobs.Any() || phs.Any() || ems.Any())
-        {
-            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
-            foreach (var m in mobs) sb.AppendLine($"📱 `MOBILE` {m}");
-            foreach (var p in phs) sb.AppendLine($"☎️ `TELEFON` {p}");
-            foreach (var e in ems) sb.AppendLine($"📧 `EMEL` {e}");
-        }
-        // PA section
+        if (mobs.Any()) { sb.AppendLine(""); foreach (var m in mobs) sb.AppendLine($"📱 {m}"); }
+        foreach (var p in phs) sb.AppendLine($"☎ {p}");
+        foreach (var e in ems) sb.AppendLine($"📧 {e}");
         if (!string.IsNullOrWhiteSpace(c.PAName))
         {
-            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
-            sb.AppendLine($"👔 *PA/SETIAUSAHA*");
-            sb.AppendLine($"   👤 {c.PAName}");
-            if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"   📱 `MOBILE` {c.PAMobile}");
-            if (!string.IsNullOrWhiteSpace(c.PAEmail)) sb.AppendLine($"   📧 `EMEL` {c.PAEmail}");
+            sb.AppendLine(""); sb.AppendLine($"👔 PA: {c.PAName}");
+            if (!string.IsNullOrWhiteSpace(c.PAMobile)) sb.AppendLine($"   📱 {c.PAMobile}");
         }
-        // Tags
-        if (!string.IsNullOrWhiteSpace(c.Tags))
-        {
-            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━━━");
-            sb.Append("🏷️ *Tags:* ");
-            foreach (var tag in c.Tags.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)))
-                sb.Append($"`{tag}` ");
-            sb.AppendLine();
-        }
-        if (!string.IsNullOrWhiteSpace(c.Notes)) sb.AppendLine($"\n📝 _{c.Notes}_");
-        // Footer
-        sb.AppendLine("\n━━━━━━━━━━━━━━━━━━━━━━");
-        sb.AppendLine("👑 *PhoneBook HMO*");
-        sb.AppendLine("🔒 SSCU, ITD, Istana Nurul Iman");
-        sb.AppendLine("📡 _Sumber Rasmi Kerajaan_");
+        if (sb.Length > 900) return sb.ToString().TrimEnd()[..900]; // WhatsApp text limit
         return sb.ToString().TrimEnd();
     }
 
