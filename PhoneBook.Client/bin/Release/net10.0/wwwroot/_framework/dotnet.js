@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "PhoneBook.Client",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-/jOm+OCy4QfKc6CVYJolHlzRZ26NGUvP8cj5GgYhpe4=",
+    "hash": "sha256-Ei9aIPDU7V1Cr+X8HRvtkdw36k6JHAQcxEUlEJH2eMo=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.ikrs475e5v.js"
@@ -1236,16 +1236,16 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "PhoneBook.Client.wasm",
-        "name": "PhoneBook.Client.ifjmjjxuu1.wasm",
-        "hash": "sha256-IkUQaCpegcGIoJMmT9dh1leqUhVPbU7nGYreUAOvUE4=",
+        "name": "PhoneBook.Client.6naoz4n7e3.wasm",
+        "hash": "sha256-4g5FH21r6DlzpKDocojrLgaeyZPsthYhoS2NaAr5qw8=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "PhoneBook.Client.pdb",
-        "name": "PhoneBook.Client.q3kjjuoahn.pdb",
-        "hash": "sha256-eugGFJ7iihuTLNHksJydrCxU8UuF+ezV59BM4J1r9FY=",
+        "name": "PhoneBook.Client.84drjvn04h.pdb",
+        "hash": "sha256-KLq2Lt2AwkZXrEQcfA9Yhr+8U7Di4MiD3VD2dTwa1pE=",
         "cache": "force-cache"
       }
     ]
