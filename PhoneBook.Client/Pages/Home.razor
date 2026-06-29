@@ -11,7 +11,8 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <button class="chip wa" style="cursor:pointer" @onclick="ExportAllToWA" title="Eksport ke WhatsApp"><i class="bi bi-whatsapp"></i> Eksport WA</button>
+    <a href="@(contacts is not null && contacts.Any() ? GetShareUrl(contacts.OrderBy(c=>c.Name).First()) : "#")" target="_blank" class="chip wa" style="cursor:pointer;background:#25d366!important;color:#fff!important;font-weight:700;font-size:.85rem;padding:8px 18px" title="Eksport ke WhatsApp"><i class="bi bi-whatsapp"></i> EKSPORT WA</a>
+    <button class="chip wa" style="cursor:pointer" @onclick="ExportAllToWA" title="Eksport semua ke WhatsApp"><i class="bi bi-send"></i> Semua</button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn ms-1" @onclick="ToggleDarkMode" title="Dark mode" style="width:32px;height:32px"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
