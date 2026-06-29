@@ -251,6 +251,7 @@ else
             if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
             if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
             if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
+            if (!string.IsNullOrWhiteSpace(c.PAName)) t.AppendLine($"  PA: {c.PAName} ({c.PAMobile})");
             t.AppendLine();
         }
         t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
@@ -282,6 +283,7 @@ else
             if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
             if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
             if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
+            if (!string.IsNullOrWhiteSpace(c.PAName)) t.AppendLine($"  PA: {c.PAName} ({c.PAMobile})");
             t.AppendLine();
         }
         t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
@@ -299,6 +301,7 @@ else
         if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"Mobile: {c.Mobile1}");
         if (!string.IsNullOrWhiteSpace(c.Phone1)) t.AppendLine($"Telefon: {c.Phone1}");
         if (!string.IsNullOrWhiteSpace(c.Email1)) t.AppendLine($"Emel: {c.Email1}");
+        if (!string.IsNullOrWhiteSpace(c.PAName)) { t.AppendLine(); t.AppendLine($"PA: {c.PAName}"); if (!string.IsNullOrWhiteSpace(c.PAMobile)) t.AppendLine($"PA Mobile: {c.PAMobile}"); }
         t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
         t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
