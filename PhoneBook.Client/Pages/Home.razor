@@ -186,7 +186,7 @@ else
 
     void ToggleDarkMode() { darkMode = !darkMode; var attr = darkMode ? "dark" : ""; _ = JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-theme','{attr}')"); StateHasChanged(); }
 
-    async Task ToggleFav(ContactDto c) { try { var r = await Http.PutAsync($"{ApiBase}/{c.Id}/favorite", null); if (r.IsSuccessStatusCode) { c.IsFavorite = !c.IsFavorite; StateHasChanged(); } } catch { } }
+    async Task ToggleFav(ContactDto c) { try { var r = await Http.PutAsync($"{ApiBase}/{c.Id}/favorite", null); if (r.IsSuccessStatusCode) { c.IsFavorite = !c.IsFavorite; ShowToast(c.IsFavorite ? "⭐ Ditanda favorit" : "Favorit dibuang", false); } } catch { } }
 
     void ToggleCsvImport() => showCsvImport = !showCsvImport;
 
