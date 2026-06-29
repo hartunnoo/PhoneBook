@@ -1,5 +1,3 @@
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/EmbeddedAttribute.cs
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ValidatableTypeAttribute.cs
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.runtimeconfig.json
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.staticwebassets.runtime.json
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.staticwebassets.endpoints.json
@@ -154,6 +152,8 @@
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.dll
 /home/ubuntu/phonebook/PhoneBook/bin/Release/net10.0/PhoneBook.Client.pdb
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/EmbeddedAttribute.cs
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ValidatableTypeAttribute.cs
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.csproj.AssemblyReference.cache
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rpswa.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.GeneratedMSBuildEditorConfig.editorconfig
@@ -166,9 +166,10 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rjsmrazor.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rjsmcshtml.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/scopedcss/bundle/PhoneBook.styles.css
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-c54gm58wly-c54gm58wly.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/tip9g8oxd8-{0}-jfnowqs5zp-jfnowqs5zp.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/roe25bfnf3-{0}-ltv3a8ud8y-ltv3a8ud8y.gz
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/j53q55cuzy-{0}-v9weri6fz6-v9weri6fz6.gz
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/j53q55cuzy-{0}-0uh5z7iidd-0uh5z7iidd.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/0tbd008tlp-{0}-ej96puwv3k-ej96puwv3k.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/06g0ujg4mp-{0}-cj5793hgrt-cj5793hgrt.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/t8trg8td3l-{0}-upeyen0inx-upeyen0inx.gz
@@ -183,4 +184,3 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.pdb
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.genruntimeconfig.cache
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ref/PhoneBook.dll
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-c54gm58wly-c54gm58wly.gz
