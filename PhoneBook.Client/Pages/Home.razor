@@ -73,7 +73,7 @@ else
             {
                 var letter = char.ToUpper(c.Name[0]);
                 if (c.IsFavorite && lastLetter != '★')
-                { <div class="alpha-header">⭐ Favorit (@sorted.Count(x=>x.IsFavorite))</div> lastLetter = '★'; }
+                { <div class="alpha-header" style="background:linear-gradient(90deg,rgba(245,158,11,.1),rgba(239,68,68,.06));color:#f59e0b">⭐ Favorit (@sorted.Count(x=>x.IsFavorite))</div> lastLetter = '★'; }
                 else if (!c.IsFavorite && letter != lastLetter)
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
