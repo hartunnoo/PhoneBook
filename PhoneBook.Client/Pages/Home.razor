@@ -379,7 +379,8 @@ else
     void AppendFooter(System.Text.StringBuilder t)
     {
         t.AppendLine(Sep);
-        t.AppendLine($"👤 _{username ?? "Unknown"}_  ·  📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
+        t.AppendLine($"👤 _{username ?? "Unknown"}_");
+        t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
         t.AppendLine("📡 *PhoneBook Enterprise*");
     }
 
