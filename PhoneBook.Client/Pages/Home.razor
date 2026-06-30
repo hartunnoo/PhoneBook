@@ -381,7 +381,7 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("📡 *PhoneBook HMO* · SSCU, ITD, Istana Nurul Iman");
+        t.AppendLine("📡 *Direktori Pejabat Kerajaan* · SSCU, ITD, Istana Nurul Iman");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
