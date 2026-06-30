@@ -254,6 +254,8 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 [data-theme="dark"] .contact-list-item:hover { background: rgba(255,255,255,.03); }
 [data-theme="dark"] .login-wrapper { background: linear-gradient(160deg, #111 0%, #1a1a1a 50%, #111 100%); }
 [data-theme="dark"] .login-form-panel { background: #242424; }
+[data-theme="dark"] .login-warning { background:linear-gradient(135deg,#3c1a1a,#2d1a0a)!important;border-color:#7f1d1d!important }
+[data-theme="dark"] .login-warning p { color:#fca5a5!important }
 [data-theme="dark"] .login-divider span { background: #242424; }
 [data-theme="dark"] .search-bar { background: #242424; }
 [data-theme="dark"] .stat-mini { background: #242424; }
