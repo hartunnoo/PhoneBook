@@ -24,7 +24,17 @@
 <body>
     <Routes @rendermode="InteractiveWebAssembly" />
     <script src="phonebook.js"></script>
-    <script>initTheme();</script>
+    <script>
+        (function(){
+            var d=document.documentElement;
+            if(localStorage.getItem('pb_theme')==='dark') d.setAttribute('data-theme','dark');
+            window.toggleDarkMode=function(){
+                var isDark=d.getAttribute('data-theme')==='dark';
+                if(isDark){d.removeAttribute('data-theme');localStorage.setItem('pb_theme','light');return false;}
+                else{d.setAttribute('data-theme','dark');localStorage.setItem('pb_theme','dark');return true;}
+            };
+        })();
+    </script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 
