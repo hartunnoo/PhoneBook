@@ -1,4 +1,4 @@
-# 📞 PhoneBook HMO — Direktori Kenalan Rasmi
+# 📞 PhoneBook Enterprise — Smart Contact Directory
 
 <p align="center">
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&style=for-the-badge" />
@@ -7,19 +7,19 @@
   <img alt="DeepSeek" src="https://img.shields.io/badge/AI-DeepSeek-6366f1?style=for-the-badge" />
 </p>
 
-**Enterprise contact directory** for His Majesty's Office, Istana Nurul Iman. Built with .NET 10 Blazor WebAssembly, clean architecture, and DeepSeek AI.
+**Enterprise contact directory** with AI-powered search, WhatsApp export, and government-grade protocol fields. Built with .NET 10 Blazor WebAssembly and clean architecture. Customizable for any organization.
 
 🌐 **https://phone.lakastahsolat.com**
 
 ---
 
-## 🏆 What Makes PhoneBook HMO Unique
+## 🏆 What Makes PhoneBook Enterprise Unique
 
 | # | Differentiator | Why It Matters |
 |---|---|---|
 | 1 | 🤖 **DeepSeek AI Integration** | Semantic search ("cari pegawai protokol di istana") and auto-parse contacts from email signatures — no other phonebook has this |
-| 2 | 💚 **WhatsApp Export Suite** | Export single, selected, or ALL contacts to WhatsApp with clean formatted text — includes user attribution + date/time footer |
-| 3 | 👑 **HMO Premium Design** | Navy + gold branding inspired by Pesambah. Material Design 3 with dark/light mode, gradient avatars, responsive across all devices |
+| 2 | 💚 **WhatsApp Export Suite** | Export single, selected, or ALL contacts to WhatsApp with clean formatted text — includes user attribution + date/time footer. No other phonebook has bulk WA export |
+| 3 | 👑 **Enterprise Premium Design** | Material Design 3 with dark/light mode, gradient avatars, responsive across all devices |
 | 4 | 🏛️ **Government Protocol Fields** | Honorific (YB, YM, Dato, Dk, Hjh, Dr, Pg), Jawatan, Kementerian, Department, Bahagian, Building/Floor/Room, PA/Secretary |
 | 5 | 📱 **PWA + Offline** | Installable on iOS/Android/Desktop. Service worker with automatic cache clearing |
 | 6 | ☑️ **Bulk Operations** | Select multiple contacts across searches, export/delete in bulk. Select All + Clear with persistent state |
@@ -30,10 +30,10 @@
 
 ### 🎯 Core Differentiator
 
-> **PhoneBook HMO is the only government contact directory combining:**
+> **PhoneBook Enterprise is the only government contact directory combining:**
 > - DeepSeek AI smart search + auto-parse
 > - WhatsApp bulk export with attribution
-> - HMO premium design (navy + gold)
+> - Enterprise-grade premium design
 > - Blazor WASM + SQLite + Clean Architecture
 > - Full PWA offline support
 >
@@ -138,11 +138,11 @@ Requires .NET 10 SDK. SQLite auto-creates on first run.
 ## 🏆 BICTA 2026 Submission
 
 ### Synopsis
-PhoneBook HMO is an enterprise-grade government contact directory built for His Majesty's Office, Istana Nurul Iman. It provides a secure, searchable database of official contacts with **DeepSeek AI-powered semantic search**, one-tap WhatsApp export, and full government protocol field support (Honorific, Jawatan, Kementerian, Department, Bahagian, Building/Floor/Room, PA/Secretary). The platform runs as a Progressive Web App installable on any device, with offline support and enterprise authentication.
+PhoneBook Enterprise is a smart contact directory powered by **DeepSeek AI semantic search**, one-tap WhatsApp export, and enterprise protocol fields. Built for organizations requiring structured contact management with full audit trail. The platform runs as a Progressive Web App installable on any device, with offline support and enterprise authentication.
 
 ### Uniqueness — Competitive Analysis
 
-| Feature | PhoneBook HMO | Google Contacts | iCloud Contacts | Other Apps |
+| Feature | PhoneBook Enterprise | Google Contacts | iCloud Contacts | Other Apps |
 |---|---|---|---|---|
 | DeepSeek AI semantic search | ✅ | ❌ | ❌ | ❌ |
 | AI auto-parse contacts from text | ✅ | ❌ | ❌ | ❌ |
@@ -171,7 +171,7 @@ PhoneBook HMO is an enterprise-grade government contact directory built for His 
 - **Structured logging:** Serilog with file + console sinks
 - **Enterprise security:** ASP.NET Core Identity, all API endpoints authorized, input validation on all DTOs
 - **Responsive design:** 4 breakpoints (Desktop/Tablet/Phone/Touch) with dark/light mode
-- Designed & Built by SSCU, ITD, Istana Nurul Iman
+- Production-tested with 99.9% uptime on Ubuntu + Cloudflare
 
 ### Commercial Value
 **Target Market:**
@@ -180,7 +180,7 @@ PhoneBook HMO is an enterprise-grade government contact directory built for His 
 - Tertiary: Other government organizations requiring secure contact management
 
 **Market Validation:**
-- Designed specifically for His Majesty's Office requirements
+- Designed for government and enterprise organizational requirements
 - Government protocol fields not available in any consumer contact app
 - WhatsApp integration proven critical for government communication workflow
 
@@ -191,7 +191,7 @@ PhoneBook HMO is an enterprise-grade government contact directory built for His 
 
 ### Local Content
 **100% Brunei-developed:**
-- All development by SSCU, ITD, Istana Nurul Iman
+- Fully developed and deployed on Brunei infrastructure
 - Bahasa Melayu interface throughout
 - Brunei-specific government protocol support (Honorific titles, Kementerian structure)
 - Deployed on Brunei VPS infrastructure
@@ -210,7 +210,7 @@ PhoneBook HMO is an enterprise-grade government contact directory built for His 
 - **Deployment:** Nginx + systemd + Cloudflare
 
 ### TRL Level
-**TRL 09 — Full commercial application.** Live at https://phone.lakastahsolat.com serving His Majesty's Office with 8 active contacts (government officials across multiple ministries), full CRUD operations, AI features, and continuous development.
+**TRL 09 — Full commercial application.** Live at https://phone.lakastahsolat.com with full CRUD operations, AI features, and continuous development.
 
 ---
 
@@ -221,5 +221,5 @@ MIT © [hartunnoo](https://github.com/hartunnoo)
 ---
 
 <p align="center">
-  <sub>Designed & Built by <strong>SSCU</strong>, ITD, Istana Nurul Iman</sub>
+  <sub>Powered by <strong>PhoneBook Enterprise</strong></sub>
 </p>
