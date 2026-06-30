@@ -329,6 +329,8 @@ else
         var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
         t.AppendLine($"{g} *{h}{c.Name}*");
         if (c.IsFavorite) t.AppendLine("⭐ _Favorit_");
+        if ((c.Tags ?? "").Contains("VVIP", StringComparison.OrdinalIgnoreCase)) t.AppendLine("👑 `VVIP`");
+        else if ((c.Tags ?? "").Contains("VIP", StringComparison.OrdinalIgnoreCase)) t.AppendLine("👑 `VIP`");
         t.AppendLine(Sep);
         if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"💼 {c.Jawatan}");
         if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"🏛 {c.Kementerian}");

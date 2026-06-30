@@ -127,11 +127,13 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .contact-list-item:hover{background:var(--hmo-white);border-color:var(--hmo-gold);box-shadow:var(--hmo-shadow-md);transform:translateY(-1px)}
 .contact-list-item:hover::after{opacity:.5}
 .contact-list-item:active{transform:scale(.995);box-shadow:var(--hmo-shadow)}
-.contact-list-item.vip{border-color:rgba(201,164,59,.4);background:linear-gradient(135deg,rgba(201,164,59,.04),rgba(201,164,59,.01));box-shadow:0 1px 4px rgba(201,164,59,.08)}
-.contact-list-item.vvip{border-color:rgba(201,164,59,.6);background:linear-gradient(135deg,rgba(201,164,59,.08),rgba(201,164,59,.03));box-shadow:0 2px 8px rgba(201,164,59,.12);border-width:1.5px}
-.contact-list-item .vip-badge{display:inline-block;font-size:.5rem;font-weight:700;padding:1px 6px;border-radius:10px;text-transform:uppercase;letter-spacing:.06em;margin-left:4px}
-.vip-badge.vip{background:linear-gradient(135deg,rgba(201,164,59,.15),rgba(201,164,59,.08));color:#b8932e;border:1px solid rgba(201,164,59,.3)}
-.vip-badge.vvip{background:linear-gradient(135deg,rgba(201,164,59,.25),rgba(201,164,59,.12));color:#9e7d18;border:1px solid rgba(201,164,59,.5)}
+.contact-list-item.vip{border-color:#c9a43b;background:linear-gradient(90deg,rgba(201,164,59,.06),rgba(255,255,255,0));box-shadow:0 0 8px rgba(201,164,59,.08),inset 3px 0 0 #c9a43b}
+.contact-list-item.vvip{border-color:#debd5a;background:linear-gradient(90deg,rgba(222,189,90,.1),rgba(201,164,59,.03));box-shadow:0 0 14px rgba(201,164,59,.15),inset 3px 0 0 #debd5a,0 2px 8px rgba(201,164,59,.08);border-width:1.5px;animation:vipGlow 2s ease-in-out infinite alternate}
+@keyframes vipGlow{from{box-shadow:0 0 10px rgba(201,164,59,.1),inset 3px 0 0 #debd5a}to{box-shadow:0 0 20px rgba(201,164,59,.2),inset 3px 0 0 #f0d060}}
+.contact-list-item .vip-badge{display:inline-flex;align-items:center;gap:2px;font-size:.5rem;font-weight:800;padding:2px 7px;border-radius:12px;text-transform:uppercase;letter-spacing:.08em;margin-left:4px}
+.vip-badge.vip{background:linear-gradient(135deg,#c9a43b,#debd5a);color:#fff;border:none;box-shadow:0 1px 4px rgba(201,164,59,.3)}
+.vip-badge.vvip{background:linear-gradient(135deg,#debd5a,#f0d060);color:#6b4c00;border:none;box-shadow:0 2px 8px rgba(201,164,59,.4);animation:vipBadgeGlow 1.5s ease-in-out infinite alternate}
+@keyframes vipBadgeGlow{from{box-shadow:0 2px 6px rgba(201,164,59,.3)}to{box-shadow:0 3px 12px rgba(201,164,59,.5)}}
 .contact-list-item .contact-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .contact-list-item .contact-meta{font-size:.72rem;color:var(--hmo-text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .contact-list-item .contact-actions{display:flex!important;align-items:center;gap:6px;flex-shrink:0;margin-left:auto;z-index:10;position:relative;flex-wrap:wrap}
