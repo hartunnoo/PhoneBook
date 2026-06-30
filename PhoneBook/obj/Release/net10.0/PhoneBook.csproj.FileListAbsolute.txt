@@ -166,7 +166,6 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rjsmrazor.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/rjsmcshtml.dswa.cache.json
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/scopedcss/bundle/PhoneBook.styles.css
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-c54gm58wly-c54gm58wly.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/tip9g8oxd8-{0}-jfnowqs5zp-jfnowqs5zp.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/roe25bfnf3-{0}-ltv3a8ud8y-ltv3a8ud8y.gz
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/0tbd008tlp-{0}-ej96puwv3k-ej96puwv3k.gz
@@ -184,3 +183,4 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.genruntimeconfig.cache
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ref/PhoneBook.dll
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/j53q55cuzy-{0}-zt5u11c1f7-zt5u11c1f7.gz
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-gp84vkcofs-gp84vkcofs.gz

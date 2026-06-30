@@ -270,7 +270,11 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
     .stats-dash{padding:0 8px 8px;gap:4px}
     .alpha-header{top:52px}
     .chip{padding:2px 8px;font-size:.68rem}
+    .search-bar{gap:3px;flex-wrap:wrap}
+    .search-bar input{min-width:100px;flex:1}
+    .contact-actions{gap:3px;flex-wrap:wrap}
     .avatar{width:36px;height:36px;font-size:.9rem}
+    input[type=checkbox]{width:18px;height:18px;margin:2px}
     .profile-header{padding:16px 12px 4px}
     .form-section-title{padding:10px 12px 4px;font-size:.67rem}
     .text-field{padding:0 12px}
@@ -293,7 +297,11 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
     .contact-list-item .contact-meta{font-size:.62rem}
     .avatar{width:32px;height:32px;font-size:.8rem}
     .chip{padding:2px 6px;font-size:.65rem}
+    .search-bar{gap:2px;padding:4px 8px}
+    .search-bar input{min-width:60px;font-size:.75rem}
+    .contact-actions{gap:2px}
     .fab{bottom:80px;right:10px;width:42px;height:42px;font-size:1.2rem}
+    input[type=checkbox]{width:16px;height:16px;margin:0}
     .search-bar{padding:5px 10px;margin:6px 6px}
     .search-bar input{font-size:.8rem}
     .form-section-title{padding:8px 8px 3px;font-size:.65rem}
@@ -306,5 +314,15 @@ h1:focus{outline:none}
 .validation-message{color:var(--hmo-danger);font-size:.7rem;padding:2px 0 0 16px}
 .blazor-error-boundary{background:var(--hmo-danger-soft);padding:12px 16px;border-radius:var(--hmo-radius-sm);color:var(--hmo-danger);font-size:.85rem;margin:16px}
 .blazor-error-boundary::after{content:"Ralat berlaku. Sila refresh."}
+
+@media (pointer: coarse) {
+    .icon-btn{width:44px;height:44px}
+    .chip{min-height:36px;padding:6px 14px}
+    input[type=checkbox]{width:22px;height:22px;margin:4px}
+    .fav-star{min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+    .contact-list-item{min-height:60px}
+    .contact-actions{gap:6px}
+    button,a{min-height:44px}
+}
 
 @media print{.top-bar,.bottom-nav,.fab,.search-bar,.icon-btn,.chip,button,#blazor-error-ui{display:none!important}body{padding:0!important;font-size:10pt}.contact-list-item{border-bottom:1px solid #ccc;page-break-inside:avoid}}
