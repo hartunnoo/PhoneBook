@@ -33,6 +33,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRkQ29udGFjdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/ubuntu/phonebook/PhoneBook.Client/Pages/AdminRls.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW5SbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/ubuntu/phonebook/PhoneBook.Client/Pages/EditContact.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRWRpdENvbnRhY3QucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 

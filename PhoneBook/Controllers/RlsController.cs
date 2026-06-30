@@ -23,7 +23,7 @@ public class RlsController : ControllerBase
             userName = g.Key,
             isAdmin = g.Any(a => a.IsAdmin),
             ministries = g.Where(a => !string.IsNullOrWhiteSpace(a.Kementerian)).Select(a => a.Kementerian).ToList(),
-            id = g.First().Id
+            ids = g.Select(a => a.Id).ToList()
         });
         return Ok(users);
     }
@@ -36,10 +36,10 @@ public class RlsController : ControllerBase
         return Ok(new { message = "Access granted" });
     }
 
-    [HttpDelete("revoke/{id}")]
-    public async Task<IActionResult> Revoke(int id)
+    [HttpDelete("revoke/{userName}")]
+    public async Task<IActionResult> Revoke(string userName, [FromQuery] string? kementerian = null)
     {
-        await _rls.RevokeByIdAsync(id);
+        await _rls.RevokeAccessAsync(userName, kementerian);
         return Ok(new { message = "Access revoked" });
     }
 }

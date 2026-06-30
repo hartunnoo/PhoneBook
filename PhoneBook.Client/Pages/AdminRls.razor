@@ -1,0 +1,114 @@
+@page "/admin/rls"
+@rendermode InteractiveWebAssembly
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<div class="md-section-header">
+    <h1>🔐 Pengurusan Akses (RLS)</h1>
+    <a href="/" class="outlined-btn"><i class="bi bi-arrow-left"></i> Kembali</a>
+</div>
+
+@if (grants is null)
+{ <div class="loading-state"><div class="spinner"></div><p>Memuat...</p></div> }
+else
+{
+    <div class="card-form mb-3">
+        <div class="card-form-header"><h3>➕ Tambah Akses</h3></div>
+        <div class="card-form-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label-enterprise">Username</label>
+                    <input @bind="newUser" class="form-control-enterprise" placeholder="emel@domain.gov.bn" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label-enterprise">Kementerian</label>
+                    <input @bind="newMinistry" class="form-control-enterprise" placeholder="Nama Kementerian" />
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-2">
+                        <input type="checkbox" @bind="newIsAdmin" class="form-check-input" id="chkAdmin" />
+                        <label class="form-check-label" for="chkAdmin" style="font-size:.8rem">Admin</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button class="filled-btn w-100" @onclick="GrantAccess" disabled="@granting">➕</button>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(msg)) { <div class="mt-2" style="font-size:.75rem;color:@(msg.Contains("✅")?"var(--hmo-success)":"var(--hmo-danger)")">@msg</div> }
+        </div>
+    </div>
+
+    @foreach (var g in grants)
+    {
+        <div class="card-form mb-2">
+            <div class="card-form-body" style="padding:10px 16px">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <strong>@g.UserName</strong>
+                        @if (g.IsAdmin) { <span class="badge" style="background:var(--hmo-gold);color:#fff">👑 Admin</span> }
+                        else { <span class="badge bg-primary">👤 User</span> }
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        @if (!g.IsAdmin)
+                        {
+                            foreach (var m in g.Ministries)
+                            { <span class="chip" style="background:var(--hmo-gold-soft);color:var(--hmo-gold);font-size:.68rem">🏛️ @m</span> }
+                        }
+                        else { <span class="chip" style="font-size:.68rem">🌐 Semua Kementerian</span> }
+                        <button class="icon-btn danger" @onclick="() => RevokeAccess(g)" title="Buang">🗑️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    List<RlsGrant>? grants;
+    string newUser = "", newMinistry = "";
+    bool newIsAdmin, granting;
+    string? msg;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Load();
+    }
+
+    async Task Load()
+    {
+        try { grants = await Http.GetFromJsonAsync<List<RlsGrant>>("api/rls/users"); StateHasChanged(); }
+        catch { grants = new(); }
+    }
+
+    async Task GrantAccess()
+    {
+        if (string.IsNullOrWhiteSpace(newUser)) { msg = "❌ Username diperlukan"; return; }
+        granting = true; msg = null;
+        try
+        {
+            var resp = await Http.PostAsJsonAsync("api/rls/grant", new { userName = newUser, kementerian = newMinistry, isAdmin = newIsAdmin });
+            if (resp.IsSuccessStatusCode) { msg = "✅ Ditambah"; newUser = ""; newMinistry = ""; newIsAdmin = false; await Load(); }
+            else msg = "❌ Gagal";
+        }
+        catch { msg = "❌ Ralat"; }
+        finally { granting = false; StateHasChanged(); }
+    }
+
+    async Task RevokeAccess(RlsGrant g)
+    {
+        try
+        {
+            await Http.DeleteAsync($"api/rls/revoke/{g.UserName}");
+            await Load();
+        }
+        catch { }
+    }
+
+    class RlsGrant
+    {
+        public string UserName { get; set; } = "";
+        public bool IsAdmin { get; set; }
+        public List<string> Ministries { get; set; } = new();
+    }
+}
