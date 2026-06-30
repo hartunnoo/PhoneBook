@@ -406,7 +406,7 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("📡 *CIS — Centralise Information System*");
+        t.AppendLine("📡 *Direktori AI* · SSCU, ITD, Istana Nurul Iman");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
