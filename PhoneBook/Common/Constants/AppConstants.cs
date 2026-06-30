@@ -24,6 +24,12 @@ public static class AppConstants
 
     // Pagination
     public const int DefaultPageSize = 200;
+
+    // RLS - Row Level Security
+    public const string RlsAccessAll = "*"; // null Kementerian = all access
+    public const string RlsAdminUser = "hartunoo.soud@hmo.gov.bn";
+    public const string RlsDefaultUser = "pghelmi@hmo.gov.bn";
+    public static readonly string[] RlsDefaultMinistries = { "Jabatan Perdana Menteri", "Kementerian Kesihatan" };
 }
 
 public static class DateTimeFormat

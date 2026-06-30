@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PhoneBook.Application.DTOs;
 using PhoneBook.Application.Services;
 using PhoneBook.Common.Constants;
+using PhoneBook.Services;
 using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -17,14 +18,21 @@ namespace PhoneBook.Controllers;
 public class ContactsController : ControllerBase
 {
     private readonly ContactService _service;
+    private readonly RowLevelSecurityService _rls;
     private readonly ILogger _log = Log.ForContext<ContactsController>();
 
-    public ContactsController(ContactService service) => _service = service;
+    public ContactsController(ContactService service, RowLevelSecurityService rls) { _service = service; _rls = rls; }
 
     [HttpGet]
     public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, [FromQuery] string? sort, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
     {
         var all = await _service.GetAllAsync(search, ct);
+
+        // RLS: Filter by user's allowed ministries
+        var allowedMinistries = await _rls.GetAllowedMinistriesAsync(User.Identity?.Name);
+        if (allowedMinistries is not null && allowedMinistries.Any())
+            all = all.Where(c => c.Kementerian is not null && allowedMinistries.Contains(c.Kementerian)).ToList();
+
         // Sort
         all = sort switch
         {

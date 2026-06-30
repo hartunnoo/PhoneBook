@@ -69,6 +69,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddHttpClient<DeepSeekService>();
 builder.Services.AddScoped<DeepSeekService>();
 
+// RLS - Row Level Security
+builder.Services.AddScoped<RowLevelSecurityService>();
+
 // Application Services
 builder.Services.AddScoped<ContactService>();
 
@@ -97,6 +100,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PhoneBookDbContext>();
     db.Database.EnsureCreated();
+
+    // Seed RLS access grants
+    var rls = scope.ServiceProvider.GetRequiredService<RowLevelSecurityService>();
+    await rls.GrantAccessAsync(AppConstants.RlsAdminUser, isAdmin: true);
+    foreach (var ministry in AppConstants.RlsDefaultMinistries)
+        await rls.GrantAccessAsync(AppConstants.RlsDefaultUser, kementerian: ministry);
 }
 
 if (app.Environment.IsDevelopment())

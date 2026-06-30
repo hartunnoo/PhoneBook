@@ -11,6 +11,7 @@ public class PhoneBookDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<UserAccess> UserAccesses => Set<UserAccess>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
