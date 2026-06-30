@@ -12,10 +12,9 @@
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
-    <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportWAFirst" title="Eksport pertama ke WhatsApp"><i class="bi bi-whatsapp"></i></button>
-    @if (selected.Any())
-    { <span class="badge bg-primary rounded-pill" style="font-size:.7rem">@selected.Count</span><button class="chip wa" style="background:#128C7E;color:#fff" @onclick="ExportSelectedWA" title="Eksport @selected.Count dipilih"><i class="bi bi-send-fill"></i></button> }
-    <button class="chip wa" style="background:#075e54;color:#fff" @onclick="ExportWAAll" title="Eksport semua ke WhatsApp"><i class="bi bi-list-ul"></i></button>
+    @if (!selected.Any()) { <button class="chip wa" style="background:#25d366;color:#fff" @onclick="ExportWAFirst" title="Eksport pertama"><i class="bi bi-whatsapp"></i></button> }
+    @if (selected.Any()) { <span class="badge bg-primary rounded-pill" style="font-size:.7rem">@selected.Count</span><button class="chip wa" style="background:#128C7E;color:#fff" @onclick="ExportSelectedWA" title="Eksport @selected.Count dipilih"><i class="bi bi-send-fill"></i></button> }
+    <button class="chip wa" style="background:#075e54;color:#fff" @onclick="ExportWAAll" title="Eksport semua"><i class="bi bi-list-ul"></i></button>
     <button class="icon-btn" @onclick="ExportAll" title="Eksport CSV"><i class="bi bi-download"></i></button>
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
