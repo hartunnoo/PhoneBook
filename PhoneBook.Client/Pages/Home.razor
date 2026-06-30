@@ -65,6 +65,7 @@ else
     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 16px;gap:4px;flex-wrap:wrap">
         <div>
         <button class="chip" @onclick="SelectAll" title="Pilih semua"><i class="bi bi-check-square"></i></button>
+        <button class="chip" @onclick="ClearAll" title="Kosongkan"><i class="bi bi-x-lg"></i></button>
         @if (selected.Any())
         {
             <span class="badge bg-primary rounded-pill" style="font-size:.7rem;padding:3px 8px;margin:0 2px">@selected.Count dipilih</span>
@@ -257,6 +258,7 @@ else
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); StateHasChanged(); } }
+    void ClearAll() { selected.Clear(); search = ""; filter = ""; SaveState(); _ = Load(); StateHasChanged(); }
 
     async Task ExportSelectedWA()
     {
