@@ -135,8 +135,9 @@ else
             @foreach (var c in contacts.OrderBy(c => c.Name))
             {
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
-                <div class="contact-tile" @onclick="() => Edit(c.Id)">
-                    <div class="avatar lg acac">
+                <div class="contact-tile" @onclick="() => Edit(c.Id)" style="position:relative">
+                    <input type="checkbox" checked="@selected.Contains(c.Id)" @onchange="() => ToggleSelect(c)" @onclick:stopPropagation style="position:absolute;top:6px;left:6px;width:14px;height:14px;cursor:pointer;accent-color:var(--hmo-gold);z-index:1" />
+                    <div class="avatar lg ac@ac">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else if (c.Gender == "female"){<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M12 12c-3 0-9 1.5-9 4.5V18c0 .6.4 1 1 1h4l1.5-3h5l1.5 3h4c.6 0 1-.4 1-1v-1.5c0-3-6-4.5-9-4.5z"/></svg>}else{<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M15 12H9c-4 0-7 2-7 5.5V19c0 .6.4 1 1 1h18c.6 0 1-.4 1-1v-1.5c0-3.5-3-5.5-7-5.5z"/></svg>}
                     </div>
                     <div class="tile-name">
