@@ -39,7 +39,8 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .login-brand .brand-subtitle{font-size:.88rem;opacity:.55;margin:0 0 48px;line-height:1.6}
 .login-brand .brand-features{display:flex;flex-direction:column;gap:14px;text-align:left;font-size:.82rem;opacity:.7}
 .login-brand .brand-features span{opacity:.5;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
-.login-brand .brand-footer{position:absolute;bottom:36px;left:0;right:0;text-align:center;font-size:.68rem;opacity:.3;letter-spacing:.03em}
+.login-brand .brand-footer{position:absolute;bottom:36px;left:0;right:0;text-align:center;font-size:.65rem;opacity:.25;letter-spacing:.04em}
+.login-warning{background:linear-gradient(135deg,#0f172a,#1e293b);border:1px solid rgba(201,164,59,.2);border-radius:12px;padding:12px 16px;margin-bottom:20px}
 
 .login-form-panel{flex:1;display:flex;flex-direction:column;justify-content:center;padding:56px 56px 56px 48px;background:var(--hmo-white)}
 .login-form-inner{max-width:380px;width:100%}

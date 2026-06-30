@@ -10,16 +10,22 @@
         <div class="login-brand">
             <div class="login-brand-content">
                 <div class="login-logo">
-                    <div class="login-logo-icon">📞</div>
+                    <div class="login-logo-icon">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+                    </div>
                 </div>
-                <h1 style="text-transform:uppercase;letter-spacing:.05em">Direktori <span style="color:#c9a43b">HMO</span></h1>
-                <p>His Majesty's Office · Pejabat Kerajaan</p>
-                <div class="login-features">
-                    <div class="login-feature"><i class="bi bi-shield-check"></i> Akses selamat & terjamin</div>
-                    <div class="login-feature"><i class="bi bi-robot"></i> Carian AI Pintar</div>
-                    <div class="login-feature"><i class="bi bi-share"></i> Eksport ke WhatsApp</div>
+                <div style="margin-bottom:8px">
+                    <span style="font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;opacity:.5;background:rgba(201,164,59,.15);padding:3px 10px;border-radius:20px;border:1px solid rgba(201,164,59,.2)">Sistem Rasmi Kerajaan</span>
+                </div>
+                <h1 style="text-transform:uppercase;letter-spacing:.06em;font-weight:800;font-size:1.8rem">Direktori <span style="color:#c9a43b">HMO</span></h1>
+                <p style="opacity:.55;font-size:.85rem;margin-top:6px">His Majesty's Office</p>
+                <div style="margin-top:32px;display:flex;flex-direction:column;gap:14px;text-align:left;font-size:.78rem;opacity:.65;line-height:1.5">
+                    <div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:1rem;flex-shrink:0">🔐</span> Akses selamat dengan pengesahan identiti</div>
+                    <div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:1rem;flex-shrink:0">🤖</span> Carian pintar dikuasakan AI</div>
+                    <div style="display:flex;align-items:flex-start;gap:10px"><span style="font-size:1rem;flex-shrink:0">📤</span> Eksport direktori ke WhatsApp</div>
                 </div>
             </div>
+            <div class="login-brand-footer">SSCU, ITD, Istana Nurul Iman</div>
         </div>
 
         @* Right: Form panel *@
@@ -27,35 +33,32 @@
             <div class="login-form-inner">
                 <div class="login-form-header">
                     <h2>Log Masuk</h2>
-                    <p>Masukkan butiran akaun anda</p>
+                    <p>Sila masukkan butiran akaun anda untuk mengakses direktori</p>
                 </div>
 
-                <div class="login-warning" style="padding:14px 18px;background:linear-gradient(135deg,#0f172a,#1e293b);border:1px solid rgba(201,164,59,.3);border-radius:12px;margin-bottom:20px">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-                        <div style="width:36px;height:36px;background:linear-gradient(135deg,#c9a43b,#debd5a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🔒</div>
-                        <div style="flex:1;min-width:150px">
-                            <p style="color:#debd5a;font-weight:800;font-size:.78rem;margin:0;letter-spacing:.03em">⚠️ RESTRICTED ACCESS</p>
-                            <p style="color:#94a3b8;font-size:.65rem;margin:2px 0 0">His Majesty's Office · Kegunaan Rasmi Sahaja</p>
-                        </div>
+                <div class="login-warning">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <span style="font-size:1.1rem">🔒</span>
+                        <span style="font-weight:700;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#c9a43b">Restricted Access</span>
                     </div>
-                    <div style="border-top:1px solid rgba(201,164,59,.15);padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-                        <span class="badge" style="background:rgba(201,164,59,.15);color:#debd5a;font-size:.6rem;padding:3px 8px"><i class="bi bi-shield-lock-fill"></i> Audit Trail</span>
-                        <span class="badge" style="background:rgba(201,164,59,.15);color:#debd5a;font-size:.6rem;padding:3px 8px"><i class="bi bi-fingerprint"></i> ID Direkod</span>
-                        <span class="badge" style="background:rgba(201,164,59,.15);color:#debd5a;font-size:.6rem;padding:3px 8px"><i class="bi bi-clock-history"></i> Dilog</span>
-                        <span class="badge" style="background:rgba(201,164,59,.15);color:#debd5a;font-size:.6rem;padding:3px 8px"><i class="bi bi-eye-fill"></i> Dipantau</span>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                        <span class="badge" style="background:rgba(201,164,59,.12);color:#c9a43b;font-size:.58rem;padding:2px 7px;font-weight:600">Audit Trail</span>
+                        <span class="badge" style="background:rgba(201,164,59,.12);color:#c9a43b;font-size:.58rem;padding:2px 7px;font-weight:600">ID Direkod</span>
+                        <span class="badge" style="background:rgba(201,164,59,.12);color:#c9a43b;font-size:.58rem;padding:2px 7px;font-weight:600">Dilog</span>
+                        <span class="badge" style="background:rgba(201,164,59,.12);color:#c9a43b;font-size:.58rem;padding:2px 7px;font-weight:600">Dipantau</span>
                     </div>
                 </div>
 
                 <EditForm Model="auth" OnValidSubmit="DoLogin" FormName="login">
                     <DataAnnotationsValidator />
                     <div class="login-field">
-                        <div class="login-field-icon"><i class="bi bi-envelope"></i></div>
-                        <input type="email" @bind="auth.Username" placeholder="Alamat emel atau username" autocomplete="username" />
+                        <div class="login-field-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <input type="email" @bind="auth.Username" placeholder="Alamat emel rasmi" autocomplete="username" />
                     </div>
                     <ValidationMessage For="()=>auth.Username" />
 
                     <div class="login-field">
-                        <div class="login-field-icon"><i class="bi bi-lock"></i></div>
+                        <div class="login-field-icon"><i class="bi bi-shield-lock-fill"></i></div>
                         <input type="password" @bind="auth.Password" placeholder="Kata laluan" autocomplete="current-password" />
                     </div>
                     <ValidationMessage For="()=>auth.Password" />
@@ -63,12 +66,14 @@
                     @if (!string.IsNullOrEmpty(error))
                     { <div class="login-error"><i class="bi bi-exclamation-triangle-fill"></i> @error</div> }
 
-                    <button type="submit" class="login-btn" disabled="@busy">@(busy ? "Sila tunggu..." : "Log Masuk") <i class="bi bi-arrow-right"></i></button>
-
-                    <div class="login-divider"><span>atau</span></div>
-
-                    <button type="button" class="login-btn-outline" @onclick="DoRegister" disabled="@busy">Daftar Akaun Baru</button>
+                    <button type="submit" class="login-btn" disabled="@busy">
+                        @(busy ? "Sila tunggu..." : "Log Masuk") <i class="bi bi-arrow-right"></i>
+                    </button>
                 </EditForm>
+
+                <p style="text-align:center;font-size:.65rem;color:var(--hmo-text-3);margin-top:12px">
+                    <i class="bi bi-shield-check" style="color:#c9a43b"></i> Semua aktiviti direkodkan untuk tujuan keselamatan
+                </p>
             </div>
         </div>
     </div>
