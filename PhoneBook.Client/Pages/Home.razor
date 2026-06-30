@@ -250,8 +250,8 @@ else
         finally { hasMore = (contacts?.Count ?? 0) == pageSize; }
     }
 
-    async Task NextPage() { currentPage++; await Load(); StateHasChanged(); }
-    async Task PrevPage() { if (currentPage > 1) { currentPage--; await Load(); StateHasChanged(); } }
+    async Task NextPage() { currentPage++; await Load(); ShowToast($"📄 M/S {currentPage}", false); StateHasChanged(); }
+    async Task PrevPage() { if (currentPage > 1) { currentPage--; await Load(); ShowToast($"📄 M/S {currentPage}", false); StateHasChanged(); } }
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
@@ -265,8 +265,8 @@ else
     {
         var files = e.Value as Microsoft.AspNetCore.Components.Forms.IBrowserFile[]; if (files is null or { Length: 0 }) return;
         var file = files[0]; csvBusy = true; csvMsg = null; StateHasChanged();
-        try { using var content = new MultipartFormDataContent(); var stream = file.OpenReadStream(10*1024*1024); content.Add(new StreamContent(stream), "file", file.Name); var r = await Http.PostAsync(ApiBase + "/import", content); if (r.IsSuccessStatusCode) { var d = await r.Content.ReadFromJsonAsync<ImportResult>(); csvMsg = $"✅ {d?.Count ?? 0} direktori diimport"; await Load(); await LoadStats(); } else csvMsg = "❌ Gagal import"; }
-        catch { csvMsg = "❌ Ralat"; }
+        try { using var content = new MultipartFormDataContent(); var stream = file.OpenReadStream(10*1024*1024); content.Add(new StreamContent(stream), "file", file.Name); var r = await Http.PostAsync(ApiBase + "/import", content); if (r.IsSuccessStatusCode) { var d = await r.Content.ReadFromJsonAsync<ImportResult>(); csvMsg = $"✅ {d?.Count ?? 0} direktori diimport"; ShowToast(csvMsg, false); await Load(); await LoadStats(); } else { csvMsg = "❌ Gagal import"; ShowToast(csvMsg, true); } }
+        catch { csvMsg = "❌ Ralat"; ShowToast(csvMsg, true); }
         finally { csvBusy = false; StateHasChanged(); }
     }
 
@@ -301,8 +301,8 @@ else
     class AiResult { public int[] Results { get; set; } = Array.Empty<int>(); }
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
-    void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); StateHasChanged(); } }
-    void ClearAll() { selected.Clear(); search = ""; filter = ""; SaveState(); _ = Load(); StateHasChanged(); }
+    void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); ShowToast($"✅ {selected.Count} dipilih", false); StateHasChanged(); } }
+    void ClearAll() { selected.Clear(); search = ""; filter = ""; SaveState(); _ = Load(); ShowToast("✅ Dikosongkan", false); StateHasChanged(); }
 
     static string Sep => "━━━━━━━━━━━━━━━━━━━";
 
