@@ -76,7 +76,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .login-footer-note i{color:#c9a43b;font-size:.7rem}
 
 /* ─── APP BAR ─── */
-.top-bar{background:linear-gradient(180deg,#060f1e 0%,#0a1a33 100%);border-bottom:1px solid rgba(255,255,255,.06);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;color:#e8edf8;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.top-bar{background:linear-gradient(180deg,#060f1e 0%,#0a1a33 100%)!important;border-bottom:2px solid rgba(201,164,59,.3)!important;padding:0 20px;height:60px;display:flex!important;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000;color:#fff!important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);visibility:visible!important;opacity:1!important}
 .top-bar-content{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px}
 .top-bar-title{font-size:1.2rem;font-weight:700;color:#f0f2f5;letter-spacing:-.02em;font-feature-settings:'cv02','cv03'}
 .top-bar-actions{display:flex;align-items:center;gap:8px}
