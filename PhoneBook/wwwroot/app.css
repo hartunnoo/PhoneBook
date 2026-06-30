@@ -223,7 +223,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .contact-tile{display:flex;flex-direction:column;align-items:center;padding:20px 12px 16px;border-radius:var(--hmo-radius);cursor:pointer;gap:6px;transition:all var(--dur) var(--ease);background:var(--hmo-white);border:1px solid var(--hmo-border);box-shadow:var(--hmo-shadow-sm);text-align:center}
 .contact-tile:hover{background:var(--hmo-surface);border-color:var(--hmo-gold);box-shadow:var(--hmo-shadow);transform:translateY(-2px)}
 .contact-tile:active{transform:scale(.96)}
-.contact-tile .avatar{margin-bottom:2px}
+.contact-tile .avatar{margin-top:4px;margin-bottom:2px}
 .contact-tile .tile-name{font-size:.78rem;font-weight:600;color:var(--hmo-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .contact-tile .tile-sub{font-size:.65rem;color:var(--hmo-text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 @media(max-width:768px){.contact-grid{grid-template-columns:repeat(3,1fr);gap:6px;padding:0 8px}.contact-tile{padding:14px 8px 12px}}
