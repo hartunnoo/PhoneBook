@@ -232,7 +232,7 @@ else
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
-    void ToggleDarkMode() { darkMode = !darkMode; StateHasChanged(); }
+    async Task ToggleDarkMode() { darkMode = await JS.InvokeAsync<bool>("toggleDarkMode"); StateHasChanged(); }
 
     async Task ToggleFav(ContactDto c) { try { var r = await Http.PutAsync($"{ApiBase}/{c.Id}/favorite", null); if (r.IsSuccessStatusCode) { c.IsFavorite = !c.IsFavorite; ShowToast(c.IsFavorite ? "⭐ Ditanda favorit" : "Favorit dibuang", false); } } catch { } }
 
