@@ -23,10 +23,14 @@
 @if (stats is not null)
 {
     <div class="stats-dash">
-        <div class="stat-mini" style="cursor:pointer" @onclick="ClearFilter"><div class="stat-num">@stats.Total</div><div class="stat-label">Jumlah</div></div>
-        <div class="stat-mini" style="cursor:pointer" @onclick="FilterFav"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">Favorit</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="ClearFilter"><div class="stat-num">📋 @stats.Total</div><div class="stat-label">👥 Jumlah</div></div>
+        <div class="stat-mini" style="cursor:pointer" @onclick="FilterFav"><div class="stat-num">⭐ @stats.Favorites</div><div class="stat-label">❤️ Favorit</div></div>
         @foreach (var m in stats.Ministries.Take(3))
-        { <div class="stat-mini" style="cursor:pointer" @onclick="() => FilterMinistry(m.Name)"><div class="stat-num" style="font-size:1rem">@m.Count</div><div class="stat-label">@m.Name</div></div> }
+        { <div class="stat-mini" style="cursor:pointer" @onclick="() => FilterMinistry(m.Name)"><div class="stat-num" style="font-size:1rem">🏛️ @m.Count</div><div class="stat-label">@m.Name</div></div> }
+        @if (contacts is not null) {
+            var vipCount = contacts.Count(c => (c.Tags ?? "").ToUpper().Contains("VIP"));
+            if (vipCount > 0) { <div class="stat-mini"><div class="stat-num" style="font-size:1rem">👑 @vipCount</div><div class="stat-label">VIP/VVIP</div></div> }
+        }
         @if (!string.IsNullOrEmpty(filter))
         { <div class="stat-mini" style="cursor:pointer;background:var(--md-primary-container)" @onclick="ClearFilter"><div class="stat-label">✕ Tapis: @filter</div></div> }
     </div>
@@ -52,9 +56,9 @@ else if (!contacts.Any())
 {
     <div class="empty-state">
         <div class="empty-icon"><i class="bi bi-person-plus" style="font-size:2.5rem;color:var(--md-on-surface-variant)"></i></div>
-        <h2>Tiada direktori</h2>
-        <p>Tambahkan direktori untuk bermula</p>
-        <button class="filled-btn" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i> Tambah direktori</button>
+        <h2>📭 Tiada Direktori</h2>
+        <p>Tambahkan kenalan pertama anda untuk bermula</p>
+        <button class="filled-btn" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i> ➕ Tambah Direktori</button>
     </div>
 }
 else
@@ -193,7 +197,7 @@ else
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { RestoreState(); await LoadUser(); await Load(); await LoadStats(); } }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await RestoreState(); await LoadUser(); await Load(); await LoadStats(); } }
 
     void SaveState()
     {
@@ -381,7 +385,7 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("📡 *DIREKTORI HMO* · SSCU, ITD, Istana Nurul Iman");
+        t.AppendLine("📡 *PhoneBook — Direktori Perhubungan*");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
