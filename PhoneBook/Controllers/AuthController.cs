@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PhoneBook.Services;
 
 namespace PhoneBook.Controllers;
 
@@ -12,16 +13,27 @@ public class AuthController : ControllerBase
 {
     private readonly SignInManager<IdentityUser> _signIn;
     private readonly UserManager<IdentityUser> _user;
+    private readonly RowLevelSecurityService _rls;
 
-    public AuthController(SignInManager<IdentityUser> signIn, UserManager<IdentityUser> user)
+    public AuthController(SignInManager<IdentityUser> signIn, UserManager<IdentityUser> user, RowLevelSecurityService rls)
     {
         _signIn = signIn;
         _user = user;
+        _rls = rls;
     }
 
     [HttpGet("status")]
-    public IActionResult Status()
-        => Ok(new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false, User.Identity?.Name });
+    public async Task<IActionResult> Status()
+    {
+        var userName = User.Identity?.Name;
+        bool isAdmin = false;
+        if (User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(userName))
+        {
+            var accesses = await _rls.GetAllowedMinistriesAsync(userName);
+            isAdmin = accesses is null; // null = admin (all access)
+        }
+        return Ok(new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false, User.Identity?.Name, IsAdmin = isAdmin });
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] AuthRequest req)

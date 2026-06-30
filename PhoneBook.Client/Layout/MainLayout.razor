@@ -25,7 +25,7 @@
                             </div>
                             <div class="menu-divider"></div>
                             <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">📋</span> Direktori</button>
-                            <button class="menu-item" @onclick="GoToRls"><span class="menu-icon">🔐</span> Urus Akses</button>
+                            @if (isAdmin) { <button class="menu-item" @onclick="GoToRls"><span class="menu-icon">🔐</span> Urus Akses</button> }
                             <div class="menu-divider"></div>
                             <button class="menu-item danger" @onclick="DoLogout"><span class="menu-icon">🚪</span> Log Keluar</button>
                             <div style="height:env(safe-area-inset-bottom,16px)"></div>
@@ -58,7 +58,7 @@
 }
 
 @code {
-    bool isLoggedIn; string? username; string initial = "?"; int avColor; bool showMenu;
+    bool isLoggedIn; string? username; string initial = "?"; int avColor; bool showMenu; bool isAdmin;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -71,6 +71,7 @@
                 isLoggedIn = true; username = s.Name;
                 initial = string.IsNullOrWhiteSpace(s.Name) ? "?" : s.Name[0].ToString().ToUpper();
                 avColor = Math.Abs(s.Name?.GetHashCode() ?? 0) % 10;
+                isAdmin = s.IsAdmin;
                 StateHasChanged();
             }
         }
@@ -81,5 +82,5 @@
     void CloseMenu() { showMenu = false; StateHasChanged(); }
     void GoToRls() { showMenu = false; Nav.NavigateTo("/admin/rls"); }
     async Task DoLogout() { showMenu = false; StateHasChanged(); await Http.PostAsync("api/auth/logout", null); Nav.NavigateTo("/login", forceLoad: true); }
-    record AuthStatus(bool IsAuthenticated, string? Name);
+    record AuthStatus(bool IsAuthenticated, string? Name, bool IsAdmin);
 }

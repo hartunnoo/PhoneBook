@@ -72,8 +72,13 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) await Load();
+        if (!firstRender) return;
+        // Auth check
+        try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); if (s?.IsAuthenticated != true) { Nav.NavigateTo("/login"); return; } }
+        catch { Nav.NavigateTo("/login"); return; }
+        await Load();
     }
+    record AuthStatus(bool IsAuthenticated, string? Name);
 
     async Task Load()
     {
