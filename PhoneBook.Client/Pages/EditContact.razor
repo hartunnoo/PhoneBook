@@ -50,6 +50,10 @@ else
 
         <div class="form-section">
             <div class="form-section-title"><i class="bi bi-person-vcard"></i> Maklumat Peribadi</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                <div class="text-field"><InputText @bind-Value="c.Honorific" placeholder=" " id="hn" /><label for="hn">Gelaran (YB, YM, Dato)</label></div>
+                <div class="text-field"><select @bind="c.Gender" id="gd" style="width:100%;padding:14px 0 6px;border:none;border-bottom:1px solid var(--hmo-border);font-size:.9rem;font-family:inherit;outline:none;background:transparent;color:var(--hmo-text)"><option value="">Pilih Jantina</option><option value="male">👨 Lelaki</option><option value="female">👩 Perempuan</option></select><label for="gd" style="top:0;font-size:.7rem;color:var(--hmo-gold)">Jantina</label></div>
+            </div>
             <div class="text-field">
                 <InputText @bind-Value="c.Name" placeholder=" " id="nm" />
                 <label for="nm">Nama</label><ValidationMessage For="()=>c.Name" />
@@ -67,6 +71,24 @@ else
                 <div class="text-field"><InputText @bind-Value="c.Department" placeholder=" " id="dp" /><label for="dp">Jabatan</label></div>
             </div>
             <div class="text-field"><InputText @bind-Value="c.Bahagian" placeholder=" " id="bh" /><label for="bh">Bahagian</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-geo-alt"></i> Lokasi Pejabat</div>
+            <div class="text-field"><InputText @bind-Value="c.Building" placeholder=" " id="bd" /><label for="bd">Bangunan</label></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                <div class="text-field"><InputText @bind-Value="c.Floor" placeholder=" " id="fl" /><label for="fl">Tingkat</label></div>
+                <div class="text-field"><InputText @bind-Value="c.Room" placeholder=" " id="rm" /><label for="rm">Bilik</label></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-person-badge"></i> Setiausaha / PA</div>
+            <div class="text-field"><InputText @bind-Value="c.PAName" placeholder=" " id="pa" /><label for="pa">Nama PA</label></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                <div class="text-field"><InputText @bind-Value="c.PAMobile" placeholder=" " id="pam" /><label for="pam">Mobile PA</label></div>
+                <div class="text-field"><InputText @bind-Value="c.PAEmail" placeholder=" " id="pae" /><label for="pae">Emel PA</label></div>
+            </div>
         </div>
 
         <div class="form-section">
@@ -90,6 +112,14 @@ else
             <div class="text-field"><InputText @bind-Value="c.Email1" placeholder=" " id="em1" /><label for="em1">Emel 1</label></div>
             <div class="text-field"><InputText @bind-Value="c.Email2" placeholder=" " id="em2" /><label for="em2">Emel 2</label></div>
             <div class="text-field"><InputText @bind-Value="c.Email3" placeholder=" " id="em3" /><label for="em3">Emel 3</label></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><i class="bi bi-tags"></i> Tags</div>
+            <div class="text-field">
+                <InputText @bind-Value="c.Tags" placeholder=" " id="tg" />
+                <label for="tg">Tags (pisahkan dengan koma)</label>
+            </div>
         </div>
 
         <div class="form-section">
@@ -268,7 +298,10 @@ else
         public string? Phone1 { get; set; } public string? Phone2 { get; set; } public string? Phone3 { get; set; } public string? Phone4 { get; set; }
         public string? Email1 { get; set; } public string? Email2 { get; set; } public string? Email3 { get; set; }
         public string? Company { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; }
-        public string? Bahagian { get; set; } public string? Jawatan { get; set; } public string? Notes { get; set; }
+        public string? Bahagian { get; set; } public string? Jawatan { get; set; }
+        public string? Building { get; set; } public string? Floor { get; set; } public string? Room { get; set; }
+        public string? PAName { get; set; } public string? PAMobile { get; set; } public string? PAEmail { get; set; }
+        public string? Tags { get; set; } public string? Notes { get; set; }
         public string? PhotoPath { get; set; }
     }
 }
