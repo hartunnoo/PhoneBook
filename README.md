@@ -49,8 +49,17 @@
 - Building, Floor, Room location
 - PA/Secretary name, mobile, email
 - Tags + Favorites
+- 👑 **VIP/VVIP Highlighting** — gold gradient background, glowing border, animated badge for VIP/VVIP tagged contacts
 - Profile photo with ImageSharp 300×300 resize
 - Male/Female default silhouette avatars
+
+### Scalability
+- 📄 **Server-side pagination** — 50 contacts per page
+- ⬅️➡️ Prev/Next navigation with page indicator
+- 🖥️ Only 50 DOM elements rendered at a time
+- 💬 **WA export** auto-limits to 50 contacts with "dan X lagi" truncation
+- 📥 **CSV export** — full dataset, no limit
+- 🗄️ SQLite handles 10,000+ records; migration path to MySQL/SQL Server available
 
 ### Export
 - 💚 WhatsApp — single contact, selected contacts, or all contacts
