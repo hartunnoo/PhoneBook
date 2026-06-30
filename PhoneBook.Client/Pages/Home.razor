@@ -93,10 +93,7 @@ else
                 else if (!c.IsFavorite && letter != lastLetter)
                 { <div class="alpha-header">@letter</div> lastLetter = letter; }
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
-                var isVip = (c.Tags ?? "").Contains("VIP", StringComparison.OrdinalIgnoreCase);
-                var isVvip = (c.Tags ?? "").Contains("VVIP", StringComparison.OrdinalIgnoreCase);
-                var vipClass = isVvip ? "vvip" : isVip ? "vip" : "";
-                <div class="contact-list-item @vipClass" @onclick="() => Edit(c.Id)">
+                <div class="contact-list-item" @onclick="() => Edit(c.Id)">
                     <input type="checkbox" checked="@selected.Contains(c.Id)" @onchange="() => ToggleSelect(c)" @onclick:stopPropagation style="width:16px;height:16px;cursor:pointer;accent-color:var(--hmo-gold);flex-shrink:0" />
                     <div class="avatar acac" style="width:36px;height:36px;font-size:.85rem">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else if (c.Gender == "female"){<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M12 12c-3 0-9 1.5-9 4.5V18c0 .6.4 1 1 1h4l1.5-3h5l1.5 3h4c.6 0 1-.4 1-1v-1.5c0-3-6-4.5-9-4.5z"/></svg>}else{<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M15 12H9c-4 0-7 2-7 5.5V19c0 .6.4 1 1 1h18c.6 0 1-.4 1-1v-1.5c0-3.5-3-5.5-7-5.5z"/></svg>}
@@ -104,7 +101,6 @@ else
                     <div class="contact-main">
                         <div style="font-size:.9rem;font-weight:500;line-height:1.3">
                             @if(!string.IsNullOrWhiteSpace(c.Honorific)){<span class="badge bg-primary bg-opacity-10 text-primary me-1" style="font-size:.6rem;padding:1px 5px">@c.Honorific</span>}
-                            @if(isVvip){<span class="vip-badge vvip">VVIP</span>}else if(isVip){<span class="vip-badge vip">VIP</span>}
                             @c.Name
                         </div>
                         <div class="contact-meta">
@@ -139,7 +135,7 @@ else
             @foreach (var c in contacts.OrderBy(c => c.Name))
             {
                 var ac = Math.Abs(c.Name.GetHashCode()) % 10;
-                <div class="contact-tile @((c.Tags ?? "").Contains("VVIP", StringComparison.OrdinalIgnoreCase) ? "vvip" : (c.Tags ?? "").Contains("VIP", StringComparison.OrdinalIgnoreCase) ? "vip" : "")" @onclick="() => Edit(c.Id)" style="position:relative">
+                <div class="contact-tile" @onclick="() => Edit(c.Id)" style="position:relative">
                     <input type="checkbox" checked="@selected.Contains(c.Id)" @onchange="() => ToggleSelect(c)" @onclick:stopPropagation style="position:absolute;top:6px;left:6px;width:14px;height:14px;cursor:pointer;accent-color:var(--hmo-gold);z-index:1" />
                     <div class="avatar lg ac@ac">
                         @if (!string.IsNullOrWhiteSpace(c.PhotoPath)){<img src="@c.PhotoPath" alt="@c.Name"/>}else if (c.Gender == "female"){<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M12 12c-3 0-9 1.5-9 4.5V18c0 .6.4 1 1 1h4l1.5-3h5l1.5 3h4c.6 0 1-.4 1-1v-1.5c0-3-6-4.5-9-4.5z"/></svg>}else{<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" opacity=".6"><circle cx="12" cy="6" r="4"/><path d="M15 12H9c-4 0-7 2-7 5.5V19c0 .6.4 1 1 1h18c.6 0 1-.4 1-1v-1.5c0-3.5-3-5.5-7-5.5z"/></svg>}
@@ -154,16 +150,6 @@ else
             }
         </div>
     }
-}
-
-@* PAGINATION *@
-@if (contacts is not null && (hasMore || currentPage > 1))
-{
-    <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:12px 16px 80px">
-        <button class="chip" @onclick="PrevPage" disabled="@(currentPage==1)"><i class="bi bi-chevron-left"></i></button>
-        <span class="badge bg-primary rounded-pill" style="font-size:.7rem">M/S @currentPage</span>
-        <button class="chip" @onclick="NextPage" disabled="@(!hasMore)"><i class="bi bi-chevron-right"></i></button>
-    </div>
 }
 
 @* FAB *@
@@ -200,7 +186,6 @@ else
     HashSet<int> selected = new();
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
     string? username;
-    int currentPage = 1; const int pageSize = 50; bool hasMore;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
@@ -233,7 +218,7 @@ else
     async Task Load()
     {
         try {
-            var url = ApiBase + $"?sort={sortBy}&pageSize={pageSize}&page={currentPage}";
+            var url = ApiBase + $"?sort={sortBy}&pageSize=200";
             if (!string.IsNullOrWhiteSpace(search)) url += $"&search={Uri.EscapeDataString(search)}";
             contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new();
             if (filter == "fav") contacts = contacts.Where(c => c.IsFavorite).ToList();
@@ -243,11 +228,7 @@ else
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
         catch { contacts ??= new(); }
-        finally { hasMore = (contacts?.Count ?? 0) == pageSize; }
     }
-
-    async Task NextPage() { currentPage++; await Load(); StateHasChanged(); }
-    async Task PrevPage() { if (currentPage > 1) { currentPage--; await Load(); StateHasChanged(); } }
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
@@ -328,13 +309,11 @@ else
     void ExportWAAll()
     {
         if (contacts is null || !contacts.Any()) return;
-        var list = contacts.OrderBy(c => c.Name).Take(50).ToList();
         var t = new System.Text.StringBuilder();
         t.AppendLine("📋 *SENARAI DIREKTORI*");
-        t.AppendLine($"📊 {list.Count} direktori" + (contacts.Count > 50 ? $" (drp {contacts.Count})" : ""));
+        t.AppendLine($"📊 {contacts.Count} direktori");
         t.AppendLine(Sep);
-        foreach (var c in list) AppendSummary(t, c);
-        if (contacts.Count > 50) t.AppendLine($"... dan {contacts.Count - 50} lagi");
+        foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
         AppendFooter(t);
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
@@ -346,8 +325,6 @@ else
         var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
         t.AppendLine($"{g} *{h}{c.Name}*");
         if (c.IsFavorite) t.AppendLine("⭐ _Favorit_");
-        if ((c.Tags ?? "").Contains("VVIP", StringComparison.OrdinalIgnoreCase)) t.AppendLine("👑 `VVIP`");
-        else if ((c.Tags ?? "").Contains("VIP", StringComparison.OrdinalIgnoreCase)) t.AppendLine("👑 `VIP`");
         t.AppendLine(Sep);
         if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"💼 {c.Jawatan}");
         if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"🏛 {c.Kementerian}");
