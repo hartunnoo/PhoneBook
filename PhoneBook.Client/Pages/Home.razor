@@ -2,6 +2,7 @@
 @rendermode InteractiveWebAssembly
 @using System.Net.Http.Json
 @inject HttpClient Http
+@inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
@@ -191,7 +192,24 @@ else
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await LoadUser(); await Load(); await LoadStats(); } }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { RestoreState(); await LoadUser(); await Load(); await LoadStats(); } }
+
+    void SaveState()
+    {
+        _ = JS.InvokeVoidAsync("sessionStorage.setItem", "pb_search", search);
+        _ = JS.InvokeVoidAsync("sessionStorage.setItem", "pb_selected", string.Join(",", selected));
+        _ = JS.InvokeVoidAsync("sessionStorage.setItem", "pb_filter", filter);
+    }
+
+    async Task RestoreState()
+    {
+        try {
+            search = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_search") ?? "";
+            var sel = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_selected") ?? "";
+            if (!string.IsNullOrEmpty(sel)) selected = sel.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToHashSet();
+            filter = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_filter") ?? "";
+        } catch { }
+    }
 
     async Task LoadUser() { try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); username = s?.Name; } catch { } }
     record AuthStatus(bool IsAuthenticated, string? Name);
@@ -236,8 +254,8 @@ else
     void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
 
-    void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); StateHasChanged(); }
-    void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); StateHasChanged(); } }
+    void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
+    void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); StateHasChanged(); } }
 
     async Task ExportSelectedWA()
     {
@@ -313,7 +331,7 @@ else
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
-    void Edit(int id) => Nav.NavigateTo(Routes.Edit(id));
+    void Edit(int id) { SaveState(); Nav.NavigateTo(Routes.Edit(id)); }
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;
     async Task DoDelete() { if (deleteTarget is null) return; try { await Http.DeleteAsync($"{ApiBase}/{deleteTarget.Id}"); ShowToast("✅ " + deleteTarget.Name + " dipadam", false); } catch { ShowToast("❌ Gagal memadam", true); } deleteTarget = null; await Load(); }
 
