@@ -183,4 +183,4 @@
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/PhoneBook.genruntimeconfig.cache
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/ref/PhoneBook.dll
 /home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/j53q55cuzy-{0}-zt5u11c1f7-zt5u11c1f7.gz
-/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-gp84vkcofs-gp84vkcofs.gz
+/home/ubuntu/phonebook/PhoneBook/obj/Release/net10.0/compressed/w1qk3tcfm4-{0}-kzbuo0syk8-kzbuo0syk8.gz
