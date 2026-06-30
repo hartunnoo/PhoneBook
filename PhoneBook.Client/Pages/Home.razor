@@ -393,7 +393,7 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("📡 *PhoneBook — Direktori Perhubungan*");
+        t.AppendLine("📡 *CIS — Centralise Information System*");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
