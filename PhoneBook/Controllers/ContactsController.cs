@@ -26,12 +26,18 @@ public class ContactsController : ControllerBase
     [HttpGet]
     public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, [FromQuery] string? sort, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
     {
+        // RLS: Get user's allowed ministries
+        var allowedMinistries = await _rls.GetAllowedMinistriesAsync(User.Identity?.Name);
+
         var all = await _service.GetAllAsync(search, ct);
 
-        // RLS: Filter by user's allowed ministries
-        var allowedMinistries = await _rls.GetAllowedMinistriesAsync(User.Identity?.Name);
-        if (allowedMinistries is not null && allowedMinistries.Any())
+        // RLS Filter — works identically on SQLite, MySQL, PostgreSQL
+        if (allowedMinistries is not null)
+        {
+            if (!allowedMinistries.Any()) return new List<ContactResponseDto>(); // No access
             all = all.Where(c => c.Kementerian is not null && allowedMinistries.Contains(c.Kementerian)).ToList();
+        }
+        // else: allowedMinistries is null = Admin, sees everything
 
         // Sort
         all = sort switch
