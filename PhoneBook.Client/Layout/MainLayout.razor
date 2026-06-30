@@ -5,7 +5,7 @@
 
 <header class="top-bar">
     <div class="top-bar-content">
-        <span class="top-bar-title">Kenalan</span>
+        <span class="top-bar-title">Direktori</span>
         <div class="top-bar-actions">
             @if (isLoggedIn)
             {
@@ -24,7 +24,7 @@
                                 </div>
                             </div>
                             <div class="menu-divider"></div>
-                            <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">📋</span> Kenalan</button>
+                            <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">📋</span> Direktori</button>
                             <button class="menu-item" @onclick="CloseMenu"><span class="menu-icon">⭐</span> Favorit</button>
                             <div class="menu-divider"></div>
                             <button class="menu-item danger" @onclick="DoLogout"><span class="menu-icon">🚪</span> Log Keluar</button>
@@ -50,7 +50,7 @@
 @if (isLoggedIn)
 {
     <nav class="bottom-nav">
-        <a href="/" class="bottom-nav-item"><i class="bi bi-people-fill nav-icon"></i> Kenalan</a>
+        <a href="/" class="bottom-nav-item"><i class="bi bi-people-fill nav-icon"></i> Direktori</a>
         <a href="/add" class="bottom-nav-item"><i class="bi bi-person-plus nav-icon"></i> Tambah</a>
         <button class="bottom-nav-item" @onclick="DoLogout" style="border:none;background:none;font-family:inherit;cursor:pointer"><i class="bi bi-box-arrow-right nav-icon"></i> Log Keluar</button>
     </nav>

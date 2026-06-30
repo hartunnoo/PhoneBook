@@ -7,7 +7,7 @@
 
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
-    <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari kenalan..." />
+    <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari direktori..." />
     <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="AiSearch" title="AI Smart Search"><i class="bi bi-robot"></i></button>
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
@@ -52,9 +52,9 @@ else if (!contacts.Any())
 {
     <div class="empty-state">
         <div class="empty-icon"><i class="bi bi-person-plus" style="font-size:2.5rem;color:var(--md-on-surface-variant)"></i></div>
-        <h2>Tiada kenalan</h2>
-        <p>Tambahkan kenalan untuk bermula</p>
-        <button class="filled-btn" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i> Tambah kenalan</button>
+        <h2>Tiada direktori</h2>
+        <p>Tambahkan direktori untuk bermula</p>
+        <button class="filled-btn" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i> Tambah direktori</button>
     </div>
 }
 else
@@ -171,7 +171,7 @@ else
 {
     <div class="scrim" @onclick="CancelDelete">
         <div class="dialog" @onclick:stopPropagation>
-            <h3>Padam kenalan?</h3>
+            <h3>Padam direktori?</h3>
             <p>@deleteTarget.Name akan dipadamkan kekal.</p>
             <div class="dialog-actions">
                 <button class="text-btn" @onclick="CancelDelete">Batal</button>
@@ -242,7 +242,7 @@ else
     {
         var files = e.Value as Microsoft.AspNetCore.Components.Forms.IBrowserFile[]; if (files is null or { Length: 0 }) return;
         var file = files[0]; csvBusy = true; csvMsg = null; StateHasChanged();
-        try { using var content = new MultipartFormDataContent(); var stream = file.OpenReadStream(10*1024*1024); content.Add(new StreamContent(stream), "file", file.Name); var r = await Http.PostAsync(ApiBase + "/import", content); if (r.IsSuccessStatusCode) { var d = await r.Content.ReadFromJsonAsync<ImportResult>(); csvMsg = $"✅ {d?.Count ?? 0} kenalan diimport"; await Load(); await LoadStats(); } else csvMsg = "❌ Gagal import"; }
+        try { using var content = new MultipartFormDataContent(); var stream = file.OpenReadStream(10*1024*1024); content.Add(new StreamContent(stream), "file", file.Name); var r = await Http.PostAsync(ApiBase + "/import", content); if (r.IsSuccessStatusCode) { var d = await r.Content.ReadFromJsonAsync<ImportResult>(); csvMsg = $"✅ {d?.Count ?? 0} direktori diimport"; await Load(); await LoadStats(); } else csvMsg = "❌ Gagal import"; }
         catch { csvMsg = "❌ Ralat"; }
         finally { csvBusy = false; StateHasChanged(); }
     }
@@ -267,7 +267,7 @@ else
             {
                 var ids = new HashSet<int>(result.Results);
                 contacts = (contacts ?? new()).Where(c => ids.Contains(c.Id)).ToList();
-                ShowToast($"🤖 AI jumpa {contacts.Count} kenalan", false);
+                ShowToast($"🤖 AI jumpa {contacts.Count} direktori", false);
             }
             else ShowToast("🤖 Tiada hasil AI", true);
         }
@@ -288,7 +288,7 @@ else
         var all = await Http.GetFromJsonAsync<List<ContactDto>>(ApiBase + "?pageSize=999") ?? new();
         var list = all.Where(c => selected.Contains(c.Id)).OrderBy(c => c.Name).ToList();
         var t = new System.Text.StringBuilder();
-        t.AppendLine("📋 *SENARAI KENALAN*");
+        t.AppendLine("📋 *SENARAI DIREKTORI*");
         t.AppendLine($"📊 {list.Count} dipilih");
         t.AppendLine(Sep);
         foreach (var c in list) AppendSummary(t, c);
@@ -299,7 +299,7 @@ else
     async Task BulkDelete()
     {
         if (!selected.Any()) return;
-        try { await Http.PostAsJsonAsync(ApiBase + "/bulk-delete", selected.ToArray()); ShowToast($"✅ {selected.Count} kenalan dipadam", false); selected.Clear(); await Load(); await LoadStats(); }
+        try { await Http.PostAsJsonAsync(ApiBase + "/bulk-delete", selected.ToArray()); ShowToast($"✅ {selected.Count} direktori dipadam", false); selected.Clear(); await Load(); await LoadStats(); }
         catch { ShowToast("❌ Gagal", true); }
     }
 
@@ -310,8 +310,8 @@ else
     {
         if (contacts is null || !contacts.Any()) return;
         var t = new System.Text.StringBuilder();
-        t.AppendLine("📋 *SENARAI KENALAN*");
-        t.AppendLine($"📊 {contacts.Count} kenalan");
+        t.AppendLine("📋 *SENARAI DIREKTORI*");
+        t.AppendLine($"📊 {contacts.Count} direktori");
         t.AppendLine(Sep);
         foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
         AppendFooter(t);
