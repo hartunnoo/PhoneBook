@@ -9,6 +9,7 @@
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
     <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari kenalan..." />
+    <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="AiSearch" title="AI Smart Search"><i class="bi bi-robot"></i></button>
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
@@ -254,6 +255,27 @@ else
     void FilterMinistry(string name) { filter = name; _ = Load(); }
     void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
+
+    bool aiBusy;
+    async Task AiSearch()
+    {
+        if (string.IsNullOrWhiteSpace(search) || aiBusy) return;
+        aiBusy = true; StateHasChanged();
+        try
+        {
+            var result = await Http.GetFromJsonAsync<AiResult>($"api/ai/search?q={Uri.EscapeDataString(search)}");
+            if (result?.Results is { Length: > 0 })
+            {
+                var ids = new HashSet<int>(result.Results);
+                contacts = (contacts ?? new()).Where(c => ids.Contains(c.Id)).ToList();
+                ShowToast($"🤖 AI jumpa {contacts.Count} kenalan", false);
+            }
+            else ShowToast("🤖 Tiada hasil AI", true);
+        }
+        catch { ShowToast("❌ AI tidak tersedia", true); }
+        finally { aiBusy = false; StateHasChanged(); }
+    }
+    class AiResult { public int[] Results { get; set; } = Array.Empty<int>(); }
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); StateHasChanged(); } }

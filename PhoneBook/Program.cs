@@ -6,6 +6,7 @@ using PhoneBook.Components;
 using PhoneBook.Domain.Interfaces;
 using PhoneBook.Infrastructure.Data;
 using PhoneBook.Infrastructure.Repositories;
+using PhoneBook.Services;
 using Serilog;
 using Serilog.Events;
 
@@ -64,15 +65,22 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Unit of Work & Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// AI Services
+builder.Services.AddHttpClient<DeepSeekService>();
+builder.Services.AddScoped<DeepSeekService>();
+
 // Application Services
 builder.Services.AddScoped<ContactService>();
 
-// HTTP Client for Blazor pre-render
+// HTTP Client for Blazor (only for SSR pre-render)
 builder.Services.AddScoped<HttpClient>(sp =>
 {
-    var nav = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
-    var client = new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
-    return client;
+    try
+    {
+        var nav = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
+        return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+    }
+    catch { return new HttpClient(); }
 });
 
 // Controllers
@@ -95,12 +103,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
 }
-else
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-}
-
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseAntiforgery();
 
 app.UseStaticFiles();  // Serve wwwroot (photos, js)
