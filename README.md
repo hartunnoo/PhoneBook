@@ -135,6 +135,85 @@ Requires .NET 10 SDK. SQLite auto-creates on first run.
 
 ---
 
+## 🏆 BICTA 2026 Submission
+
+### Synopsis
+PhoneBook HMO is an enterprise-grade government contact directory built for His Majesty's Office, Istana Nurul Iman. It provides a secure, searchable database of official contacts with **DeepSeek AI-powered semantic search**, one-tap WhatsApp export, and full government protocol field support (Honorific, Jawatan, Kementerian, Department, Bahagian, Building/Floor/Room, PA/Secretary). The platform runs as a Progressive Web App installable on any device, with offline support and enterprise authentication.
+
+### Uniqueness — Competitive Analysis
+
+| Feature | PhoneBook HMO | Google Contacts | iCloud Contacts | Other Apps |
+|---|---|---|---|---|
+| DeepSeek AI semantic search | ✅ | ❌ | ❌ | ❌ |
+| AI auto-parse contacts from text | ✅ | ❌ | ❌ | ❌ |
+| WhatsApp bulk export (single/selected/all) | ✅ | ❌ | ❌ | ❌ |
+| Government protocol fields | ✅ | ❌ | ❌ | ❌ |
+| vCard + CSV export | ✅ | ✅ | ✅ | ✅ |
+| PWA offline support | ✅ | ❌ | ❌ | ❌ |
+| Audit trail with user attribution | ✅ | ❌ | ❌ | ❌ |
+| Price | Free | Free | Free | Varies |
+
+**Competitive advantage:** No contact management app combines AI-powered search, government protocol fields, and WhatsApp bulk export. The DeepSeek AI understands semantic meaning ("cari pegawai protokol di istana" finds the right person even with different words). The WhatsApp export suite — single, selected, or all contacts with attribution footer — has no equivalent in any competing product.
+
+### Innovation
+1. **AI Semantic Search** — Uses DeepSeek large language model to understand natural language queries in Bahasa Melayu, matching contacts by meaning rather than exact keywords. This is a first for government contact directories.
+
+2. **AI Auto-Parse** — One-click extraction of structured contact data from unstructured text (email signatures, business cards). Eliminates manual data entry for up to 15 fields.
+
+3. **WhatsApp Export Suite** — Three-tier export system: single contact detail, selected bulk export, and full directory export. Each includes user attribution and timestamp footer for accountability. Clean plain-text format with zero encoding issues (proven fix from PrayerTimeV1).
+
+4. **Session State Persistence** — Search queries, filters, and checkbox selections survive navigation using sessionStorage. Users can search, select contacts, view details, and return without losing state.
+
+### Quality / Recognition
+- **Production deployment** on Ubuntu 22.04 + Cloudflare CDN + Nginx + systemd
+- **Clean Architecture:** Domain → Application → Infrastructure → API
+- **Zero magic strings:** Typed constants for all routes, formats, and configuration
+- **Structured logging:** Serilog with file + console sinks
+- **Enterprise security:** ASP.NET Core Identity, all API endpoints authorized, input validation on all DTOs
+- **Responsive design:** 4 breakpoints (Desktop/Tablet/Phone/Touch) with dark/light mode
+- Designed & Built by SSCU, ITD, Istana Nurul Iman
+
+### Commercial Value
+**Target Market:**
+- Primary: Government ministries and departments of Brunei Darussalam
+- Secondary: Statutory bodies, GLCs, and private sector in Brunei
+- Tertiary: Other government organizations requiring secure contact management
+
+**Market Validation:**
+- Designed specifically for His Majesty's Office requirements
+- Government protocol fields not available in any consumer contact app
+- WhatsApp integration proven critical for government communication workflow
+
+**Monetization:**
+- Free for government use
+- Premium features for corporate clients (API access, advanced analytics)
+- White-label version for other government agencies
+
+### Local Content
+**100% Brunei-developed:**
+- All development by SSCU, ITD, Istana Nurul Iman
+- Bahasa Melayu interface throughout
+- Brunei-specific government protocol support (Honorific titles, Kementerian structure)
+- Deployed on Brunei VPS infrastructure
+- 776 source files, .NET 10 Blazor WebAssembly
+
+### Technical Components
+- **Runtime:** .NET 10.0 Blazor WebAssembly (client) + ASP.NET Core (server)
+- **Database:** SQLite with Entity Framework Core
+- **Architecture:** Clean Architecture with Repository & Unit of Work patterns
+- **AI:** DeepSeek API (deepseek-chat model) via OpenAI-compatible HTTP client
+- **Auth:** ASP.NET Core Identity with cookie authentication
+- **Image Processing:** SixLabors.ImageSharp 3.1.12 for profile photo resize
+- **Frontend:** Bootstrap 5.3.5 + Bootstrap Icons 1.11.3
+- **PWA:** Service Worker with auto-cache clearing
+- **Logging:** Serilog structured logging
+- **Deployment:** Nginx + systemd + Cloudflare
+
+### TRL Level
+**TRL 09 — Full commercial application.** Live at https://phone.lakastahsolat.com serving His Majesty's Office with 8 active contacts (government officials across multiple ministries), full CRUD operations, AI features, and continuous development.
+
+---
+
 ## 📄 License
 
 MIT © [hartunnoo](https://github.com/hartunnoo)

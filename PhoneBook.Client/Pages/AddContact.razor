@@ -13,6 +13,20 @@
     <DataAnnotationsValidator />
 
     @* ── PROFILE ── *@
+    @* ── AI AUTO-PARSE ── *@
+    <div class="card-form" style="margin-bottom:12px">
+        <div class="card-form-header" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff"><h3>🤖 AI Auto-Isi</h3></div>
+        <div class="card-form-body">
+            <textarea @bind="pasteText" class="form-control-enterprise" rows="3" placeholder="Tampal email signature atau teks kad bisnes di sini..." style="font-size:.8rem"></textarea>
+            <div class="d-flex gap-2 mt-2 align-items-center">
+                <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="ParseText" disabled="@aiBusy">
+                    <i class="bi bi-robot"></i> @(aiBusy ? "Memproses..." : "Parse & Isi")
+                </button>
+                @if (!string.IsNullOrEmpty(aiMsg)) { <small class="@(aiMsg.Contains("✅")?"":"text-danger")">@aiMsg</small> }
+            </div>
+        </div>
+    </div>
+
     <div class="form-section">
         <div class="form-section-title"><i class="bi bi-person-vcard"></i> Maklumat Peribadi</div>
         <div class="text-field">
@@ -110,10 +124,37 @@
 
 @code {
     ContactForm c = new(); bool saving; string? error; ToastInfo? toast; const string ApiUrl = "api/contacts";
+    string pasteText = ""; bool aiBusy; string? aiMsg;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
     async Task DismissToast() { await Task.Delay(3000); toast = null; StateHasChanged(); }
+
+    async Task ParseText()
+    {
+        if (string.IsNullOrWhiteSpace(pasteText) || aiBusy) return;
+        aiBusy = true; aiMsg = null; StateHasChanged();
+        try
+        {
+            var resp = await Http.PostAsJsonAsync("api/ai/parse", new { text = pasteText });
+            if (resp.IsSuccessStatusCode)
+            {
+                var r = await resp.Content.ReadFromJsonAsync<AiParsed>();
+                if (r is not null)
+                {
+                    c.Name = r.Name ?? ""; c.Honorific = r.Honorific; c.Gender = r.Gender;
+                    c.Jawatan = r.Jawatan; c.Kementerian = r.Kementerian; c.Department = r.Department;
+                    c.Mobile1 = r.Mobile; c.Phone1 = r.Phone; c.Email1 = r.Email;
+                    c.Building = r.Building; c.PAName = r.PAName; c.PAMobile = r.PAMobile; c.Notes = r.Notes;
+                    aiMsg = $"✅ Diisi: {c.Name}";
+                }
+            }
+            else aiMsg = "❌ Gagal parse";
+        }
+        catch { aiMsg = "❌ Ralat AI"; }
+        finally { aiBusy = false; StateHasChanged(); }
+    }
+    class AiParsed { public string? Name { get; set; } public string? Honorific { get; set; } public string? Gender { get; set; } public string? Jawatan { get; set; } public string? Kementerian { get; set; } public string? Department { get; set; } public string? Mobile { get; set; } public string? Phone { get; set; } public string? Email { get; set; } public string? Building { get; set; } public string? PAName { get; set; } public string? PAMobile { get; set; } public string? Notes { get; set; } }
 
     async Task Save()
     {
