@@ -129,17 +129,17 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .contact-actions a,.contact-actions button{pointer-events:auto!important}
 
 /* ─── CHIPS ─── */
-.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:40px;font-size:.68rem;background:var(--hmo-surface);color:var(--hmo-text-2);text-decoration:none;border:1px solid transparent;transition:all var(--dur) var(--ease);white-space:nowrap;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.01em}
+.chip{display:inline-flex;align-items:center;gap:2px;padding:1px 7px;border-radius:40px;font-size:.65rem;background:var(--hmo-surface);color:var(--hmo-text-2);text-decoration:none;border:1px solid transparent;transition:all var(--dur) var(--ease);white-space:nowrap;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:0}
 .chip:hover{background:var(--hmo-white);border-color:var(--hmo-border-2);box-shadow:var(--hmo-shadow-sm)}
-.chip i{font-size:.78rem}
-.chip.wa{display:inline-flex!important;visibility:visible!important;opacity:1!important;background:#25d366;color:#fff;font-weight:600;border-color:rgba(255,255,255,.3);pointer-events:auto!important}
+.chip i{font-size:.72rem}
+.chip.wa{display:inline-flex!important;visibility:visible!important;opacity:1!important;background:#25d366;color:#fff;font-weight:600;border-color:rgba(255,255,255,.3);pointer-events:auto!important;padding:1px 7px}
 .chip.wa:hover{background:#1ebe5d;transform:scale(1.04)}
 .chip.wa[style*="075e54"],.chip.wa[style*="075e54"]{background:#075e54!important;color:#fff!important}
 .chip.vcard{background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#3730a3;font-weight:600;border-color:rgba(99,102,241,.2)}
 .chip.vcard:hover{background:#a5b4fc;border-color:#6366f1;transform:scale(1.04)}
 
 /* ─── ICON BTN ─── */
-.icon-btn{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--hmo-text-3);font-size:1.1rem;transition:all var(--dur)}
+.icon-btn{width:28px;height:28px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--hmo-text-3);font-size:.95rem;transition:all var(--dur)}
 .icon-btn:hover{background:var(--hmo-surface)}
 .icon-btn.active{color:var(--hmo-gold);background:var(--hmo-gold-soft)}
 .icon-btn.danger{color:var(--hmo-text-3)}
