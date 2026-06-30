@@ -156,6 +156,16 @@ else
     }
 }
 
+@* PAGINATION *@
+@if (contacts is not null && (hasMore || currentPage > 1))
+{
+    <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:12px 16px 80px">
+        <button class="chip" @onclick="PrevPage" disabled="@(currentPage==1)"><i class="bi bi-chevron-left"></i></button>
+        <span class="badge bg-primary rounded-pill" style="font-size:.7rem">M/S @currentPage</span>
+        <button class="chip" @onclick="NextPage" disabled="@(!hasMore)"><i class="bi bi-chevron-right"></i></button>
+    </div>
+}
+
 @* FAB *@
 @if (contacts is not null)
 { <button class="fab" @onclick="() => Nav.NavigateTo(Routes.Add)"><i class="bi bi-plus-lg"></i></button> }
@@ -190,6 +200,7 @@ else
     HashSet<int> selected = new();
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
     string? username;
+    int currentPage = 1; const int pageSize = 50; bool hasMore;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
@@ -222,7 +233,7 @@ else
     async Task Load()
     {
         try {
-            var url = ApiBase + $"?sort={sortBy}&pageSize=200";
+            var url = ApiBase + $"?sort={sortBy}&pageSize={pageSize}&page={currentPage}";
             if (!string.IsNullOrWhiteSpace(search)) url += $"&search={Uri.EscapeDataString(search)}";
             contacts = await Http.GetFromJsonAsync<List<ContactDto>>(url) ?? new();
             if (filter == "fav") contacts = contacts.Where(c => c.IsFavorite).ToList();
@@ -232,7 +243,11 @@ else
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
         catch { contacts ??= new(); }
+        finally { hasMore = (contacts?.Count ?? 0) == pageSize; }
     }
+
+    async Task NextPage() { currentPage++; await Load(); StateHasChanged(); }
+    async Task PrevPage() { if (currentPage > 1) { currentPage--; await Load(); StateHasChanged(); } }
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
@@ -313,11 +328,13 @@ else
     void ExportWAAll()
     {
         if (contacts is null || !contacts.Any()) return;
+        var list = contacts.OrderBy(c => c.Name).Take(50).ToList();
         var t = new System.Text.StringBuilder();
         t.AppendLine("📋 *SENARAI DIREKTORI*");
-        t.AppendLine($"📊 {contacts.Count} direktori");
+        t.AppendLine($"📊 {list.Count} direktori" + (contacts.Count > 50 ? $" (drp {contacts.Count})" : ""));
         t.AppendLine(Sep);
-        foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
+        foreach (var c in list) AppendSummary(t, c);
+        if (contacts.Count > 50) t.AppendLine($"... dan {contacts.Count - 50} lagi");
         AppendFooter(t);
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
