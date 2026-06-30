@@ -71,4 +71,19 @@ public class RowLevelSecurityService
         if (string.IsNullOrWhiteSpace(userName)) return new List<UserAccess>();
         return await _db.UserAccesses.Where(a => a.UserName == userName).ToListAsync();
     }
+
+    /// <summary>
+    /// Get ALL access grants (for admin management)
+    /// </summary>
+    public async Task<List<UserAccess>> GetAllAccessGrantsAsync()
+        => await _db.UserAccesses.OrderBy(a => a.UserName).ToListAsync();
+
+    /// <summary>
+    /// Revoke access by record ID
+    /// </summary>
+    public async Task RevokeByIdAsync(int id)
+    {
+        var record = await _db.UserAccesses.FindAsync(id);
+        if (record is not null) { _db.UserAccesses.Remove(record); await _db.SaveChangesAsync(); }
+    }
 }
