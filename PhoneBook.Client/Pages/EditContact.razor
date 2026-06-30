@@ -213,10 +213,15 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender || c is not null || notFound) return;
+        if (!firstRender) return;
+        // Auth check
+        try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); if (s?.IsAuthenticated != true) { Nav.NavigateTo("/login"); return; } }
+        catch { Nav.NavigateTo("/login"); return; }
+        if (c is not null || notFound) return;
         try { c = await Http.GetFromJsonAsync<ContactForm>($"{ApiUrl}/{Id}"); if (c is not null) { photoUrl = c.PhotoPath; _ = LoadAuditLogs(); } else notFound = true; StateHasChanged(); }
         catch { notFound = true; StateHasChanged(); }
     }
+    record AuthStatus(bool IsAuthenticated, string? Name, bool IsAdmin);
 
     async Task LoadAuditLogs() { try { auditLogs = await Http.GetFromJsonAsync<List<AuditEntry>>($"{ApiUrl}/{Id}/audit"); StateHasChanged(); } catch { } }
 

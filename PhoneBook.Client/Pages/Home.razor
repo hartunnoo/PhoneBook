@@ -198,7 +198,13 @@ else
     static class Routes { public const string Add = "/add"; public static string Edit(int id) => $"/edit/{id}"; }
     const string ApiBase = "api/contacts";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await RestoreState(); await LoadUser(); await Load(); await LoadStats(); } }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); if (s?.IsAuthenticated != true) { Nav.NavigateTo("/login"); return; } }
+        catch { Nav.NavigateTo("/login"); return; }
+        await RestoreState(); await LoadUser(); await Load(); await LoadStats();
+    }
 
     void SaveState()
     {
