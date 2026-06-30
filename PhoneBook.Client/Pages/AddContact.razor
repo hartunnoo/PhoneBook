@@ -132,9 +132,6 @@
         try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); if (s?.IsAuthenticated != true) { Nav.NavigateTo("/login"); return; } }
         catch { Nav.NavigateTo("/login"); return; }
     }
-    record AuthStatus(bool IsAuthenticated, string? Name, bool IsAdmin);
-
-    class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
     async Task DismissToast() { await Task.Delay(3000); toast = null; StateHasChanged(); }
 

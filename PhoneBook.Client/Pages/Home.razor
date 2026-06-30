@@ -233,7 +233,6 @@ else
     }
 
     async Task LoadUser() { try { var s = await Http.GetFromJsonAsync<AuthStatus>("api/auth/status"); username = s?.Name; } catch { } }
-    record AuthStatus(bool IsAuthenticated, string? Name);
 
     async Task Load()
     {

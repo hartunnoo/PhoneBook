@@ -78,7 +78,6 @@ else
         catch { Nav.NavigateTo("/login"); return; }
         await Load();
     }
-    record AuthStatus(bool IsAuthenticated, string? Name);
 
     async Task Load()
     {

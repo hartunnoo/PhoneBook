@@ -221,7 +221,6 @@ else
         try { c = await Http.GetFromJsonAsync<ContactForm>($"{ApiUrl}/{Id}"); if (c is not null) { photoUrl = c.PhotoPath; _ = LoadAuditLogs(); } else notFound = true; StateHasChanged(); }
         catch { notFound = true; StateHasChanged(); }
     }
-    record AuthStatus(bool IsAuthenticated, string? Name, bool IsAdmin);
 
     async Task LoadAuditLogs() { try { auditLogs = await Http.GetFromJsonAsync<List<AuditEntry>>($"{ApiUrl}/{Id}/audit"); StateHasChanged(); } catch { } }
 

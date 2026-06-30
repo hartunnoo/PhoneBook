@@ -81,5 +81,4 @@
     void CloseMenu() { showMenu = false; StateHasChanged(); }
     void GoToRls() { showMenu = false; Nav.NavigateTo("/admin/rls"); }
     async Task DoLogout() { showMenu = false; StateHasChanged(); await Http.PostAsync("api/auth/logout", null); Nav.NavigateTo("/login", forceLoad: true); }
-    record AuthStatus(bool IsAuthenticated, string? Name, bool IsAdmin);
 }
