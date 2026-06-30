@@ -190,6 +190,7 @@ else
     HashSet<int> selected = new();
     StatsDto? stats; bool darkMode; bool showCsvImport; bool csvBusy; string? csvMsg;
     string? username;
+    int currentPage = 1; const int pageSize = 50; bool hasMore;
 
     class ToastInfo { public string Message { get; set; } = ""; public bool IsError { get; set; } }
     void ShowToast(string msg, bool err) { toast = new ToastInfo { Message = msg, IsError = err }; StateHasChanged(); _ = DismissToast(); }
@@ -213,6 +214,8 @@ else
             var sel = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_selected") ?? "";
             if (!string.IsNullOrEmpty(sel)) selected = sel.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToHashSet();
             filter = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_filter") ?? "";
+            viewMode = await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_view") ?? "list";
+            currentPage = int.TryParse(await JS.InvokeAsync<string>("sessionStorage.getItem", "pb_page"), out var p) ? p : 1;
         } catch { }
     }
 
@@ -232,7 +235,11 @@ else
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) { Nav.NavigateTo("/login"); }
         catch { contacts ??= new(); }
+        finally { hasMore = (contacts?.Count ?? 0) == pageSize; }
     }
+
+    async Task NextPage() { currentPage++; await Load(); StateHasChanged(); }
+    async Task PrevPage() { if (currentPage > 1) { currentPage--; await Load(); StateHasChanged(); } }
 
     async Task LoadStats() { try { stats = await Http.GetFromJsonAsync<StatsDto>(ApiBase + "/stats"); StateHasChanged(); } catch { } }
 
@@ -251,7 +258,8 @@ else
         finally { csvBusy = false; StateHasChanged(); }
     }
 
-    void SetGrid() => viewMode = "grid"; void SetList() => viewMode = "list";
+    void SetGrid() { viewMode = "grid"; _ = JS.InvokeVoidAsync("sessionStorage.setItem", "pb_view", "grid"); StateHasChanged(); }
+    void SetList() { viewMode = "list"; _ = JS.InvokeVoidAsync("sessionStorage.setItem", "pb_view", "list"); StateHasChanged(); }
     void ClearSearch() { search = ""; filter = ""; _ = Load(); }
     void ClearFilter() { filter = ""; _ = Load(); }
     void FilterFav() { filter = "fav"; _ = Load(); }
