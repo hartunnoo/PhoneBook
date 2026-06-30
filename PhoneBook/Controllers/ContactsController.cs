@@ -40,7 +40,12 @@ public class ContactsController : ControllerBase
     public async Task<IActionResult> GetStats(CancellationToken ct)
     {
         var all = await _service.GetAllAsync(null, ct);
-        return Ok(new { total = all.Count, favorites = all.Count(c => c.IsFavorite), ministries = all.Where(c => !string.IsNullOrWhiteSpace(c.Kementerian)).GroupBy(c => c.Kementerian!).Select(g => new { name = g.Key, count = g.Count() }).OrderByDescending(x => x.count).Take(5) });
+        return Ok(new {
+            total = all.Count,
+            favorites = all.Count(c => c.IsFavorite),
+            ministries = all.Where(c => !string.IsNullOrWhiteSpace(c.Kementerian)).GroupBy(c => c.Kementerian!).Select(g => new { name = g.Key, count = g.Count() }).OrderByDescending(x => x.count).Take(5),
+            maxPages = (int)Math.Ceiling(all.Count / 50.0)
+        });
     }
 
     [HttpGet("{id}")]
