@@ -4,7 +4,6 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Nav
-@inject IJSRuntime JS
 
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
@@ -281,27 +280,19 @@ else
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); StateHasChanged(); } }
     void ClearAll() { selected.Clear(); search = ""; filter = ""; SaveState(); _ = Load(); StateHasChanged(); }
 
+    static string Sep => "━━━━━━━━━━━━━━━━━━━";
+
     async Task ExportSelectedWA()
     {
         if (!selected.Any()) return;
-        // Fetch ALL contacts to include selected from any search
         var all = await Http.GetFromJsonAsync<List<ContactDto>>(ApiBase + "?pageSize=999") ?? new();
         var list = all.Where(c => selected.Contains(c.Id)).OrderBy(c => c.Name).ToList();
         var t = new System.Text.StringBuilder();
-        t.AppendLine($"SENARAI KENALAN ({list.Count})");
-        t.AppendLine(new string('-', 20));
-        foreach (var c in list)
-        {
-            var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
-            t.AppendLine($"{h}{c.Name}");
-            if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
-            if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
-            if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
-            if (!string.IsNullOrWhiteSpace(c.PAName)) t.AppendLine($"  PA: {c.PAName} ({c.PAMobile})");
-            t.AppendLine();
-        }
-        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
-        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
+        t.AppendLine("📋 *SENARAI KENALAN*");
+        t.AppendLine($"📊 {list.Count} dipilih");
+        t.AppendLine(Sep);
+        foreach (var c in list) AppendSummary(t, c);
+        AppendFooter(t);
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
@@ -312,7 +303,6 @@ else
         catch { ShowToast("❌ Gagal", true); }
     }
 
-    // === WHATSAPP EXPORT ===
     void ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
     void ExportWAContact(ContactDto c) => OpenWA(c);
 
@@ -320,37 +310,77 @@ else
     {
         if (contacts is null || !contacts.Any()) return;
         var t = new System.Text.StringBuilder();
-        t.AppendLine($"SENARAI KENALAN ({contacts.Count})");
-        t.AppendLine(new string('-', 20));
-        foreach (var c in contacts.OrderBy(c => c.Name))
-        {
-            var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
-            t.AppendLine($"{h}{c.Name}");
-            if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"  {c.Jawatan}");
-            if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"  {c.Kementerian}");
-            if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"  Mobile: {c.Mobile1}");
-            if (!string.IsNullOrWhiteSpace(c.PAName)) t.AppendLine($"  PA: {c.PAName} ({c.PAMobile})");
-            t.AppendLine();
-        }
-        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
-        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
+        t.AppendLine("📋 *SENARAI KENALAN*");
+        t.AppendLine($"📊 {contacts.Count} kenalan");
+        t.AppendLine(Sep);
+        foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
+        AppendFooter(t);
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
     void OpenWA(ContactDto c)
     {
         var t = new System.Text.StringBuilder();
+        var g = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
         var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
-        t.AppendLine($"{h}{c.Name}");
-        if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"Jawatan: {c.Jawatan}");
-        if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"Kementerian: {c.Kementerian}");
-        if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"Mobile: {c.Mobile1}");
-        if (!string.IsNullOrWhiteSpace(c.Phone1)) t.AppendLine($"Telefon: {c.Phone1}");
-        if (!string.IsNullOrWhiteSpace(c.Email1)) t.AppendLine($"Emel: {c.Email1}");
-        if (!string.IsNullOrWhiteSpace(c.PAName)) { t.AppendLine(); t.AppendLine($"PA: {c.PAName}"); if (!string.IsNullOrWhiteSpace(c.PAMobile)) t.AppendLine($"PA Mobile: {c.PAMobile}"); }
-        t.AppendLine(); t.AppendLine($"Dieksport oleh: {username ?? "Unknown"}");
-        t.AppendLine($"Tarikh: {DateTime.Now:dd MMM yyyy, HH:mm}");
+        t.AppendLine($"{g} *{h}{c.Name}*");
+        if (c.IsFavorite) t.AppendLine("⭐ _Favorit_");
+        t.AppendLine(Sep);
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"💼 {c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"🏛 {c.Kementerian}");
+        if (!string.IsNullOrWhiteSpace(c.Department)) t.AppendLine($"📂 {c.Department}");
+        if (!string.IsNullOrWhiteSpace(c.Bahagian)) t.AppendLine($"📋 {c.Bahagian}");
+        if (!string.IsNullOrWhiteSpace(c.Company)) t.AppendLine($"🏭 {c.Company}");
+        if (!string.IsNullOrWhiteSpace(c.Building))
+        {
+            var loc = $"🏢 {c.Building}";
+            if (!string.IsNullOrWhiteSpace(c.Floor)) loc += $" · Tkt {c.Floor}";
+            if (!string.IsNullOrWhiteSpace(c.Room)) loc += $" · Blk {c.Room}";
+            t.AppendLine(loc);
+        }
+        var mobs = new[] { c.Mobile1, c.Mobile2, c.Mobile3, c.Mobile4 }.Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
+        var phs = new[] { c.Phone1, c.Phone2, c.Phone3, c.Phone4 }.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
+        var ems = new[] { c.Email1, c.Email2, c.Email3 }.Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
+        if (mobs.Any() || phs.Any() || ems.Any()) t.AppendLine(Sep);
+        foreach (var m in mobs) t.AppendLine($"📱 {m}");
+        foreach (var p in phs) t.AppendLine($"☎️ {p}");
+        foreach (var e in ems) t.AppendLine($"📧 {e}");
+        if (!string.IsNullOrWhiteSpace(c.PAName))
+        {
+            t.AppendLine(Sep);
+            t.AppendLine($"👔 *PA:* {c.PAName}");
+            if (!string.IsNullOrWhiteSpace(c.PAMobile)) t.AppendLine($"   📱 {c.PAMobile}");
+            if (!string.IsNullOrWhiteSpace(c.PAEmail)) t.AppendLine($"   📧 {c.PAEmail}");
+        }
+        if (!string.IsNullOrWhiteSpace(c.Tags))
+        {
+            t.Append(Sep + "\n🏷 ");
+            foreach (var tag in c.Tags.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)))
+                t.Append($"`{tag}` ");
+            t.AppendLine();
+        }
+        if (!string.IsNullOrWhiteSpace(c.Notes)) t.AppendLine($"\n📝 _{c.Notes}_");
+        AppendFooter(t);
         Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+    }
+
+    void AppendSummary(System.Text.StringBuilder t, ContactDto c)
+    {
+        var g = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
+        var h = string.IsNullOrWhiteSpace(c.Honorific) ? "" : c.Honorific + " ";
+        t.AppendLine($"{g} *{h}{c.Name}*");
+        if (!string.IsNullOrWhiteSpace(c.Jawatan)) t.AppendLine($"   💼 {c.Jawatan}");
+        if (!string.IsNullOrWhiteSpace(c.Kementerian)) t.AppendLine($"   🏛 {c.Kementerian}");
+        if (!string.IsNullOrWhiteSpace(c.Mobile1)) t.AppendLine($"   📱 {c.Mobile1}");
+        if (!string.IsNullOrWhiteSpace(c.PAName)) t.AppendLine($"   👔 {c.PAName}");
+        t.AppendLine();
+    }
+
+    void AppendFooter(System.Text.StringBuilder t)
+    {
+        t.AppendLine(Sep);
+        t.AppendLine($"👤 _{username ?? "Unknown"}_  ·  📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
+        t.AppendLine("📡 *PhoneBook Enterprise*");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
