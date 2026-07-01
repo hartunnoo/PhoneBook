@@ -21,19 +21,34 @@ public class DeepSeekService
     /// <summary>
     /// Smart semantic search — understands meaning, not just keywords
     /// </summary>
-    public async Task<List<int>> SmartSearchAsync(List<ContactInfo> contacts, string query)
+    public async Task<List<int>> SmartSearchAsync(List<ContactInfo> contacts, string query, CancellationToken ct = default)
     {
-        var contactList = contacts.Select((c, i) => $"[{i}] {c.Honorific} {c.Name} | {c.Jawatan} | {c.Kementerian} | {c.Department} | Tags: {c.Tags}").ToList();
+        // Token budget: estimate and cap contacts list to stay within ~3000 tokens (~4000 chars)
+        var contactList = contacts
+            .Select((c, i) => $"[{i}] {c.Honorific} {c.Name} | {c.Jawatan} | {c.Kementerian}")
+            .ToList();
+
+        // Truncate list if estimated token count exceeds budget
+        const int maxChars = 4000;
+        var totalChars = 0;
+        var truncated = new List<string>();
+        foreach (var entry in contactList)
+        {
+            if (totalChars + entry.Length > maxChars) break;
+            truncated.Add(entry);
+            totalChars += entry.Length + 1; // +1 for newline
+        }
+
         var prompt = $@"Kamu adalah pembantu direktori kenalan. Pengguna mencari: ""{query}""
 
 Berikut adalah senarai kenalan:
-{string.Join("\n", contactList)}
+{string.Join("\n", truncated)}
 
 Kembalikan HANYA nombor indeks kenalan yang paling relevan dengan carian, dipisahkan dengan koma. Contoh: 0,3,5
 Jika tiada yang relevan, kembalikan: none
 Jangan sertakan penjelasan. Hanya nombor indeks atau 'none'.";
 
-        var response = await ChatAsync(prompt);
+        var response = await ChatAsync(prompt, ct);
         if (string.IsNullOrWhiteSpace(response) || response.Trim().ToLower() == "none")
             return new List<int>();
 
@@ -50,7 +65,7 @@ Jangan sertakan penjelasan. Hanya nombor indeks atau 'none'.";
     /// <summary>
     /// Auto-enrich: parse email signature / business card text into structured fields
     /// </summary>
-    public async Task<EnrichedContact?> ParseContactAsync(string rawText)
+    public async Task<EnrichedContact?> ParseContactAsync(string rawText, CancellationToken ct = default)
     {
         var prompt = $@"Kamu adalah pembantu yang mengekstrak maklumat kenalan dari teks.
 
@@ -75,7 +90,7 @@ Ekstrak maklumat berikut dan kembalikan SEBAGAI JSON SAHAJA (tiada teks lain):
 
 Jika sesuatu tiada, gunakan null. Kembalikan JSON SAHAJA.";
 
-        var response = await ChatAsync(prompt);
+        var response = await ChatAsync(prompt, ct);
         if (string.IsNullOrWhiteSpace(response)) return null;
 
         try
@@ -92,7 +107,7 @@ Jika sesuatu tiada, gunakan null. Kembalikan JSON SAHAJA.";
         }
     }
 
-    private async Task<string?> ChatAsync(string prompt)
+    private async Task<string?> ChatAsync(string prompt, CancellationToken ct = default)
     {
         try
         {
@@ -115,15 +130,23 @@ Jika sesuatu tiada, gunakan null. Kembalikan JSON SAHAJA.";
             _http.DefaultRequestHeaders.Clear();
             _http.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-            var response = await _http.PostAsync("https://api.deepseek.com/v1/chat/completions", content);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(15)); // 15s timeout for AI calls
+
+            var response = await _http.PostAsync("https://api.deepseek.com/v1/chat/completions", content, cts.Token);
             if (!response.IsSuccessStatusCode)
             {
                 _log.LogWarning("DeepSeek API returned {Code}", response.StatusCode);
                 return null;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<DeepSeekResponse>();
+            var result = await response.Content.ReadFromJsonAsync<DeepSeekResponse>(ct);
             return result?.Choices?.FirstOrDefault()?.Message?.Content?.Trim();
+        }
+        catch (OperationCanceledException)
+        {
+            _log.LogWarning("DeepSeek API call timed out or was cancelled");
+            return null;
         }
         catch (Exception ex)
         {

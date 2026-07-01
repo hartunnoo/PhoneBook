@@ -92,7 +92,7 @@ else
                 var letterCounts = sorted.Where(c => !c.IsFavorite).GroupBy(c => char.ToUpper(c.Name[0])).ToDictionary(g => g.Key, g => g.Count());
                 var totalNonFav = sorted.Count(c => !c.IsFavorite);
             }
-            <div class="alpha-header" style="background:var(--hmo-surface);color:var(--hmo-text);font-weight:700;border-bottom:2px solid var(--hmo-gold)">
+            <div class="alpha-header" style="background:var(--hmo-surface);color:var(--hmo-text);font-weight:700;border-bottom:2px solid var(--hmo-gold);position:static">
                 📋 Semua · @sorted.Count orang
                 @if (favCount > 0) { <span style="font-weight:400;opacity:.6;margin-left:6px">| ⭐ @favCount favorit</span> }
             </div>

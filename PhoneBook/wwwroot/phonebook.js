@@ -1,3 +1,13 @@
+// Batched sessionStorage helpers — reduces BLazor JS interop round-trips
+window.savePbState = function (data) {
+    for (var key in data) { if (data.hasOwnProperty(key)) sessionStorage.setItem(key, data[key]); }
+};
+window.loadPbState = function (keys) {
+    var result = {};
+    for (var i = 0; i < keys.length; i++) { result[keys[i]] = sessionStorage.getItem(keys[i]) || ''; }
+    return result;
+};
+
 window.readFile = function (inputId) {
     return new Promise((resolve) => {
         const input = document.getElementById(inputId);

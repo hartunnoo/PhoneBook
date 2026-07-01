@@ -22,6 +22,9 @@ public class PhoneBookDbContext : IdentityDbContext<IdentityUser>
             entity.ToTable("Contacts");
             entity.HasIndex(c => c.Name);
             entity.HasIndex(c => c.Mobile1);
+            entity.HasIndex(c => c.Tags);
+            entity.HasIndex(c => c.Kementerian);
+            entity.HasIndex(c => c.Department);
         });
     }
 }

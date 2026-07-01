@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PhoneBook.Application.DTOs;
 using PhoneBook.Application.Services;
 using PhoneBook.Common.Constants;
+using PhoneBook.Domain.Interfaces;
 using PhoneBook.Services;
 using Serilog;
 using SixLabors.ImageSharp;
@@ -24,41 +25,37 @@ public class ContactsController : ControllerBase
     public ContactsController(ContactService service, RowLevelSecurityService rls) { _service = service; _rls = rls; }
 
     [HttpGet]
-    public async Task<List<ContactResponseDto>> GetAll([FromQuery] string? search, [FromQuery] string? sort, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
+    public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] string? sort, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
     {
         // RLS: Get user's allowed ministries
         var allowedMinistries = await _rls.GetAllowedMinistriesAsync(User.Identity?.Name);
 
-        var all = await _service.GetAllAsync(search, ct);
-
-        // RLS Filter — works identically on SQLite, MySQL, PostgreSQL
-        if (allowedMinistries is not null)
+        // ETag support — check if client has current version
+        if (string.IsNullOrWhiteSpace(search) && string.IsNullOrWhiteSpace(sort))
         {
-            if (!allowedMinistries.Any()) return new List<ContactResponseDto>(); // No access
-            all = all.Where(c => c.Kementerian is not null && allowedMinistries.Contains(c.Kementerian)).ToList();
+            var lastMod = await _service.GetLastModifiedAsync(ct);
+            if (lastMod.HasValue)
+            {
+                var etag = $"\"{lastMod.Value.Ticks}\"";
+                Response.Headers["ETag"] = etag;
+                if (Request.Headers.IfNoneMatch == etag) return StatusCode(304);
+            }
         }
-        // else: allowedMinistries is null = Admin, sees everything
 
-        // Sort
-        all = sort switch
-        {
-            AppConstants.SortByName => all.OrderBy(c => c.Name).ToList(),
-            AppConstants.SortByDate => all.OrderByDescending(c => c.CreatedAt).ToList(),
-            AppConstants.SortByDept => all.OrderBy(c => c.Department).ThenBy(c => c.Name).ToList(),
-            _ => all.OrderByDescending(c => c.IsFavorite).ThenBy(c => c.Name).ToList()
-        };
-        return all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        var (items, total) = await _service.GetPagedAsync(search, sort, allowedMinistries, page, pageSize, ct);
+        return Ok(new { items, total, page, pageSize, maxPages = (int)Math.Ceiling(total / (double)pageSize) });
     }
 
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats(CancellationToken ct)
     {
-        var all = await _service.GetAllAsync(null, ct);
+        var allowedMinistries = await _rls.GetAllowedMinistriesAsync(User.Identity?.Name);
+        var stats = await _service.GetStatsAsync(allowedMinistries, ct);
         return Ok(new {
-            total = all.Count,
-            favorites = all.Count(c => c.IsFavorite),
-            ministries = all.Where(c => !string.IsNullOrWhiteSpace(c.Kementerian)).GroupBy(c => c.Kementerian!).Select(g => new { name = g.Key, count = g.Count() }).OrderByDescending(x => x.count).Take(5),
-            maxPages = (int)Math.Ceiling(all.Count / 50.0)
+            total = stats.Total,
+            favorites = stats.Favorites,
+            ministries = stats.Ministries.Select(m => new { name = m.Name, count = m.Count }),
+            maxPages = (int)Math.Ceiling(stats.Total / 50.0)
         });
     }
 
@@ -83,7 +80,8 @@ public class ContactsController : ControllerBase
     [HttpPost("bulk-delete")]
     public async Task<IActionResult> BulkDelete([FromBody] int[] ids, CancellationToken ct)
     {
-        foreach (var id in ids) await _service.DeleteAsync(id, ct);
+        await _service.DeleteRangeAsync(ids, ct);
+        await _service.LogAuditAsync(0, $"{ids.Length} kenalan dipadam secara pukal", user: User.Identity?.Name, ct: ct);
         return Ok(new { deleted = ids.Length });
     }
 
@@ -91,18 +89,24 @@ public class ContactsController : ControllerBase
     public async Task<IActionResult> Merge([FromBody] int[] ids, CancellationToken ct)
     {
         if (ids.Length < 2) return BadRequest("Need at least 2 IDs");
-        var contacts = new List<ContactResponseDto?>();
-        foreach (var id in ids) contacts.Add(await _service.GetByIdAsync(id, ct));
-        var primary = contacts.FirstOrDefault(c => c is not null);
-        if (primary is null) return NotFound();
+
+        // Fetch all contacts in a single query
+        var contacts = await _service.GetByIdsAsync(ids, ct);
+        if (!contacts.Any()) return NotFound();
+
+        var primary = contacts.First();
+        var toDelete = new List<int>();
+
         foreach (var c in contacts.Skip(1))
         {
-            if (c is null) continue;
             if (string.IsNullOrWhiteSpace(primary.Mobile1) && !string.IsNullOrWhiteSpace(c.Mobile1)) primary.Mobile1 = c.Mobile1;
             if (string.IsNullOrWhiteSpace(primary.Email1) && !string.IsNullOrWhiteSpace(c.Email1)) primary.Email1 = c.Email1;
-            await _service.DeleteAsync(c.Id, ct);
+            toDelete.Add(c.Id);
         }
+
         await _service.UpdateAsync(primary.Id, new UpdateContactDto { Name = primary.Name, Mobile1 = primary.Mobile1, Email1 = primary.Email1, Jawatan = primary.Jawatan }, ct);
+        if (toDelete.Any()) await _service.DeleteRangeAsync(toDelete, ct);
+        await _service.LogAuditAsync(primary.Id, $"{ids.Length} kenalan digabungkan", user: User.Identity?.Name, ct: ct);
         return Ok(new { merged = ids.Length });
     }
 
@@ -208,7 +212,7 @@ public class ContactsController : ControllerBase
         using var reader = new StreamReader(file.OpenReadStream());
         var text = await reader.ReadToEndAsync(ct);
         var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        var count = 0;
+        var dtos = new List<CreateContactDto>();
         foreach (var line in lines.Skip(1)) // Skip header
         {
             var cols = line.Split(',');
@@ -218,9 +222,10 @@ public class ContactsController : ControllerBase
             if (cols.Length > 2) dto.Email1 = cols[2].Trim().Trim('"');
             if (cols.Length > 3) dto.Jawatan = cols[3].Trim().Trim('"');
             if (cols.Length > 4) dto.Kementerian = cols[4].Trim().Trim('"');
-            await _service.CreateAsync(dto, ct);
-            count++;
+            dtos.Add(dto);
         }
+        await _service.AddRangeAsync(dtos, ct);
+        var count = dtos.Count;
         _log.Information("CSV import: {Count} contacts", count);
         await _service.LogAuditAsync(0, $"{count} kenalan diimport melalui CSV", user: User.Identity?.Name, ct: ct);
         return Ok(new { count });

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using PhoneBook.Application.DTOs;
+using PhoneBook.Common.Constants;
 using PhoneBook.Domain.Entities;
 using PhoneBook.Domain.Interfaces;
 using PhoneBook.Infrastructure.Data;
@@ -10,33 +12,110 @@ public class ContactService
 {
     private readonly IUnitOfWork _uow;
     private readonly PhoneBookDbContext _db;
-    public ContactService(IUnitOfWork uow, PhoneBookDbContext db) { _uow = uow; _db = db; }
+    private readonly IMemoryCache _cache;
+
+    public ContactService(IUnitOfWork uow, PhoneBookDbContext db, IMemoryCache cache)
+    { _uow = uow; _db = db; _cache = cache; }
 
     public async Task<List<ContactResponseDto>> GetAllAsync(string? search = null, CancellationToken ct = default)
-        => (await _uow.Contacts.GetAllAsync(search, ct)).Select(Map).ToList();
+    {
+        var cacheKey = CacheKeys.AllContacts;
+        if (!_cache.TryGetValue(cacheKey, out List<Contact>? cached))
+        {
+            cached = await _uow.Contacts.GetAllAsync(search, ct);
+            _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
+        }
+        return cached!.Select(Map).ToList();
+    }
+
+    public async Task<(List<ContactResponseDto> Items, int TotalCount)> GetPagedAsync(
+        string? search, string? sort, List<string>? allowedMinistries,
+        int page, int pageSize, CancellationToken ct = default)
+    {
+        var cacheKey = $"{CacheKeys.AllContacts}:paged:{search}:{sort}:{page}:{pageSize}";
+        if (!_cache.TryGetValue(cacheKey, out (List<ContactResponseDto> Items, int TotalCount) cached))
+        {
+            var (items, total) = await _uow.Contacts.GetPagedAsync(search, sort, allowedMinistries, page, pageSize, ct);
+            cached = (items.Select(Map).ToList(), total);
+            _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
+        }
+        return cached;
+    }
+
+    public async Task<ContactStats> GetStatsAsync(List<string>? allowedMinistries, CancellationToken ct = default)
+    {
+        var ministriesKey = allowedMinistries is null ? "admin" : string.Join(",", allowedMinistries.OrderBy(x => x));
+        var cacheKey = $"{CacheKeys.AllContacts}:stats:{ministriesKey}";
+        if (!_cache.TryGetValue(cacheKey, out ContactStats? cached))
+        {
+            cached = await _uow.Contacts.GetStatsAsync(allowedMinistries, ct);
+            _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
+        }
+        return cached!;
+    }
 
     public async Task<ContactResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
-        => await _uow.Contacts.GetByIdAsync(id, ct) is { } c ? Map(c) : null;
+    {
+        var cacheKey = CacheKeys.ContactById(id);
+        if (!_cache.TryGetValue(cacheKey, out Contact? cached))
+        {
+            cached = await _uow.Contacts.GetByIdAsync(id, ct);
+            if (cached is not null)
+                _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
+        }
+        return cached is { } c ? Map(c) : null;
+    }
+
+    public async Task<List<ContactResponseDto>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken ct = default)
+        => (await _uow.Contacts.GetByIdsAsync(ids, ct)).Select(Map).ToList();
 
     public async Task<ContactResponseDto> CreateAsync(CreateContactDto dto, CancellationToken ct = default)
-        => Map(await _uow.Contacts.AddAsync(MapToEntity(dto, new Contact { CreatedAt = DateTime.UtcNow }), ct));
+    {
+        var result = Map(await _uow.Contacts.AddAsync(MapToEntity(dto, new Contact { CreatedAt = DateTime.UtcNow }), ct));
+        InvalidateCache();
+        return result;
+    }
+
+    public async Task AddRangeAsync(IEnumerable<CreateContactDto> dtos, CancellationToken ct = default)
+    {
+        var contacts = dtos.Select(dto => MapToEntity(dto, new Contact { CreatedAt = DateTime.UtcNow }));
+        await _uow.Contacts.AddRangeAsync(contacts, ct);
+        InvalidateCache();
+    }
 
     public async Task<ContactResponseDto?> UpdateAsync(int id, UpdateContactDto dto, CancellationToken ct = default)
-        => await _uow.Contacts.GetByIdAsync(id, ct) is { } c ? Map(await _uow.Contacts.UpdateAsync(MapToEntity(dto, c), ct)) : null;
+    {
+        var c = await _uow.Contacts.GetByIdAsync(id, ct);
+        if (c is null) return null;
+        var result = Map(await _uow.Contacts.UpdateAsync(MapToEntity(dto, c), ct));
+        InvalidateCache();
+        return result;
+    }
 
     public Task<bool> DeleteAsync(int id, CancellationToken ct = default)
-        => _uow.Contacts.DeleteAsync(id, ct);
+    {
+        InvalidateCache();
+        return _uow.Contacts.DeleteAsync(id, ct);
+    }
+
+    public async Task DeleteRangeAsync(IEnumerable<int> ids, CancellationToken ct = default)
+    {
+        await _uow.Contacts.DeleteRangeAsync(ids, ct);
+        InvalidateCache();
+    }
 
     public async Task UpdatePhotoAsync(int id, string? photoPath, CancellationToken ct = default)
     {
         var c = await _uow.Contacts.GetByIdAsync(id, ct);
         if (c is not null) { c.PhotoPath = photoPath; await _uow.Contacts.UpdateAsync(c, ct); }
+        InvalidateCache();
     }
 
     public async Task UpdateFavoriteAsync(int id, bool isFavorite, CancellationToken ct = default)
     {
         var c = await _uow.Contacts.GetByIdAsync(id, ct);
         if (c is not null) { c.IsFavorite = isFavorite; await _uow.Contacts.UpdateAsync(c, ct); }
+        InvalidateCache();
     }
 
     static Contact MapToEntity(CreateContactDto d, Contact c)
@@ -76,5 +155,15 @@ public class ContactService
     {
         _db.AuditLogs.Add(new AuditLog { ContactId = contactId, Action = action, Detail = detail, ByUser = user, Timestamp = DateTime.UtcNow });
         await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<DateTime?> GetLastModifiedAsync(CancellationToken ct = default)
+        => await _uow.Contacts.GetLastModifiedAsync(ct);
+
+    void InvalidateCache()
+    {
+        // Remove the main "all contacts" cache entry to force refresh on next read.
+        // Individual contact cache entries will naturally expire or be overwritten.
+        _cache.Remove(CacheKeys.AllContacts);
     }
 }

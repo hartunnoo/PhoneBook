@@ -1902,7 +1902,7 @@
     ]
   },
   "packageFolders": {
-    "/root/.nuget/packages/": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
@@ -1910,11 +1910,11 @@
       "projectUniqueName": "/home/ubuntu/phonebook/PhoneBook.Client/PhoneBook.Client.csproj",
       "projectName": "PhoneBook.Client",
       "projectPath": "/home/ubuntu/phonebook/PhoneBook.Client/PhoneBook.Client.csproj",
-      "packagesPath": "/root/.nuget/packages/",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
       "outputPath": "/home/ubuntu/phonebook/PhoneBook.Client/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/root/.nuget/NuGet/NuGet.Config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
