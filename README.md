@@ -9,7 +9,7 @@
 
 **Enterprise contact directory** with AI-powered search, WhatsApp export, and government-grade protocol fields. Built with .NET 10 Blazor WebAssembly and clean architecture. Customizable for any organization.
 
-🌐 **https://phone.lakastahsolat.com**
+🌐 **https://direktori.lakastahsolat.com**
 
 ---
 
@@ -203,7 +203,7 @@ PhoneBook Enterprise is a smart contact directory powered by **DeepSeek AI seman
 - Fully developed and deployed on Brunei infrastructure
 - Bahasa Melayu interface throughout
 - Brunei-specific government protocol support (Honorific titles, Kementerian structure)
-- Deployed on Brunei VPS infrastructure
+- Deployed on Proxmox cluster (pt-phonebook LXC) via Cloudflare tunnel
 - 776 source files, .NET 10 Blazor WebAssembly
 
 ### Technical Components
@@ -219,7 +219,7 @@ PhoneBook Enterprise is a smart contact directory powered by **DeepSeek AI seman
 - **Deployment:** Nginx + systemd + Cloudflare
 
 ### TRL Level
-**TRL 09 — Full commercial application.** Live at https://phone.lakastahsolat.com with full CRUD operations, AI features, and continuous development.
+**TRL 09 — Full commercial application.** Live at https://direktori.lakastahsolat.com with full CRUD operations, AI features, and continuous development.
 
 ---
 
@@ -232,3 +232,33 @@ MIT © [hartunnoo](https://github.com/hartunnoo)
 <p align="center">
   <sub>Powered by <strong>PhoneBook Enterprise</strong></sub>
 </p>
+
+---
+
+## 🚀 Deployment (Proxmox)
+
+| Component | Detail |
+|-----------|--------|
+| **Host** | Proxmox LXC — `pt-phonebook` (CT 212) |
+| **IP** | 192.168.100.141:5221 |
+| **Domain** | `direktori.lakastahsolat.com` |
+| **Tunnel** | Cloudflare Tunnel → nginx (pt-proxy) → Kestrel |
+| **Runtime** | .NET 10 self-contained (no SDK required) |
+| **Database** | SQLite at `/opt/phonebook/phonebook.db` |
+| **Service** | systemd — `phonebook.service` |
+| **Proxy** | tinyproxy on pt-proxy for DeepSeek API outbound |
+
+### 🔒 Row-Level Security (RLS)
+
+| User | Access |
+|------|--------|
+| Admin | All contacts (all ministries) |
+| Ministry user | Only contacts in assigned ministry |
+| Multi-ministry | Contacts from multiple assigned ministries |
+
+RLS is enforced at the database query level for both keyword search and AI semantic search.
+
+### 🤖 AI Features
+
+- **Semantic Search** — DeepSeek-powered via `/api/ai/search`. Pre-filtered with keyword search then sent to LLM for meaning-based matching. Respects RLS.
+- **Contact Parsing** — `/api/ai/parse` extracts structured fields from email signatures and business cards.
