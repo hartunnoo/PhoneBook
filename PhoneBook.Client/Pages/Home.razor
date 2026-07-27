@@ -317,7 +317,7 @@ else
         t.AppendLine(Sep);
         foreach (var c in list) AppendSummary(t, c);
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
     }
 
     async Task BulkDelete()
@@ -339,7 +339,7 @@ else
         t.AppendLine(Sep);
         foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
     }
 
     void OpenWA(ContactDto c)
@@ -385,7 +385,7 @@ else
         }
         if (!string.IsNullOrWhiteSpace(c.Notes)) t.AppendLine($"\n📝 _{c.Notes}_");
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
     }
 
     void AppendSummary(System.Text.StringBuilder t, ContactDto c)
@@ -408,7 +408,7 @@ else
         t.AppendLine("📡 *Direktori AI* · SSCU, ITD, Istana Nurul Iman");
     }
 
-    async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
+    async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: true); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
     void Edit(int id) { SaveState(); Nav.NavigateTo(Routes.Edit(id)); }
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;

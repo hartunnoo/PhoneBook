@@ -64,6 +64,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // Unit of Work & Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddMemoryCache();
 
 // AI Services
 builder.Services.AddHttpClient<DeepSeekService>();
