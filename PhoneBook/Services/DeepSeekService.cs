@@ -107,6 +107,158 @@ Jika sesuatu tiada, gunakan null. Kembalikan JSON SAHAJA.";
         }
     }
 
+    /// <summary>
+    /// Conversational search — understand natural language queries and return filters + explanation
+    /// </summary>
+    public async Task<ChatSearchResult?> ConversationalSearchAsync(
+        string query, List<string> availableMinistries, CancellationToken ct = default)
+    {
+        var ministryList = string.Join(", ", availableMinistries);
+        var prompt = $@"Kamu adalah pembantu carian direktori kerajaan. Pengguna bertanya dalam Bahasa Melayu atau Inggeris.
+
+Soalan: ""{query}""
+
+Kementerian yang ada dalam direktori: {ministryList}
+
+Analisa soalan pengguna. Fahami apa yang mereka CARI. Kemudian kembalikan JSON SAHAJA dengan format ini:
+{{  ""explanation"": ""Jawapan ringkas dalam Bahasa Melayu menerangkan apa yang anda jumpa dan kenapa."",
+  ""kementerian"": ""nama kementerian tepat dari senarai jika pengguna menyebut kementerian spesifik, jika tidak null"",
+  ""department_keywords"": ""kata kunci untuk cari di ruangan department/jabatan, pisahkan dengan koma, null jika tiada"",
+  ""jawatan_keywords"": ""kata kunci untuk cari di ruangan jawatan, pisahkan dengan koma, null jika tiada"",
+  ""name_keywords"": ""nama yang mungkin disebut, pisahkan dengan koma, null jika tiada"",
+  ""honorific_filter"": ""YB, YM, Dato, Datin, Dr, Prof jika disebut, jika tidak null"",
+  ""tag_filter"": ""VIP, VVIP, IT, Media, Kewangan jika relevant, null jika tiada"",
+  ""is_general"": true jika soalan umum atau tidak spesifik, false jika spesifik
+}}
+PENTING: Jangan reka kementerian yang tiada dalam senarai. Kembalikan JSON SAHAJA, tiada teks lain.";
+
+        var response = await ChatAsync(prompt, ct);
+        if (string.IsNullOrWhiteSpace(response)) return null;
+        try
+        {
+            var json = response.Trim();
+            if (json.StartsWith("```")) json = json.Split("\n", 2).Last().Replace("```", "");
+            json = json.Replace("```json", "").Replace("```", "").Trim();
+            return JsonSerializer.Deserialize<ChatSearchResult>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex) { _log.LogWarning(ex, "Failed to parse chat response: {Response}", response); return null; }
+    }
+
+    /// <summary>
+    /// Suggest tags for a contact based on jawatan, kementerian, department
+    /// </summary>
+    public async Task<List<string>?> SuggestTagsAsync(
+        string name, string? jawatan, string? kementerian, string? department,
+        string? existingTags, CancellationToken ct = default)
+    {
+        var prompt = $@"Kamu adalah pembantu direktori kerajaan. Cadangkan tag yang sesuai untuk kenalan ini.
+
+Nama: {name}
+Jawatan: {jawatan ?? "tiada"}
+Kementerian: {kementerian ?? "tiada"}
+Department: {department ?? "tiada"}
+Tag sedia ada: {existingTags ?? "tiada"}
+
+Tag yang biasa digunakan: VIP, VVIP, IT, ICT, Kewangan, Protokol, PS, PTTK, Pentadbiran, Media, Perubatan, Pendidikan, Undang-Undang, Keselamatan
+
+Berdasarkan jawatan dan kementerian, cadangkan 1-3 tag yang PALING sesuai. Kembalikan tag yang dipisahkan dengan koma SAHAJA. Contoh: VIP, PTTK, Kewangan
+Jangan cadangkan tag yang sudah ada. Jangan beri penjelasan.";
+
+        var response = await ChatAsync(prompt, ct);
+        if (string.IsNullOrWhiteSpace(response)) return null;
+        return response.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
+    }
+
+    /// <summary>
+    /// Bulk extract multiple contacts from unstructured text (email threads, PDF, meeting notes)
+    /// </summary>
+    public async Task<List<EnrichedContact>?> BulkParseContactsAsync(string rawText, CancellationToken ct = default)
+    {
+        var prompt = $@"Kamu adalah pembantu yang mengekstrak maklumat kenalan dari teks. Mungkin ada LEBIH DARI SATU kenalan dalam teks ini.
+
+Teks: ""{rawText}""
+
+Ekstrak SEMUA kenalan yang dijumpai. Untuk setiap kenalan, kembalikan:
+{{
+  ""name"": ""nama penuh"",
+  ""honorific"": ""YB, YM, Dato, Datin, Dk, Hjh, Dr, Pg, Awg, Dyg"",
+  ""gender"": ""male atau female"",
+  ""jawatan"": ""jawatan"",
+  ""kementerian"": ""kementerian"",
+  ""department"": ""jabatan"",
+  ""mobile"": ""nombor mobile"",
+  ""phone"": ""nombor telefon pejabat"",
+  ""email"": ""emel""
+}}
+
+Kembalikan SEBAGAI JSON ARRAY SAHAJA. Contoh: [{{ ... }}, {{ ... }}]
+Jika tiada kenalan, kembalikan []. Jangan beri penjelasan lain.";
+
+        var response = await ChatAsync(prompt, ct);
+        if (string.IsNullOrWhiteSpace(response)) return null;
+
+        try
+        {
+            var json = response.Trim();
+            if (json.StartsWith("```")) json = json.Split("\n", 2).Last().Replace("```", "");
+            json = json.Replace("```json", "").Replace("```", "").Trim();
+            return JsonSerializer.Deserialize<List<EnrichedContact>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Failed to parse bulk contacts: {Response}", response);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Suggest enrichment for missing fields based on patterns
+    /// </summary>
+    public async Task<EnrichedContact?> SuggestEnrichmentAsync(
+        string name, string? jawatan, string? kementerian, string? department,
+        string? existingBuilding, string? existingBahagian, CancellationToken ct = default)
+    {
+        var prompt = $@"Kamu adalah pembantu direktori kerajaan. Lengkapkan maklumat yang hilang berdasarkan pola biasa.
+
+Nama: {name}
+Jawatan: {jawatan ?? "tiada"}
+Kementerian: {kementerian ?? "tiada"}
+Department: {department ?? "tiada"}
+Building: {existingBuilding ?? "tiada"}
+Bahagian: {existingBahagian ?? "tiada"}
+
+Berdasarkan pola biasa di kementerian dan jabatan kerajaan, cadangkan maklumat yang mungkin hilang. Kembalikan JSON SAHAJA:
+{{
+  ""department"": ""jabatan yang mungkin jika tiada"",
+  ""bahagian"": ""bahagian yang mungkin jika tiada"",
+  ""building"": ""bangunan yang mungkin jika tiada"",
+  ""floor"": ""tingkat jika relevan"",
+  ""email"": ""emel format biasa jika boleh dijangka""
+}}
+
+Hanya isi ruang yang anda YAKIN berdasarkan pola biasa. Gunakan null jika tidak pasti. Kembalikan JSON SAHAJA.";
+
+        var response = await ChatAsync(prompt, ct);
+        if (string.IsNullOrWhiteSpace(response)) return null;
+
+        try
+        {
+            var json = response.Trim();
+            if (json.StartsWith("```")) json = json.Split("\n", 2).Last().Replace("```", "");
+            json = json.Replace("```json", "").Replace("```", "").Trim();
+            return JsonSerializer.Deserialize<EnrichedContact>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Failed to parse enrichment: {Response}", response);
+            return null;
+        }
+    }
+
     private async Task<string?> ChatAsync(string prompt, CancellationToken ct = default)
     {
         try
@@ -182,6 +334,18 @@ public class EnrichedContact
     [JsonPropertyName("paname")] public string? PAName { get; set; }
     [JsonPropertyName("pamobile")] public string? PAMobile { get; set; }
     [JsonPropertyName("notes")] public string? Notes { get; set; }
+}
+
+public class ChatSearchResult
+{
+    [JsonPropertyName("explanation")] public string Explanation { get; set; } = "";
+    [JsonPropertyName("kementerian")] public string? Kementerian { get; set; }
+    [JsonPropertyName("department_keywords")] public string? DepartmentKeywords { get; set; }
+    [JsonPropertyName("jawatan_keywords")] public string? JawatanKeywords { get; set; }
+    [JsonPropertyName("name_keywords")] public string? NameKeywords { get; set; }
+    [JsonPropertyName("honorific_filter")] public string? HonorificFilter { get; set; }
+    [JsonPropertyName("tag_filter")] public string? TagFilter { get; set; }
+    [JsonPropertyName("is_general")] public bool IsGeneral { get; set; }
 }
 
 public class DeepSeekResponse
