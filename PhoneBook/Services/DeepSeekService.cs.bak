@@ -49,7 +49,7 @@ Jika tiada yang relevan, kembalikan: none
 Jangan sertakan penjelasan. Hanya nombor indeks atau 'none'.";
 
         var response = await ChatAsync(prompt, ct);
-        _log.LogWarning("DeepSeek response: " + (response?.Length ?? 0) + " chars: " + (response?.Substring(0, Math.Min(response?.Length ?? 0, 100)) ?? "null")); if (string.IsNullOrWhiteSpace(response) || response.Trim().ToLower() == "none")
+        if (string.IsNullOrWhiteSpace(response) || response.Trim().ToLower() == "none")
             return new List<int>();
 
         try
@@ -264,7 +264,7 @@ Hanya isi ruang yang anda YAKIN berdasarkan pola biasa. Gunakan null jika tidak 
         try
         {
             var apiKey = _config["DeepSeek:ApiKey"] ?? Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY");
-            _log.LogWarning("DeepSeek: API key present: " + !string.IsNullOrWhiteSpace(apiKey)); if (string.IsNullOrWhiteSpace(apiKey))
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 _log.LogWarning("DeepSeek API key not configured");
                 return null;

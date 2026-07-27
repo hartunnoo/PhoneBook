@@ -8,7 +8,7 @@
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
     <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari direktori..." />
-    <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="AiSearch" title="AI Smart Search"><i class="bi bi-robot"></i></button>
+    <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="OpenChat" title="AI Chat Search"><i class="bi bi-robot"></i> AI</button>
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
@@ -18,6 +18,62 @@
     <button class="icon-btn" @onclick="ToggleDarkMode" title="Dark mode"><i class="bi @(darkMode ? "bi-sun-fill" : "bi-moon-fill")"></i></button>
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
+
+@* ── AI CHAT MODAL ── *@
+@if (showChat)
+{
+    <div class="scrim" @onclick="CloseChat">
+        <div class="dialog" style="max-width:600px;width:95%" @onclick:stopPropagation>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="margin:0"><i class="bi bi-robot" style="color:#6366f1"></i> AI Chat Search</h3>
+                <button class="icon-btn" @onclick="CloseChat"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+                <span style="font-size:.7rem;color:var(--md-on-surface-variant);line-height:2">Contoh:</span>
+                @foreach (var tip in chatTips)
+                {
+                    <button class="chip" style="font-size:.72rem;background:var(--md-surface-container-high);border:1px solid var(--md-outline-variant)"
+                            @onclick="() => { chatQuery = tip; _ = DoChatSearch(); }">@tip</button>
+                }
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+                <input @bind="chatQuery" @bind:event="oninput" @onkeyup="OnChatKey" placeholder="Cth: Siapa pegawai IT di JPM?"
+                       style="flex:1;padding:10px 14px;border:2px solid var(--md-outline-variant);border-radius:12px;font-size:.9rem;background:var(--md-surface-container)" />
+                <button class="filled-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff"
+                        @onclick="DoChatSearch" disabled="@(chatBusy || string.IsNullOrWhiteSpace(chatQuery))">
+                    @if (chatBusy) { <span>...</span> } else { <i class="bi bi-send-fill"></i> }
+                </button>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(chatError))
+            { <div style="background:#fef2f2;color:#991b1b;padding:10px 14px;border-radius:10px;font-size:.85rem">@chatError</div> }
+            @if (!string.IsNullOrWhiteSpace(chatExplanation))
+            {
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;margin-bottom:12px">
+                    <div style="font-weight:600;font-size:.8rem;color:#065f46">🤖 AI: @chatExplanation</div>
+                    <div style="font-size:.75rem;color:#047857;margin-top:4px">📊 @chatTotal dijumpai</div>
+                </div>
+            }
+            @if (chatResults is { Count: > 0 })
+            {
+                <div style="max-height:50vh;overflow-y:auto">
+                @foreach (var c in chatResults)
+                {
+                    <div style="background:var(--md-surface-container);border-radius:10px;padding:10px 14px;margin-bottom:6px;cursor:pointer"
+                         @onclick="() => { CloseChat(); Edit(c.Id); }">
+                        <div style="font-weight:600;font-size:.9rem">
+                            @if (!string.IsNullOrWhiteSpace(c.Honorific)) { <span>@c.Honorific </span> }@c.Name
+                        </div>
+                        <div style="font-size:.75rem;color:var(--md-on-surface-variant)">
+                            @if (!string.IsNullOrWhiteSpace(c.Jawatan)) { <span>💼 @c.Jawatan</span> }
+                            @if (!string.IsNullOrWhiteSpace(c.Kementerian)) { <span> · 🏛 @c.Kementerian</span> }
+                        </div>
+                    </div>
+                }
+                </div>
+            }
+        </div>
+    </div>
+}
 
 @* ── STATS BAR ── *@
 @if (stats is not null)
@@ -279,26 +335,32 @@ else
     void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
 
-    bool aiBusy;
-    async Task AiSearch()
+    bool showChat; bool chatBusy; string chatQuery = ""; string? chatExplanation; string? chatError; int chatTotal;
+    List<ChatContact>? chatResults;
+    static readonly string[] chatTips = { "Siapa pegawai IT di JPM?", "Senarai Menteri", "Cari Dato", "Pegawai di Kesihatan", "Ketua Pegawai Teknologi" };
+
+    void OpenChat() { showChat = true; chatQuery = ""; chatError = null; chatExplanation = null; chatResults = null; StateHasChanged(); }
+    void CloseChat() { showChat = false; StateHasChanged(); }
+
+    async Task OnChatKey(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(chatQuery) && !chatBusy) await DoChatSearch(); }
+
+    async Task DoChatSearch()
     {
-        if (string.IsNullOrWhiteSpace(search) || aiBusy) return;
-        aiBusy = true; StateHasChanged();
+        if (string.IsNullOrWhiteSpace(chatQuery) || chatBusy) return;
+        chatBusy = true; chatError = null; chatExplanation = null; chatResults = null; StateHasChanged();
         try
         {
-            var result = await Http.GetFromJsonAsync<AiResult>($"api/ai/search?q={Uri.EscapeDataString(search)}");
-            if (result?.Results is { Length: > 0 })
-            {
-                var ids = new HashSet<int>(result.Results);
-                contacts = (contacts ?? new()).Where(c => ids.Contains(c.Id)).ToList();
-                ShowToast($"🤖 AI jumpa {contacts.Count} direktori", false);
-            }
-            else ShowToast("🤖 Tiada hasil AI", true);
+            var result = await Http.GetFromJsonAsync<ChatResult>($"api/ai/chat?q={Uri.EscapeDataString(chatQuery)}");
+            if (result is { Contacts.Count: > 0 }) { chatExplanation = result.Explanation; chatTotal = result.Total; chatResults = result.Contacts; }
+            else if (result is not null) { chatExplanation = result.Explanation; chatTotal = 0; chatError = "Tiada padanan. Cuba pertanyaan lain."; }
+            else chatError = "AI tidak tersedia.";
         }
-        catch { ShowToast("❌ AI tidak tersedia", true); }
-        finally { aiBusy = false; StateHasChanged(); }
+        catch { chatError = "Ralat sambungan. Cuba lagi."; }
+        finally { chatBusy = false; StateHasChanged(); }
     }
-    class AiResult { public int[] Results { get; set; } = Array.Empty<int>(); }
+
+    class ChatResult { public string Explanation { get; set; } = ""; public int Total { get; set; } public bool IsGeneral { get; set; } public List<ChatContact> Contacts { get; set; } = new(); }
+    class ChatContact { public int Id { get; set; } public string Name { get; set; } = ""; public string? Honorific { get; set; } public string? Jawatan { get; set; } public string? Kementerian { get; set; } public string? Mobile1 { get; set; } }
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); ShowToast($"✅ {selected.Count} dipilih", false); StateHasChanged(); } }
