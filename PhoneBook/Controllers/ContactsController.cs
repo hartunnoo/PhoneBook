@@ -43,7 +43,7 @@ public class ContactsController : ControllerBase
         }
 
         var (items, total) = await _service.GetPagedAsync(search, sort, allowedMinistries, page, pageSize, ct);
-        return Ok(items);
+        return Ok(new { items, total, page, pageSize, maxPages = (int)Math.Ceiling(total / (double)pageSize) });
     }
 
     [HttpGet("stats")]

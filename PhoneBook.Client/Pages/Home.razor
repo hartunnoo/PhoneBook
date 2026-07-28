@@ -8,7 +8,7 @@
 <div class="search-bar">
     <i class="bi bi-search" style="font-size:1.2rem;color:var(--md-on-surface-variant)"></i>
     <input @bind="search" @bind:event="oninput" @onkeyup="OnSearch" placeholder="Cari direktori..." />
-    <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="OpenChat" title="AI Chat Search"><i class="bi bi-robot"></i> AI</button>
+    <button class="chip" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600" @onclick="OpenChat" title="AI Search"><i class="bi bi-robot"></i> AI</button>
     @if (!string.IsNullOrWhiteSpace(search))
     { <button class="icon-btn" style="width:32px;height:32px;font-size:1rem" @onclick="ClearSearch"><i class="bi bi-x-lg"></i></button> }
     <span class="badge rounded-pill bg-primary ms-1">@(contacts?.Count ?? 0)</span>
@@ -19,61 +19,18 @@
     <button class="icon-btn" @onclick="ToggleCsvImport" title="Import CSV"><i class="bi bi-upload"></i></button>
 </div>
 
-@* ── AI CHAT MODAL ── *@
 @if (showChat)
-{
-    <div class="scrim" @onclick="CloseChat">
-        <div class="dialog" style="max-width:600px;width:95%" @onclick:stopPropagation>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                <h3 style="margin:0"><i class="bi bi-robot" style="color:#6366f1"></i> AI Chat Search</h3>
-                <button class="icon-btn" @onclick="CloseChat"><i class="bi bi-x-lg"></i></button>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
-                <span style="font-size:.7rem;color:var(--md-on-surface-variant);line-height:2">Contoh:</span>
-                @foreach (var tip in chatTips)
-                {
-                    <button class="chip" style="font-size:.72rem;background:var(--md-surface-container-high);border:1px solid var(--md-outline-variant)"
-                            @onclick="() => { chatQuery = tip; _ = DoChatSearch(); }">@tip</button>
-                }
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:16px">
-                <input @bind="chatQuery" @bind:event="oninput" @onkeyup="OnChatKey" placeholder="Cth: Siapa pegawai IT di JPM?"
-                       style="flex:1;padding:10px 14px;border:2px solid var(--md-outline-variant);border-radius:12px;font-size:.9rem;background:var(--md-surface-container)" />
-                <button class="filled-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff"
-                        @onclick="DoChatSearch" disabled="@(chatBusy || string.IsNullOrWhiteSpace(chatQuery))">
-                    @if (chatBusy) { <span>...</span> } else { <i class="bi bi-send-fill"></i> }
-                </button>
-            </div>
-            @if (!string.IsNullOrWhiteSpace(chatError))
-            { <div style="background:#fef2f2;color:#991b1b;padding:10px 14px;border-radius:10px;font-size:.85rem">@chatError</div> }
-            @if (!string.IsNullOrWhiteSpace(chatExplanation))
-            {
-                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;margin-bottom:12px">
-                    <div style="font-weight:600;font-size:.8rem;color:#065f46">🤖 AI: @chatExplanation</div>
-                    <div style="font-size:.75rem;color:#047857;margin-top:4px">📊 @chatTotal dijumpai</div>
-                </div>
-            }
-            @if (chatResults is { Count: > 0 })
-            {
-                <div style="max-height:50vh;overflow-y:auto">
-                @foreach (var c in chatResults)
-                {
-                    <div style="background:var(--md-surface-container);border-radius:10px;padding:10px 14px;margin-bottom:6px;cursor:pointer"
-                         @onclick="() => { CloseChat(); Edit(c.Id); }">
-                        <div style="font-weight:600;font-size:.9rem">
-                            @if (!string.IsNullOrWhiteSpace(c.Honorific)) { <span>@(c.Honorific + " ")</span> }@c.Name
-                        </div>
-                        <div style="font-size:.75rem;color:var(--md-on-surface-variant)">
-                            @if (!string.IsNullOrWhiteSpace(c.Jawatan)) { <span>💼 @c.Jawatan</span> }
-                            @if (!string.IsNullOrWhiteSpace(c.Kementerian)) { <span> · 🏛 @c.Kementerian</span> }
-                        </div>
-                    </div>
-                }
-                </div>
-            }
-        </div>
-    </div>
-}
+{ <div class="scrim" @onclick="CloseChat"><div class="dialog" style="max-width:600px;width:95%" @onclick:stopPropagation>
+<h3 style="margin:0 0 12px"><i class="bi bi-robot" style="color:#6366f1"></i> AI Search <button class="icon-btn" @onclick="CloseChat" style="float:right"><i class="bi bi-x-lg"></i></button></h3>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"><span style="font-size:.7rem;color:var(--md-on-surface-variant);line-height:2">Contoh:</span>
+@foreach(var tip in chatTips){<button class="chip" style="font-size:.72rem;background:var(--md-surface-container-high);border:1px solid var(--md-outline-variant)" @onclick="()=>{chatQuery=tip;_=DoChatSearch();}">@tip</button>}</div>
+<div style="display:flex;gap:8px;margin-bottom:12px"><input @bind="chatQuery" @bind:event="oninput" @onkeyup="OnChatKey" placeholder="Cth: Siapa pegawai IT di JPM?" style="flex:1;padding:10px 14px;border:2px solid var(--md-outline-variant);border-radius:12px;font-size:.9rem;background:var(--md-surface-container)"/>
+<button class="filled-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff" @onclick="DoChatSearch" disabled="@(chatBusy||string.IsNullOrWhiteSpace(chatQuery))">@(chatBusy?"...":"Cari")</button></div>
+@if(!string.IsNullOrWhiteSpace(chatError)){<div style="background:#fef2f2;color:#991b1b;padding:10px 14px;border-radius:10px;font-size:.85rem">@chatError</div>}
+@if(!string.IsNullOrWhiteSpace(chatExplanation)){<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;margin-bottom:12px"><div style="font-weight:600;font-size:.8rem;color:#065f46">@chatExplanation</div><div style="font-size:.75rem;color:#047857;margin-top:4px">📊 @chatTotal dijumpai</div></div>}
+@if(chatResults is {Count:>0}){<div style="max-height:50vh;overflow-y:auto">
+@foreach(var c in chatResults){<div style="background:var(--md-surface-container);border-radius:10px;padding:10px 14px;margin-bottom:6px;cursor:pointer" @onclick="()=>{CloseChat();Edit(c.Id);}"><div style="font-weight:600;font-size:.9rem">@if(!string.IsNullOrWhiteSpace(c.Honorific)){<span>@c.Honorific </span>}@c.Name</div><div style="font-size:.75rem;color:var(--md-on-surface-variant)">@if(!string.IsNullOrWhiteSpace(c.Jawatan)){<span>💼 @c.Jawatan</span>}@if(!string.IsNullOrWhiteSpace(c.Kementerian)){<span> · 🏛 @c.Kementerian</span>}</div></div>}</div>}
+</div></div>}
 
 @* ── STATS BAR ── *@
 @if (stats is not null)
@@ -335,32 +292,26 @@ else
     void FilterTag(string tag) { filter = $"tag:{tag}"; search = ""; _ = Load(); }
     void OnSearch(KeyboardEventArgs e) { debounce?.Dispose(); debounce = new Timer(async _ => { await InvokeAsync(Load); }, null, 250, Timeout.Infinite); }
 
-    bool showChat; bool chatBusy; string chatQuery = ""; string? chatExplanation; string? chatError; int chatTotal;
+    bool showChat; bool chatBusy; string chatQuery=""; string? chatExplanation; string? chatError; int chatTotal;
     List<ChatContact>? chatResults;
-    static readonly string[] chatTips = { "Siapa pegawai IT di JPM?", "Senarai Menteri", "Cari Dato", "Pegawai di Kesihatan", "Ketua Pegawai Teknologi" };
+    static readonly string[] chatTips = {"Siapa pegawai IT di JPM?","Cari Menteri","Dato di Kesihatan","Pegawai Tadbir","Senarai VVIP"};
 
-    void OpenChat() { showChat = true; chatQuery = ""; chatError = null; chatExplanation = null; chatResults = null; StateHasChanged(); }
-    void CloseChat() { showChat = false; StateHasChanged(); }
-
-    async Task OnChatKey(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(chatQuery) && !chatBusy) await DoChatSearch(); }
-
-    async Task DoChatSearch()
-    {
-        if (string.IsNullOrWhiteSpace(chatQuery) || chatBusy) return;
-        chatBusy = true; chatError = null; chatExplanation = null; chatResults = null; StateHasChanged();
-        try
-        {
-            var result = await Http.GetFromJsonAsync<ChatResult>($"api/ai/chat?q={Uri.EscapeDataString(chatQuery)}");
-            if (result is { Contacts.Count: > 0 }) { chatExplanation = result.Explanation; chatTotal = result.Total; chatResults = result.Contacts; }
-            else if (result is not null) { chatExplanation = result.Explanation; chatTotal = 0; chatError = "Tiada padanan. Cuba pertanyaan lain."; }
-            else chatError = "AI tidak tersedia.";
-        }
-        catch { chatError = "Ralat sambungan. Cuba lagi."; }
-        finally { chatBusy = false; StateHasChanged(); }
+    void OpenChat(){showChat=true;chatQuery="";chatError=null;chatExplanation=null;chatResults=null;StateHasChanged();}
+    void CloseChat(){showChat=false;StateHasChanged();}
+    async Task OnChatKey(KeyboardEventArgs e){if(e.Key=="Enter"&&!string.IsNullOrWhiteSpace(chatQuery)&&!chatBusy)await DoChatSearch();}
+    async Task DoChatSearch(){
+        if(string.IsNullOrWhiteSpace(chatQuery)||chatBusy)return;
+        chatBusy=true;chatError=null;chatExplanation=null;chatResults=null;StateHasChanged();
+        try{
+            var r=await Http.GetFromJsonAsync<ChatResult>($"api/ai/chat?q={Uri.EscapeDataString(chatQuery)}");
+            if(r is{Contacts.Count:>0}){chatExplanation=r.Explanation;chatTotal=r.Total;chatResults=r.Contacts;}
+            else if(r is not null){chatExplanation=r.Explanation;chatTotal=0;chatError="Tiada padanan.";}
+            else chatError="AI tidak tersedia.";
+        }catch{chatError="Ralat.";}
+        finally{chatBusy=false;StateHasChanged();}
     }
-
-    class ChatResult { public string Explanation { get; set; } = ""; public int Total { get; set; } public bool IsGeneral { get; set; } public List<ChatContact> Contacts { get; set; } = new(); }
-    class ChatContact { public int Id { get; set; } public string Name { get; set; } = ""; public string? Honorific { get; set; } public string? Jawatan { get; set; } public string? Kementerian { get; set; } public string? Mobile1 { get; set; } }
+    class ChatResult{public string Explanation{get;set;}="";public int Total{get;set;}public List<ChatContact> Contacts{get;set;}=new();}
+    class ChatContact{public int Id{get;set;}public string Name{get;set;}="";public string? Honorific{get;set;}public string? Jawatan{get;set;}public string? Kementerian{get;set;}public string? Department{get;set;}public string? Mobile1{get;set;}public string? Phone1{get;set;}public string? Email1{get;set;}public string? Tags{get;set;}public bool IsFavorite{get;set;}}
 
     void ToggleSelect(ContactDto c) { if (selected.Contains(c.Id)) selected.Remove(c.Id); else selected.Add(c.Id); SaveState(); StateHasChanged(); }
     void SelectAll() { if (contacts is not null) { selected = contacts.Select(c => c.Id).ToHashSet(); SaveState(); ShowToast($"✅ {selected.Count} dipilih", false); StateHasChanged(); } }
@@ -379,7 +330,7 @@ else
         t.AppendLine(Sep);
         foreach (var c in list) AppendSummary(t, c);
         AppendFooter(t);
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
     async Task BulkDelete()
@@ -389,10 +340,10 @@ else
         catch { ShowToast("❌ Gagal", true); }
     }
 
-    async Task ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
-    async Task ExportWAContact(ContactDto c) => OpenWA(c);
+    void ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
+    void ExportWAContact(ContactDto c) => OpenWA(c);
 
-    async Task ExportWAAll()
+    void ExportWAAll()
     {
         if (contacts is null || !contacts.Any()) return;
         var t = new System.Text.StringBuilder();
@@ -401,10 +352,10 @@ else
         t.AppendLine(Sep);
         foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
         AppendFooter(t);
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
-    async Task OpenWA(ContactDto c)
+    void OpenWA(ContactDto c)
     {
         var t = new System.Text.StringBuilder();
         var g = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
@@ -447,7 +398,7 @@ else
         }
         if (!string.IsNullOrWhiteSpace(c.Notes)) t.AppendLine($"\n📝 _{c.Notes}_");
         AppendFooter(t);
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
+        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: false);
     }
 
     void AppendSummary(System.Text.StringBuilder t, ContactDto c)
@@ -467,10 +418,10 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("*Direktori AI*");
+        t.AppendLine("📡 *Direktori AI* · SSCU, ITD, Istana Nurul Iman");
     }
 
-    async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: true); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
+    async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: false); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
     static string WhatsAppUrl(string? n) => string.IsNullOrWhiteSpace(n) ? "#" : $"https://wa.me/{new string(n.Where(c => char.IsDigit(c) || c == '+').ToArray())}";
     void Edit(int id) { SaveState(); Nav.NavigateTo(Routes.Edit(id)); }
     void ConfirmDelete(ContactDto c) => deleteTarget = c; void CancelDelete() => deleteTarget = null;

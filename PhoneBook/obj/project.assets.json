@@ -3009,7 +3009,7 @@
     ]
   },
   "packageFolders": {
-    "/home/ubuntu/.nuget/packages/": {}
+    "/root/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
@@ -3017,11 +3017,11 @@
       "projectUniqueName": "/home/ubuntu/phonebook/PhoneBook/PhoneBook.csproj",
       "projectName": "PhoneBook",
       "projectPath": "/home/ubuntu/phonebook/PhoneBook/PhoneBook.csproj",
-      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "packagesPath": "/root/.nuget/packages/",
       "outputPath": "/home/ubuntu/phonebook/PhoneBook/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
+        "/root/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
