@@ -61,7 +61,7 @@
                     <div style="background:var(--md-surface-container);border-radius:10px;padding:10px 14px;margin-bottom:6px;cursor:pointer"
                          @onclick="() => { CloseChat(); Edit(c.Id); }">
                         <div style="font-weight:600;font-size:.9rem">
-                            @if (!string.IsNullOrWhiteSpace(c.Honorific)) { <span>@c.Honorific </span> }@c.Name
+                            @if (!string.IsNullOrWhiteSpace(c.Honorific)) { <span>@(c.Honorific + " ")</span> }@c.Name
                         </div>
                         <div style="font-size:.75rem;color:var(--md-on-surface-variant)">
                             @if (!string.IsNullOrWhiteSpace(c.Jawatan)) { <span>💼 @c.Jawatan</span> }
@@ -379,7 +379,7 @@ else
         t.AppendLine(Sep);
         foreach (var c in list) AppendSummary(t, c);
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
     }
 
     async Task BulkDelete()
@@ -389,10 +389,10 @@ else
         catch { ShowToast("❌ Gagal", true); }
     }
 
-    void ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
-    void ExportWAContact(ContactDto c) => OpenWA(c);
+    async Task ExportWAFirst() { if (contacts is not null && contacts.Any()) OpenWA(contacts.OrderBy(c => c.Name).First()); }
+    async Task ExportWAContact(ContactDto c) => OpenWA(c);
 
-    void ExportWAAll()
+    async Task ExportWAAll()
     {
         if (contacts is null || !contacts.Any()) return;
         var t = new System.Text.StringBuilder();
@@ -401,10 +401,10 @@ else
         t.AppendLine(Sep);
         foreach (var c in contacts.OrderBy(c => c.Name)) AppendSummary(t, c);
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
     }
 
-    void OpenWA(ContactDto c)
+    async Task OpenWA(ContactDto c)
     {
         var t = new System.Text.StringBuilder();
         var g = c.Gender == "female" ? "👩‍💼" : "👨‍💼";
@@ -447,7 +447,7 @@ else
         }
         if (!string.IsNullOrWhiteSpace(c.Notes)) t.AppendLine($"\n📝 _{c.Notes}_");
         AppendFooter(t);
-        Nav.NavigateTo("https://wa.me/?text=" + Uri.EscapeDataString(t.ToString().TrimEnd()), forceLoad: true);
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", t.ToString().TrimEnd()); ShowToast("📋 Disalin! Membuka WhatsApp...", false); await Task.Delay(500); var encoded = await JS.InvokeAsync<string>("encodeURIComponent", t.ToString().TrimEnd()); Nav.NavigateTo("https://wa.me/?text=" + encoded, forceLoad: true);
     }
 
     void AppendSummary(System.Text.StringBuilder t, ContactDto c)
@@ -467,7 +467,7 @@ else
         t.AppendLine(Sep);
         t.AppendLine($"👤 _{username ?? "Unknown"}_");
         t.AppendLine($"📅 {DateTime.Now:dd MMM yyyy, HH:mm}");
-        t.AppendLine("📡 *Direktori AI* · SSCU, ITD, Istana Nurul Iman");
+        t.AppendLine("*Direktori AI*");
     }
 
     async Task ExportAll() { try { Nav.NavigateTo(ApiBase + "/export", forceLoad: true); ShowToast("✅ CSV dimuat turun", false); } catch { ShowToast("❌ Gagal eksport", true); } }
