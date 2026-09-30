@@ -32,14 +32,11 @@ public class ContactService
         string? search, string? sort, List<string>? allowedMinistries,
         int page, int pageSize, CancellationToken ct = default)
     {
-        var cacheKey = $"{CacheKeys.AllContacts}:paged:{search}:{sort}:{page}:{pageSize}";
-        if (!_cache.TryGetValue(cacheKey, out (List<ContactResponseDto> Items, int TotalCount) cached))
-        {
-            var (items, total) = await _uow.Contacts.GetPagedAsync(search, sort, allowedMinistries, page, pageSize, ct);
-            cached = (items.Select(Map).ToList(), total);
-            _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
-        }
-        return cached;
+        // Deliberately uncached. The previous key omitted allowedMinistries (so one
+        // user's filtered list was served to everyone) and was never invalidated by
+        // writes, so created/deleted contacts stayed invisible until expiry.
+        var (items, total) = await _uow.Contacts.GetPagedAsync(search, sort, allowedMinistries, page, pageSize, ct);
+        return (items.Select(Map).ToList(), total);
     }
 
     public async Task<ContactStats> GetStatsAsync(List<string>? allowedMinistries, CancellationToken ct = default)
@@ -56,14 +53,10 @@ public class ContactService
 
     public async Task<ContactResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
-        var cacheKey = CacheKeys.ContactById(id);
-        if (!_cache.TryGetValue(cacheKey, out Contact? cached))
-        {
-            cached = await _uow.Contacts.GetByIdAsync(id, ct);
-            if (cached is not null)
-                _cache.Set(cacheKey, cached, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15)));
-        }
-        return cached is { } c ? Map(c) : null;
+        // Deliberately uncached: this entry was never invalidated by UpdateAsync,
+        // so an edited contact kept rendering its old values.
+        var c = await _uow.Contacts.GetByIdAsync(id, ct);
+        return c is { } contact ? Map(contact) : null;
     }
 
     public async Task<List<ContactResponseDto>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken ct = default)
